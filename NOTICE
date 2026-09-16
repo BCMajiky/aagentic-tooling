@@ -1,0 +1,43 @@
+aagentic-tooling
+Copyright 2026 Decentralized Cooperation Foundation.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+--------------------------------------------------------------------------------
+Upstream sources
+--------------------------------------------------------------------------------
+
+Portions of this repository are derived from the following Apache-2.0 licensed
+works. Each is pinned to the commit recorded here and in docs/PINS.md. Files
+derived from them carry an SPDX header and a comment naming the source file and
+commit.
+
+Agoric SDK — https://github.com/Agoric/agoric-sdk
+  Copyright 2018-2026 Agoric Systems Operating Company.
+  Licensed under the Apache License, Version 2.0.
+  Referenced at commit a2a3de9 (master, 2026-09-11) and at commit cc25a29
+  (tag agoric-upgrade-23a, 2026-07-27).
+  Used for: examples/send-anywhere (contract and flows), orchestration exo
+  interface names, Zoe type guard vocabulary, and test-harness conventions.
+
+Agoric dapp-offer-up — https://github.com/Agoric/dapp-offer-up
+  Copyright 2023-2025 Agoric Systems Operating Company.
+  Licensed under the Apache License, Version 2.0.
+  Referenced at commit 4ea27c5 (main, 2025-04-05).
+  Used for: examples/offer-up.
+
+Agoric documentation — https://github.com/Agoric/documentation
+  Copyright 2019-2026 Agoric Systems Operating Company.
+  Licensed under the Apache License, Version 2.0.
+  Referenced at commit d89bd22 (main, 2026-04-28).
+  Used for: prose and terminology in docs/.
+
+--------------------------------------------------------------------------------
+Borrowed designs
+--------------------------------------------------------------------------------
+
+The workflow trace event format (shared format A) borrows the structure of
+OpenTelemetry spans — trace id, span id, parent span id, start and end times,
+attributes, status. The OpenTelemetry specification is published by the Cloud
+Native Computing Foundation under the Apache License, Version 2.0.
+No OpenTelemetry code is included.
