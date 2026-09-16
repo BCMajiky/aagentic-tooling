@@ -50,6 +50,11 @@ export default tseslint.config(
       // powers object, and nothing else should be logging.
       'no-console': 'error',
 
+      // `continue` is how a token loop stays flat. The alternative is nesting
+      // the rest of each iteration in an else, which reads worse in exactly the
+      // place — argument and config parsing — where clarity matters most.
+      'no-continue': 'off',
+
       // TypeScript already reports both of these, and reports them better: the
       // base rules do not know about `node:` globals or about type-position
       // parameter names. Keep the typed versions only.

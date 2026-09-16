@@ -3,8 +3,8 @@
 Developer tooling for the Agoric L1, built to compound: every later tool is one
 workspace package plus one `aat` subcommand.
 
-**Status: Stage 0, day 1.** The monorepo, toolchain and CI exist. The CLI shell
-lands on day 2; the two shared formats on days 3 and 4.
+**Status: Stage 0, day 2.** The monorepo, toolchain, CI and the CLI shell exist.
+The two shared formats land on days 3 and 4.
 
 ## No telemetry
 
@@ -24,6 +24,67 @@ corepack enable
 yarn install
 yarn ci        # lint, typecheck, test
 ```
+
+## Using `aat`
+
+```sh
+yarn build
+node packages/cli/dist/src/main.js --help
+```
+
+To put it on your PATH while developing, `cd packages/cli && npm link`; `npm
+unlink -g @dcfoundation/aat-cli` removes it again. Nothing is published to npm
+during Stage 0.
+
+```
+aat --version
+aat --help
+aat schemas list                     # the shared formats this build knows
+aat config show                      # resolved config, and where each value came from
+aat config keys                      # what you can set
+aat doctor --help                    # stub; the checks arrive in Release 2
+```
+
+Every subcommand takes `--json`:
+
+```console
+$ aat schemas list --json
+{"ok":true,"code":0,"data":{"formats":[]}}
+
+$ aat bogus --json; echo "exit $?"
+{"ok":false,"code":2,"findings":[{"code":"USAGE_UNKNOWN_SUBCOMMAND","message":"unknown subcommand 'bogus'; known subcommands are config, doctor, schemas"}],"hint":"Run `aat --help` for the list of subcommands."}
+exit 2
+```
+
+One line of JSON per invocation, so output pipes into `jq` and appends to a log.
+
+### Configuration
+
+Layered, lowest precedence first:
+
+| Layer | Where |
+|---|---|
+| defaults | built in, plus the endpoints of the selected network |
+| user file | `~/.aat/config.json` |
+| project file | `./.aat.json`, or the path given to `--config` |
+| environment | `AAT_NETWORK`, `AAT_RPC`, `AAT_API`, `AAT_VSTORAGE`, `AAT_CHAIN_ID`, `AAT_WALLET_ADDRESS`, `AAT_JSON` |
+| flags | `--network`, `--rpc`, `--api`, `--vstorage`, `--chain-id`, `--wallet-address`, `--json` |
+
+`aat config show` prints the resolved value of every key next to the layer it
+came from, which is the quickest answer to "why is it pointing at that".
+
+Selecting a network seeds `rpc`, `api`, `vstorage` and `chainId` before any
+explicit endpoint is applied. So `--network mainnet` overrides an `rpc` set in a
+file, while `--network mainnet --rpc http://0.0.0.0:26657` keeps the explicit
+one.
+
+An unknown key in a config file is an error, not a warning. A silently ignored
+`rpcAddr` is how someone loses an afternoon.
+
+> The `chainId` for `devnet` and `emerynet` in `networks.json` is last-known,
+> not durable: those chains are redeployed under new ids. Each entry carries its
+> `networkConfig` URL, and anything that actually talks to a chain must fetch
+> and verify rather than trusting the file.
 
 ## Layout
 
