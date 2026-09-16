@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: Apache-2.0
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # D6: corepack first. setup-node's `cache: yarn` shells out to yarn to
+      # find the cache folder, so yarn has to exist before it runs. This is the
+      # ordering that bit the Servandum CI.
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      # setup-node puts a different Node on PATH than the one the first
+      # `corepack enable` shimmed, so enable again for the Node we will use.
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn lint
+
+  types:
+    name: types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn typecheck
+
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # D6: 22 is primary, 24 is in the matrix. The `engines` range is
+        # ^22.11 || ^24.14.
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v7
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn test
