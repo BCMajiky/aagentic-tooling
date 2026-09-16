@@ -165,26 +165,29 @@ More than one line means a pin is missing from `resolutions`.
 | ava | `6.4.1` | matches agoric-sdk u23 |
 | `@types/node` | `22.19.21` | `22.20.x` is quarantined on npm as of 2026-09-16 |
 
-### Departure from the brief: the engines justification
+### D6 as corrected, 2026-09-16
 
-D6 says "the SDK's engines field at u23 is `^22.11 || ^24.14`". It is not. At
-cc25a29 the agoric-sdk root `package.json` says:
+D6 originally said "the SDK's engines field at u23 is `^22.11 || ^24.14`". It is
+not. At cc25a29 the agoric-sdk root `package.json` says:
 
 ```json
 "engines": { "node": "^20.9 || ^22.11" }
 ```
 
-Node 24 is not a version the u23 SDK claims to support. The brief's *decision*
-is still what this repo implements — `engines` is `^22.11 || ^24.14` and the
-test matrix runs 22 and 24 — because the brief wins on conflict and because a
-tool that a developer installs globally should work on current Node. But the
-stated reason for it is wrong, and the risk it was meant to rule out is real:
-when `@agoric/*` packages are installed on day 4, the Node 24 leg of the matrix
-is the one that may break first. The `resolutions` table above is what keeps
-that honest, since it holds the SES line the SDK was tested against.
+That figure had been read from the master clone. The amendment
+(`docs/context/claude_plan-amendments.md`, day 1 findings) settles it:
+
+- **Node 22 is the required leg.** `lint`, `types` and `test (node 22)` are the
+  checks `main` gates on.
+- **Node 24 runs `continue-on-error`.** It is early warning for the day the SDK
+  moves, not a gate. When `@agoric/*` is installed on day 4 this is the leg
+  most likely to break first, and it should not block a merge when it does.
+- **Node 20 is excluded** despite the SDK allowing it: end of life April 2026.
+
+`engines` stays `^22.11 || ^24.14`, per the brief and CLAUDE.md.
 
 Verified on day 1: the full test suite passes under SES on Node 22.23.2 and
-Node 24.19.0 locally.
+Node 24.19.0 locally, and both legs were green in Actions.
 
 ## npm scope
 

@@ -1,4 +1,12 @@
-## 2026-09-16, Stage 0 decisions (append to claude_plan-amendments.md)
+# Plan amendments
+
+Amendments to the plan of record (`stage0-plan.md`, extracted from
+"Stage 0 and Release 1, Detailed Plan for Review", 14 September 2026).
+
+Newest last. Where an amendment conflicts with the plan, the amendment wins;
+where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
+
+## 2026-09-16, Stage 0 decisions
 
 **§1.5 manifest subjects, decided.** Schema v0 carries `facets.<name>.guard` with values `interface` and `none`. Offer Up stays as the first subject with `guard: none`. Second subject is the SDK's `send-anywhere` at agoric-upgrade-23a, not orca. dapp-orchestration-basics is out of Stage 0.
 
@@ -9,3 +17,11 @@
 **§1.7 and §1.8 remote and CI.** Private GitHub remote created day 1, CI verified in Actions, repo flipped to public and Pages enabled when §1.8 is met.
 
 **Licence.** Apache-2.0 with a NOTICE file listing upstream sources and commits.
+
+## 2026-09-16, day 1 findings
+
+**D6 corrected.** SDK engines at agoric-upgrade-23a is ^20.9 || ^22.11, not ^22.11 || ^24.14 (that figure was read from master). Node 22 is the required CI leg; Node 24 runs as continue-on-error. Node 20 excluded, end of life April 2026.
+
+**D1 Endo pins.** @endo/ses-ava 1.3.2 and @endo/bundle-source 4.1.2, forced by the u23 dependency tree. Top-level pins were insufficient; a resolutions block copied from upstream/agoric-sdk-u23/yarn.lock is required. Symptom of getting this wrong: TypeError: Cannot redefine property: sliceToImmutable. Candidate Release 1 catalogue entry.
+
+**D4.** Branch protection requires GitHub Pro on private repos. Deferred to the public flip or DCF transfer. Squash-only merges applied.

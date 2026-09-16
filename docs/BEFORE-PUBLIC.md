@@ -62,7 +62,7 @@ gh api -X PUT repos/DCFoundation/aagentic-tooling/branches/main/protection \
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["lint", "types", "test (node 22)", "test (node 24)"]
+    "contexts": ["lint", "types", "test (node 22)"]
   },
   "enforce_admins": false,
   "required_pull_request_reviews": null,
@@ -71,11 +71,15 @@ gh api -X PUT repos/DCFoundation/aagentic-tooling/branches/main/protection \
 JSON
 ```
 
-The four context names are the CI jobs' `name:` fields. If a job is renamed or
-the Node matrix changes, this list has to change with it or `main` will block
-on a check that never reports.
+Three contexts, not four. `test (node 24)` is deliberately absent: it runs
+`continue-on-error`, so GitHub reports it as successful even when it fails, and
+requiring it would gate on a check that can never go red.
 
-- [ ] `main` requires those four CI contexts.
+The context names are the CI jobs' `name:` fields. If a job is renamed or the
+Node matrix changes, this list has to change with it or `main` will block on a
+check that never reports.
+
+- [ ] `main` requires those three CI contexts.
 - [ ] Confirm the settings actually took, by reading them back rather than
       trusting the API's success response.
 

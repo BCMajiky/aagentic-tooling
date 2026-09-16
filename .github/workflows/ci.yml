@@ -51,11 +51,14 @@ jobs:
   test:
     name: test (node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    # D6 as corrected on 2026-09-16: agoric-sdk at agoric-upgrade-23a declares
+    # engines ^20.9 || ^22.11, so Node 22 is the leg that has to be green and
+    # the only one `main` requires. Node 24 runs for early warning and is
+    # allowed to fail; Node 20 is excluded, end of life April 2026.
+    continue-on-error: ${{ matrix.node == '24' }}
     strategy:
       fail-fast: false
       matrix:
-        # D6: 22 is primary, 24 is in the matrix. The `engines` range is
-        # ^22.11 || ^24.14.
         node: ['22', '24']
     steps:
       - uses: actions/checkout@v7
