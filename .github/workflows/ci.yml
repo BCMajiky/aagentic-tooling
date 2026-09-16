@@ -48,6 +48,24 @@ jobs:
       - run: yarn install --immutable
       - run: yarn typecheck
 
+  smoke:
+    name: ses-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      # Bundles every examples/ contract with @endo/bundle-source and evaluates
+      # it under lockdown, endowed exactly as SwingSet endows a vat. This is the
+      # only job that runs contract code the way a chain does, and it is the
+      # seed of Preflight's test suite (plan §1.6).
+      - run: yarn smoke
+
   test:
     name: test (node ${{ matrix.node }})
     runs-on: ubuntu-latest
