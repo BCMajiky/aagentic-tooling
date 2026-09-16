@@ -33,3 +33,10 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 ## 2026-09-16, day 3 findings
 
 **Format A.** Sixteen event kinds as planned. Departures from OpenTelemetry: RFC 3339 times, agoric.block.height as ordering key, self-describing schema field. Nat/bigint values are decimal strings. Upstream port/channel spellings vary by layer (portId, portID, source_port); normalised to agoric.port.id and agoric.channel.id. Exo facet identity is the facet key, not the M.interface label, because labels collide upstream. The agoric.* namespace is closed; unregistered names are errors. Added agoric.vat.incarnation so restart and upgrade can be told apart. Validator is hand-written with a schema-drift test; the JSON Schema stays normative.
+
+## 2026-09-16, day 4 findings
+
+**Offer Up at u23.** @agoric/zoe/exported.js no longer exists (hard bundle failure, not a deprecation); types now import from @agoric/zoe and @agoric/ertp. The atomicRearrange helper is deprecated in favour of zcf.atomicRearrange; left as-is in the example, recorded as a Release 1 idiom. customTermsShape is read from meta only. Smoke harness endows exactly what SwingSet endows (console, assert, TextEncoder, TextDecoder and so on), nothing more.
+
+**Format B.** 24-kind closed pattern vocabulary taken from the two subjects and zoe typeGuards; three structural kinds added: literal, exactRecord, ref. ref carries values that only exist at contract start (terms, brands). Offer Up's manifest has an empty facets section and a complete invitations section, which confirms D2: the offer surface is what clients need. bundleId is required and nullable; traces absent means not instrumented, traces: [] means instrumented and silent. examples/ is excluded from lint; the smoke job is its check.
+
