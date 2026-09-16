@@ -6,6 +6,14 @@ because Pages needs a public repo on the current plan.
 
 Work through this first. Nothing here is optional.
 
+**Status as of 2026-09-16 (end of day 5).** Everything in Stage 0 except the
+flip itself is done. Two things block the flip, both below and neither of them
+code: `docs/context/` has to leave the git history, and the repository has to
+move to the DCFoundation org. The Pages deploy job is written, gated on
+`github.event.repository.private == false`, and its build half already runs on
+every push — so the moment those two are cleared, the site deploys with no
+further work.
+
 ## 1. Move the internal planning docs out
 
 `docs/context/` is internal working material, not documentation. It contains

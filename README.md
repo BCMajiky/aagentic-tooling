@@ -3,8 +3,14 @@
 Developer tooling for the Agoric L1, built to compound: every later tool is one
 workspace package plus one `aat` subcommand.
 
-**Status: Stage 0, day 2.** The monorepo, toolchain, CI and the CLI shell exist.
-The two shared formats land on days 3 and 4.
+**Status: Stage 0 complete bar the public flip.** Monorepo, toolchain, CI, the
+`aat` CLI shell, both shared formats with hand-authored manifests for two real
+contracts, and a SES smoke job that bundles those contracts and runs them under
+`lockdown()`.
+
+Two things are outstanding and neither is code: the internal planning material
+in `docs/context/` has to leave the git history, and the repository has to move
+to the DCFoundation org. See [docs/BEFORE-PUBLIC.md](docs/BEFORE-PUBLIC.md).
 
 ## No telemetry
 
@@ -45,11 +51,17 @@ aat config keys                      # what you can set
 aat doctor --help                    # stub; the checks arrive in Release 2
 ```
 
+```sh
+yarn smoke                           # bundle examples/ and run them under SES
+yarn docs:build                      # build the docs site into docs/_site
+```
+
 Every subcommand takes `--json`:
 
 ```console
-$ aat schemas list --json
-{"ok":true,"code":0,"data":{"formats":[]}}
+$ aat schemas list
+trace-event        v0  Workflow trace events: an OpenTelemetry span with an Agoric attribute set.
+contract-manifest  v0  What a contract accepts and publishes, projected from its guards and proposal shapes.
 
 $ aat bogus --json; echo "exit $?"
 {"ok":false,"code":2,"findings":[{"code":"USAGE_UNKNOWN_SUBCOMMAND","message":"unknown subcommand 'bogus'; known subcommands are config, doctor, schemas"}],"hint":"Run `aat --help` for the list of subcommands."}
@@ -94,7 +106,18 @@ packages/core/      shared helpers: config, output shapes, errors and hints
 packages/schemas/   the shared formats: JSON Schema, TS types, validators, fixtures
 docs/               specs and reference, published via GitHub Pages when public
 examples/           minimal contracts used by tests, snippets and the SES smoke job
+scripts/            entrypoints: the SES smoke job, the docs build, AGENTS.md
 ```
+
+## Documentation
+
+| | |
+|---|---|
+| [Format A: workflow trace events](docs/formats/trace-event.v0.md) | what happened, in what order, on which chain |
+| [Format B: contract interface manifests](docs/formats/contract-manifest.v0.md) | what a contract accepts and publishes |
+| [AGENTS.md](AGENTS.md) | instructions for people and coding agents |
+| [docs/PINS.md](docs/PINS.md) | every pin, and why |
+| [The format design note](docs/notes/format-design-note-2026-09-16.md) | the case for both formats, for a reader outside this repo |
 
 ## Conventions
 
