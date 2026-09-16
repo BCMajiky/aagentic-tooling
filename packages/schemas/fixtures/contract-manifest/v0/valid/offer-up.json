@@ -30,27 +30,46 @@
         "give": {
           "Price": {
             "kind": "gte",
-            "of": { "kind": "ref", "name": "tradePrice" }
+            "of": {
+              "kind": "ref",
+              "name": "tradePrice"
+            }
           }
         },
         "want": {
           "Items": {
             "kind": "exactRecord",
             "entries": {
-              "brand": { "kind": "ref", "name": "itemBrand" },
-              "value": { "kind": "bag" }
+              "brand": {
+                "kind": "ref",
+                "name": "itemBrand"
+              },
+              "value": {
+                "kind": "bag"
+              }
             }
           }
         },
-        "exit": { "kind": "any" },
+        "exit": {
+          "kind": "any"
+        },
         "open": false
       }
     }
   },
   "published": [],
   "terms": {
-    "tradePrice": { "kind": "ref", "name": "AmountShape", "module": "@agoric/ertp" },
-    "maxItems": { "kind": "opt", "of": { "kind": "bigint" } }
+    "tradePrice": {
+      "kind": "ref",
+      "name": "AmountShape",
+      "module": "@agoric/ertp"
+    },
+    "maxItems": {
+      "kind": "opt",
+      "of": {
+        "kind": "bigint"
+      }
+    }
   },
   "privateArgs": {},
   "notes": [
@@ -58,7 +77,9 @@
     "The public facet is a bare Far('Items Public Facet', ...) with no M.interface guard, so facets.public.guard is 'none' and its one method is recorded by name only. What is lost: the manifest cannot say that makeTradeInvitation takes no arguments and returns a Promise<Invitation>, because the contract never declares it. The summary says so in prose instead, which a generator must not treat as a signature.",
     "Everything in the invitations section IS derived, from the proposalShape passed as the fourth argument to zcf.makeInvitation. That is why an unguarded facet is still worth a manifest: the offer surface, which is what a client actually needs, is fully described even when the method surface is not.",
     "give.Price is M.gte(tradePrice), so a buyer may overpay but not underpay. The contract transfers exactly tradePrice to its proceeds seat and the excess stays with the buyer.",
+    "proposal.open is false, which is the format B way of saying the shape is closed: an offer may use Price in give and Items in want and no other keyword. See docs/formats/contract-manifest.v0.md, the proposalShape section, for the definition.",
     "want.Items is an exact record over the Item brand with a CopyBag value, which is how a semi-fungible amount such as '3 potions and 1 map' is expressed.",
+    "Price is transferred to an internal proceeds seat (zcf.makeEmptySeatKit().zcfSeat, held in a local const) and nothing ever withdraws from it. There is no creator facet: start returns { publicFacet } only, and the public facet's single method is makeTradeInvitation. So sale proceeds accumulate in that seat and are unreachable for the contract's lifetime. Nor can a later upgrade recover them: the contract uses start rather than prepare and holds no baggage, so the seat does not survive to a new incarnation. This is a property of the tutorial contract, not of this manifest, and it is recorded here because a reader deciding whether to deploy Offer Up as written should know it.",
     "maxItems is an optional term defaulting to 3n. The limit is enforced inside the offer handler, not by the proposal shape, so a proposal wanting more than maxItems matches the shape and then fails the offer.",
     "terms.tradePrice and itemBrand are named references rather than inline patterns: tradePrice is a term of this contract and itemBrand is created at start time by zcf.makeZCFMint('Item', AssetKind.COPY_BAG). Neither has a serialisable value at manifest-authoring time.",
     "published is empty. The contract writes nothing to vstorage. The boardAux entry under published.boardAux.<boardId> is written by offer-up-proposal.js, the core-eval deploy script, which is not part of the contract bundle.",
