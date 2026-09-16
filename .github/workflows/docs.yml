@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Always runs, on every branch and PR, private or public. A docs build that
+  # only runs at deploy time is a docs build that breaks unnoticed.
+  build:
+    name: docs-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn docs:build
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/_site
+
+  # D4: Pages needs a public repo on the current plan, so the deploy is gated.
+  # While the repo is private this job is skipped and `build` still proves the
+  # site compiles. Do not remove the gate to "test the deploy" — it will fail,
+  # and the point of writing it now is that it is ready rather than urgent.
+  #
+  # Before this can run for the first time, see docs/BEFORE-PUBLIC.md: the
+  # internal material in docs/context/ has to leave the history and the repo
+  # has to move to the DCFoundation org.
+  deploy:
+    name: docs-deploy
+    needs: build
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      github.event.repository.private == false
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

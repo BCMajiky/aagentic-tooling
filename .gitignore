@@ -3,6 +3,7 @@
 
 # build output
 dist/
+docs/_site/
 *.tsbuildinfo
 
 # dependencies
