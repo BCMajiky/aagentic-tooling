@@ -25,3 +25,7 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 **D1 Endo pins.** @endo/ses-ava 1.3.2 and @endo/bundle-source 4.1.2, forced by the u23 dependency tree. Top-level pins were insufficient; a resolutions block copied from upstream/agoric-sdk-u23/yarn.lock is required. Symptom of getting this wrong: TypeError: Cannot redefine property: sliceToImmutable. Candidate Release 1 catalogue entry.
 
 **D4.** Branch protection requires GitHub Pro on private repos. Deferred to the public flip or DCF transfer. Squash-only merges applied.
+
+## 2026-09-16, day 2 findings
+
+**Config.** Added `aat config show` (resolved value plus source layer per key). Network resolution seeds endpoints before file and flag values, so `--network` overrides a file's endpoints and explicit flags override both. Unknown config keys and malformed env values are errors, not ignored. Testnet chain ids in networks.json are last-known and flagged; each entry carries its networkConfig URL for live verification. Mainnet entry carries no pay denom by design.
