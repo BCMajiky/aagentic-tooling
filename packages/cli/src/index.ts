@@ -7,4 +7,7 @@ export { makeRegistry } from './registry.js';
 export type { CommandContext, Registry, Subcommand } from './registry.js';
 
 export { booleanFlag, parseArgs, stringFlag } from './args.js';
+
+export { generatedSections, renderInto } from './agents-doc.js';
+export type { GeneratedSection } from './agents-doc.js';
 export type { FlagKind, FlagSpec, FlagSpecs, ParsedArgs } from './args.js';
