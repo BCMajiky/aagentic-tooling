@@ -199,10 +199,32 @@ which is the argument for having insisted on two subjects:
 ## Reviewer test
 
 STAGE0-BRIEF.md: *someone who has not read the contract describes what it does
-from the manifest alone and gets it right.* That review is scheduled for day 5
-and must be done by someone other than the author. It is the real acceptance
-test for this format; the validator only checks that a manifest is well formed,
-not that it is true or useful.
+from the manifest alone and gets it right.* It is the real acceptance test for
+this format; the validator only checks that a manifest is well formed, not that
+it is true or useful.
+
+**Offer Up: done, by someone other than the author. It passed.** Two changes
+came out of it, both now in the manifest's `notes`:
+
+1. `"open": false` was unexplained in the file. It now says what it means and
+   points here.
+2. Offer Up transfers `Price` to an internal proceeds seat that nothing ever
+   withdraws from, so proceeds are stranded for the contract's lifetime.
+
+**Where finding 2 came from matters, and it was not the manifest.** The reviewer
+found it by reading the contract source. The manifest did not carry it, and
+could not have: the format has no way to say "value moves here and nothing takes
+it out". Read the manifest alone and you learn that a buyer gives `Price` and
+gets `Items`, which is true and is not the whole story.
+
+So the passing grade is on the stated test — describing what the contract does —
+and not on the stronger claim that a manifest substitutes for reading the
+source. Recorded because the difference is exactly the kind of thing that gets
+rounded off later.
+
+The gap itself is a candidate for v0.1; see the open questions.
+
+`send-anywhere` has not been reviewed yet.
 
 ## Open questions for the design note
 
@@ -213,3 +235,8 @@ not that it is true or useful.
 - Should `published` distinguish paths the contract writes from paths its deploy
   script writes, rather than excluding the latter entirely? Offer Up's
   `boardAux` write is invisible in its manifest, and a reader may want it.
+- Should a manifest be able to say where value ends up, and whether anything can
+  get it back out? Offer Up's stranded proceeds are the case: the manifest
+  describes the offer faithfully and still leaves a reader unable to see that
+  the contract has no withdrawal path. Found by reading the source, which is
+  what makes it a gap in the format rather than in that one manifest.
