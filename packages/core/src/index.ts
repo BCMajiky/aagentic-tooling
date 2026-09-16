@@ -2,3 +2,37 @@
 
 export { ExitCode } from './exit-codes.js';
 export type { ExitCodeValue } from './exit-codes.js';
+
+export { ErrorCode, exitCodeByError } from './codes.js';
+export type { ErrorCodeValue } from './codes.js';
+
+export { hints } from './hints.js';
+
+export { AatError, asAatError, isAatError } from './errors.js';
+
+export {
+  NETWORK_NAMES,
+  isNetworkName,
+  networks,
+  requireNetwork,
+} from './networks.js';
+export type { NetworkEntry, NetworkName } from './networks.js';
+
+export {
+  DEFAULT_NETWORK,
+  LAYER_ORDER,
+  configFromEnv,
+  parseConfigObject,
+  resolveConfig,
+} from './config.js';
+export type {
+  AatConfig,
+  ConfigLayer,
+  LayerName,
+  PartialConfig,
+  Provenance,
+  ResolvedConfig,
+} from './config.js';
+
+export { fromError, ok, renderHuman, renderJson, withFindings } from './output.js';
+export type { CommandResult, Finding } from './output.js';

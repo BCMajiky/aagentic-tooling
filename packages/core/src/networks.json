@@ -1,0 +1,64 @@
+{
+  "$comment": [
+    "The four networks aat knows by name. Endpoint shapes are taken from",
+    "agoric-sdk packages/client-utils/src/network-config.js at cc25a29",
+    "(tag agoric-upgrade-23a): network config lives at",
+    "https://<subdomain>.agoric.net/network-config and RPC at",
+    "https://<subdomain>.rpc.agoric.net:443.",
+    "",
+    "chainId for the two testnets ROTATES. They are redeployed and the chain",
+    "id changes with each one; the values here are last-known, not durable.",
+    "networkConfig is the source of truth, which is why every entry carries it.",
+    "Anything that actually talks to a chain (Release 2) must fetch and verify",
+    "rather than trusting chainId from this file.",
+    "",
+    "payDenom differs per network and is deliberately not defaulted for",
+    "mainnet: the Noble USDC denom belongs in a contract term, not in tooling."
+  ],
+  "networks": {
+    "local": {
+      "chainId": "agoriclocal",
+      "chainIdRotates": false,
+      "rpc": "http://0.0.0.0:26657",
+      "api": "http://0.0.0.0:1317",
+      "vstorage": "http://0.0.0.0:1317/agoric/vstorage",
+      "networkConfig": null,
+      "payDenom": null,
+      "explorer": null,
+      "note": "Docker local chain. The validator key holds all voting power and the voting period is 10s, so a CoreEval proposal passes immediately."
+    },
+    "devnet": {
+      "chainId": "agoricdev-25",
+      "chainIdRotates": true,
+      "rpc": "https://devnet.rpc.agoric.net:443",
+      "api": "https://devnet.api.agoric.net:443",
+      "vstorage": "https://devnet.api.agoric.net:443/agoric/vstorage",
+      "networkConfig": "https://devnet.agoric.net/network-config",
+      "payDenom": "ibc/toyusdc",
+      "explorer": "https://devnet.explorer.agoric.net",
+      "note": "payDenom ibc/toyusdc, issuer USDC_axl. A deployer key with no stake cannot pass a proposal alone; a validator vote or staked BLD is needed."
+    },
+    "emerynet": {
+      "chainId": "agoric-emerynet-8",
+      "chainIdRotates": true,
+      "rpc": "https://emerynet.rpc.agoric.net:443",
+      "api": "https://emerynet.api.agoric.net:443",
+      "vstorage": "https://emerynet.api.agoric.net:443/agoric/vstorage",
+      "networkConfig": "https://emerynet.agoric.net/network-config",
+      "payDenom": "ibc/FE98AAD68F02F03565E9FA39A5E627946699B2B07115889ED812D8BA639576A9",
+      "explorer": "https://emerynet.explorer.agoric.net",
+      "note": "Voting period is 2 hours. The payDenom recorded here is the USDC denom seen during the Servandum work in March 2026; verify against vbankAsset before relying on it."
+    },
+    "mainnet": {
+      "chainId": "agoric-3",
+      "chainIdRotates": false,
+      "rpc": "https://main.rpc.agoric.net:443",
+      "api": "https://main.api.agoric.net:443",
+      "vstorage": "https://main.api.agoric.net:443/agoric/vstorage",
+      "networkConfig": "https://main.agoric.net/network-config",
+      "payDenom": null,
+      "explorer": "https://explorer.agoric.net",
+      "note": "Deployment is permissioned. payDenom is the Noble USDC denom and is deliberately absent here: keep it a contract term."
+    }
+  }
+}
