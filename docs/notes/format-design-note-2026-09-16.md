@@ -245,6 +245,18 @@ None of these block us. Numbered so a reply can be terse.
    want it.
 8. Is there an idiomatic declaration of required issuer keywords that `terms`
    should project? (The `send-anywhere` gap above.)
+9. Should a manifest be able to say **where value ends up and who can get it
+   back out**? This came out of review. Offer Up transfers `Price` to an
+   internal proceeds seat held in a local `const`, and nothing ever withdraws
+   from it: there is no creator facet, and because the contract uses `start`
+   rather than `prepare` and holds no baggage, a later upgrade cannot recover
+   the funds either. Our manifest describes the offer faithfully — give
+   `Price`, get `Items` — and a reader still cannot see any of that. The
+   reviewer found it by reading the contract, not the manifest. We do not have
+   a proposal here, and we are not sure the format is the right layer for it
+   rather than a preflight check, but a manifest that cannot distinguish "pays
+   into an account someone controls" from "pays into a hole" seems to be
+   missing something a reader needs.
 
 ---
 
