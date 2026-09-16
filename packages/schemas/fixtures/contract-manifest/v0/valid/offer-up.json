@@ -1,0 +1,68 @@
+{
+  "schema": "contract-manifest.v0",
+  "contract": {
+    "name": "offer-up",
+    "version": "0.1.0",
+    "bundleId": "b1-5a1fc772f351f1695944e6c1329de1b1aab54c8f11f9a0486af13f76f7bdd06ca9508523c7f9681bb706d3f1013beb88b7cea92ad62c95c2a2d46713a8574408",
+    "source": {
+      "repo": "https://github.com/Agoric/dapp-offer-up",
+      "commit": "4ea27c5",
+      "path": "contract/src/offer-up.contract.js"
+    }
+  },
+  "facets": {
+    "public": {
+      "guard": "none",
+      "label": "Items Public Facet",
+      "methods": {
+        "makeTradeInvitation": {
+          "summary": "Return an invitation to buy Items, paying Price. Takes no arguments."
+        }
+      }
+    }
+  },
+  "invitations": {
+    "makeTradeInvitation": {
+      "description": "buy items",
+      "maker": "makeTradeInvitation",
+      "summary": "Buy up to maxItems Items for the fixed tradePrice. The buyer pays Price and receives Items; the contract mints the Items on the spot.",
+      "proposal": {
+        "give": {
+          "Price": {
+            "kind": "gte",
+            "of": { "kind": "ref", "name": "tradePrice" }
+          }
+        },
+        "want": {
+          "Items": {
+            "kind": "exactRecord",
+            "entries": {
+              "brand": { "kind": "ref", "name": "itemBrand" },
+              "value": { "kind": "bag" }
+            }
+          }
+        },
+        "exit": { "kind": "any" },
+        "open": false
+      }
+    }
+  },
+  "published": [],
+  "terms": {
+    "tradePrice": { "kind": "ref", "name": "AmountShape", "module": "@agoric/ertp" },
+    "maxItems": { "kind": "opt", "of": { "kind": "bigint" } }
+  },
+  "privateArgs": {},
+  "notes": [
+    "Offer Up mints a new semi-fungible asset type called Item and sells a few of them at a time for a fixed price.",
+    "The public facet is a bare Far('Items Public Facet', ...) with no M.interface guard, so facets.public.guard is 'none' and its one method is recorded by name only. What is lost: the manifest cannot say that makeTradeInvitation takes no arguments and returns a Promise<Invitation>, because the contract never declares it. The summary says so in prose instead, which a generator must not treat as a signature.",
+    "Everything in the invitations section IS derived, from the proposalShape passed as the fourth argument to zcf.makeInvitation. That is why an unguarded facet is still worth a manifest: the offer surface, which is what a client actually needs, is fully described even when the method surface is not.",
+    "give.Price is M.gte(tradePrice), so a buyer may overpay but not underpay. The contract transfers exactly tradePrice to its proceeds seat and the excess stays with the buyer.",
+    "want.Items is an exact record over the Item brand with a CopyBag value, which is how a semi-fungible amount such as '3 potions and 1 map' is expressed.",
+    "maxItems is an optional term defaulting to 3n. The limit is enforced inside the offer handler, not by the proposal shape, so a proposal wanting more than maxItems matches the shape and then fails the offer.",
+    "terms.tradePrice and itemBrand are named references rather than inline patterns: tradePrice is a term of this contract and itemBrand is created at start time by zcf.makeZCFMint('Item', AssetKind.COPY_BAG). Neither has a serialisable value at manifest-authoring time.",
+    "published is empty. The contract writes nothing to vstorage. The boardAux entry under published.boardAux.<boardId> is written by offer-up-proposal.js, the core-eval deploy script, which is not part of the contract bundle.",
+    "privateArgs is empty and there is no creator facet. start takes only zcf and returns { publicFacet }, which also means this contract is not upgradable: it uses start rather than prepare and holds no baggage.",
+    "traces is absent rather than empty: this contract emits no trace events, and Release 7 instrumentation would have to add them."
+  ]
+}

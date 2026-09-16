@@ -132,15 +132,16 @@ test('schemas list reports the registered formats', t => {
   };
   t.deepEqual(
     formats.map(format => `${format.name} ${format.version}`),
-    ['trace-event v0'],
+    ['trace-event v0', 'contract-manifest v0'],
   );
 });
 
-test('schemas list prints trace-event v0 for a human too', t => {
+test('schemas list prints both formats for a human too', t => {
   const { code, out } = invoke(['schemas', 'list']);
   t.is(code, ExitCode.OK);
   const text = out.join('\n');
   t.true(text.includes('trace-event'));
+  t.true(text.includes('contract-manifest'));
   t.true(text.includes('v0'));
 });
 

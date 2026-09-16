@@ -1,0 +1,76 @@
+{
+  "$comment": "A truncated bundle id. agd bundle ids are 'b1-' plus 128 lowercase hex characters (sha512); anything shorter will not match what the chain computed.",
+  "schema": "contract-manifest.v0",
+  "contract": {
+    "name": "offer-up",
+    "version": "0.1.0",
+    "bundleId": "b1-deadbeef",
+    "source": {
+      "repo": "https://github.com/Agoric/dapp-offer-up",
+      "commit": "4ea27c5",
+      "path": "contract/src/offer-up.contract.js"
+    }
+  },
+  "facets": {
+    "public": {
+      "guard": "none",
+      "label": "Items Public Facet",
+      "methods": {
+        "makeTradeInvitation": {
+          "summary": "Return an invitation to buy Items, paying Price. Takes no arguments."
+        }
+      }
+    }
+  },
+  "invitations": {
+    "makeTradeInvitation": {
+      "description": "buy items",
+      "maker": "makeTradeInvitation",
+      "summary": "Buy up to maxItems Items for the fixed tradePrice. The buyer pays Price and receives Items; the contract mints the Items on the spot.",
+      "proposal": {
+        "give": {
+          "Price": {
+            "kind": "gte",
+            "of": {
+              "kind": "ref",
+              "name": "tradePrice"
+            }
+          }
+        },
+        "want": {
+          "Items": {
+            "kind": "exactRecord",
+            "entries": {
+              "brand": {
+                "kind": "ref",
+                "name": "itemBrand"
+              },
+              "value": {
+                "kind": "bag"
+              }
+            }
+          }
+        },
+        "exit": {
+          "kind": "any"
+        },
+        "open": false
+      }
+    }
+  },
+  "published": [],
+  "terms": {
+    "tradePrice": {
+      "kind": "ref",
+      "name": "AmountShape",
+      "module": "@agoric/ertp"
+    },
+    "maxItems": {
+      "kind": "opt",
+      "of": {
+        "kind": "bigint"
+      }
+    }
+  },
+  "privateArgs": {}
+}

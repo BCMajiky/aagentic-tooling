@@ -8,11 +8,10 @@ test('the format registry is hardened', t => {
   t.true(Object.isFrozen(formats));
 });
 
-test('trace-event v0 is registered', t => {
-  // Day 4 adds `contract-manifest v0` as one more entry here.
+test('both Stage 0 formats are registered', t => {
   t.deepEqual(
     formats.map(format => `${format.name} ${format.version}`),
-    ['trace-event v0'],
+    ['trace-event v0', 'contract-manifest v0'],
   );
 });
 

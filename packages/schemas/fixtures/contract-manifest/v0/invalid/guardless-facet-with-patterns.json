@@ -1,0 +1,80 @@
+{
+  "$comment": "The D2 rule, violated. The facet declares guard 'none' but its method claims params and a return pattern. Offer Up's Far() facet does not declare either, so a manifest that states them is inventing a signature a generator would then trust. This is the single most important thing the validator prevents.",
+  "schema": "contract-manifest.v0",
+  "contract": {
+    "name": "offer-up",
+    "version": "0.1.0",
+    "bundleId": "b1-5a1fc772f351f1695944e6c1329de1b1aab54c8f11f9a0486af13f76f7bdd06ca9508523c7f9681bb706d3f1013beb88b7cea92ad62c95c2a2d46713a8574408",
+    "source": {
+      "repo": "https://github.com/Agoric/dapp-offer-up",
+      "commit": "4ea27c5",
+      "path": "contract/src/offer-up.contract.js"
+    }
+  },
+  "facets": {
+    "public": {
+      "guard": "none",
+      "label": "Items Public Facet",
+      "methods": {
+        "makeTradeInvitation": {
+          "summary": "Return an invitation to buy Items, paying Price. Takes no arguments.",
+          "params": [],
+          "returns": {
+            "kind": "promise"
+          }
+        }
+      }
+    }
+  },
+  "invitations": {
+    "makeTradeInvitation": {
+      "description": "buy items",
+      "maker": "makeTradeInvitation",
+      "summary": "Buy up to maxItems Items for the fixed tradePrice. The buyer pays Price and receives Items; the contract mints the Items on the spot.",
+      "proposal": {
+        "give": {
+          "Price": {
+            "kind": "gte",
+            "of": {
+              "kind": "ref",
+              "name": "tradePrice"
+            }
+          }
+        },
+        "want": {
+          "Items": {
+            "kind": "exactRecord",
+            "entries": {
+              "brand": {
+                "kind": "ref",
+                "name": "itemBrand"
+              },
+              "value": {
+                "kind": "bag"
+              }
+            }
+          }
+        },
+        "exit": {
+          "kind": "any"
+        },
+        "open": false
+      }
+    }
+  },
+  "published": [],
+  "terms": {
+    "tradePrice": {
+      "kind": "ref",
+      "name": "AmountShape",
+      "module": "@agoric/ertp"
+    },
+    "maxItems": {
+      "kind": "opt",
+      "of": {
+        "kind": "bigint"
+      }
+    }
+  },
+  "privateArgs": {}
+}
