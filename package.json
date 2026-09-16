@@ -24,8 +24,11 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --build",
     "test": "yarn build && yarn workspaces foreach --all --exclude aagentic-tooling --topological-dev --verbose run test",
-    "ci": "yarn lint && yarn typecheck && yarn test",
-    "smoke": "node scripts/ses-smoke.mjs"
+    "ci": "yarn lint && yarn typecheck && yarn test && yarn agents:check",
+    "smoke": "node scripts/ses-smoke.mjs",
+    "agents:write": "node scripts/agents-md.mjs",
+    "agents:check": "node scripts/agents-md.mjs --check",
+    "docs:build": "node scripts/docs-build.mjs"
   },
   "devDependencies": {
     "@ava/typescript": "7.0.0",
@@ -38,6 +41,7 @@
     "@types/node": "22.19.21",
     "ava": "6.4.1",
     "eslint": "10.10.0",
+    "marked": "18.0.13",
     "ses": "1.14.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0"
