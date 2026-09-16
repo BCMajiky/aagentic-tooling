@@ -13,7 +13,8 @@
   },
   "files": [
     "dist/src",
-    "schemas"
+    "schemas",
+    "fixtures"
   ],
   "engines": {
     "node": "^22.11 || ^24.14"

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * One entry in the format registry. `aat schemas list` (day 2) prints this
- * table; day 3 registers `trace-event v0` and day 4 registers
- * `contract-manifest v0`.
+ * One entry in the format registry. `aat schemas list` prints this table.
  */
 export type FormatDescriptor = {
   /** Stable machine name, kebab-case, no version suffix. */
@@ -15,8 +13,16 @@ export type FormatDescriptor = {
 };
 
 /**
- * Every format this repository defines. Deliberately empty at the end of day 1:
- * the registry exists so that adding a format is a one-line change here plus a
- * schema file, and nothing else.
+ * Every format this repository defines.
+ *
+ * Adding a format is one entry here plus a schema file under `schemas/`; the
+ * `schemas list` subcommand does not change. Day 4 adds `contract-manifest v0`.
  */
-export const formats: readonly FormatDescriptor[] = harden([]);
+export const formats: readonly FormatDescriptor[] = harden([
+  {
+    name: 'trace-event',
+    version: 'v0',
+    summary:
+      'Workflow trace events: an OpenTelemetry span with an Agoric attribute set.',
+  },
+]);

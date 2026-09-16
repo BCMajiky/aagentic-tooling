@@ -2,3 +2,5 @@
 
 export { formats } from './registry.js';
 export type { FormatDescriptor } from './registry.js';
+
+export * from './trace-event/index.js';

@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dcfoundation.github.io/aagentic-tooling/schemas/trace-event.v0.schema.json",
+  "title": "Agoric workflow trace event, v0",
+  "description": "An OpenTelemetry span carrying an Agoric attribute set. One record of what happened, in what order, on which chain. Field names follow OTLP/JSON; times are RFC 3339 rather than unix nanoseconds, and the authoritative ordering key is agoric.block.height rather than a wall clock.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "traceId",
+    "spanId",
+    "parentSpanId",
+    "name",
+    "startTime",
+    "endTime",
+    "status",
+    "attributes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "trace-event.v0",
+      "description": "Identifies the format and version, so a line in a log is self-describing."
+    },
+    "traceId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "description": "32 lowercase hex characters, as OpenTelemetry requires. One trace per orchestration flow."
+    },
+    "spanId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$",
+      "description": "16 lowercase hex characters."
+    },
+    "parentSpanId": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{16}$",
+      "description": "The enclosing span, or null for the root span of a trace. Must not equal spanId."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable span name, e.g. the flow function name or the method invoked."
+    },
+    "startTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "RFC 3339 UTC. Advisory: agoric.block.height is the authoritative ordering."
+    },
+    "endTime": {
+      "type": ["string", "null"],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "RFC 3339 UTC, or null while the span is still open. Must not precede startTime."
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code"],
+      "properties": {
+        "code": {
+          "enum": ["unset", "ok", "error"],
+          "description": "OpenTelemetry status codes, lowercased. unset means the span has not settled."
+        },
+        "message": {
+          "type": "string",
+          "description": "Required when code is error, and forbidden otherwise."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "code": { "const": "error" } } },
+          "then": { "required": ["code", "message"] }
+        },
+        {
+          "if": {
+            "properties": { "code": { "enum": ["unset", "ok"] } },
+            "required": ["code"]
+          },
+          "then": { "not": { "required": ["message"] } }
+        }
+      ]
+    },
+    "attributes": {
+      "type": "object",
+      "required": ["agoric.event.kind", "agoric.chain.id", "agoric.block.height"],
+      "description": "Attribute names in the agoric.* namespace are a closed set; see propertyNames. Names outside that prefix are free-form. Values are scalars only: a nested value does not join across traces.",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean"]
+      },
+      "propertyNames": {
+        "not": {
+          "allOf": [
+            { "pattern": "^agoric\\." },
+            {
+              "not": {
+                "enum": [
+                  "agoric.account.id",
+                  "agoric.amount.value",
+                  "agoric.block.height",
+                  "agoric.chain.address",
+                  "agoric.chain.address.encoding",
+                  "agoric.chain.id",
+                  "agoric.chain.name",
+                  "agoric.channel.id",
+                  "agoric.connection.id",
+                  "agoric.contract.instance",
+                  "agoric.counterparty.channel.id",
+                  "agoric.counterparty.port.id",
+                  "agoric.denom",
+                  "agoric.denom.base",
+                  "agoric.event.kind",
+                  "agoric.exo.facet",
+                  "agoric.exo.label",
+                  "agoric.exo.method",
+                  "agoric.flow.id",
+                  "agoric.flow.name",
+                  "agoric.flow.state",
+                  "agoric.ibc.local.address",
+                  "agoric.ibc.remote.address",
+                  "agoric.offer.id",
+                  "agoric.operation",
+                  "agoric.packet.ack",
+                  "agoric.packet.sequence",
+                  "agoric.packet.timeout.height",
+                  "agoric.packet.timeout.timestamp",
+                  "agoric.port.id",
+                  "agoric.retry.attempt",
+                  "agoric.timer.abs.value",
+                  "agoric.timer.rel.value"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "properties": {
+        "agoric.event.kind": {
+          "enum": [
+            "timer.set",
+            "timer.fired",
+            "vow.pending",
+            "vow.resolved",
+            "vow.rejected",
+            "ica.send",
+            "ica.ack",
+            "icq.query",
+            "icq.result",
+            "ibc.transfer",
+            "ibc.ack",
+            "ibc.timeout",
+            "offer.received",
+            "offer.exited",
+            "flow.restarted",
+            "custom"
+          ]
+        },
+        "agoric.chain.id": { "type": "string", "minLength": 1 },
+        "agoric.block.height": { "type": "integer", "minimum": 0 },
+        "agoric.contract.instance": { "type": "string", "minLength": 1 },
+        "agoric.flow.id": { "type": "string", "minLength": 1 },
+        "agoric.flow.name": { "type": "string", "minLength": 1 },
+        "agoric.flow.state": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Spelled as async-flow's getFlowState returns it: Running, Sleeping, Replaying, Failed or Done."
+        },
+        "agoric.retry.attempt": { "type": "integer", "minimum": 0 },
+        "agoric.exo.label": { "type": "string", "minLength": 1 },
+        "agoric.exo.facet": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The facet key in the exoClassKit behavior record, never the M.interface label: upstream labels are not unique."
+        },
+        "agoric.exo.method": { "type": "string", "minLength": 1 },
+        "agoric.operation": { "type": "string", "minLength": 1 },
+        "agoric.chain.name": { "type": "string", "minLength": 1 },
+        "agoric.chain.address": { "type": "string", "minLength": 1 },
+        "agoric.chain.address.encoding": { "type": "string", "minLength": 1 },
+        "agoric.account.id": { "type": "string", "minLength": 1 },
+        "agoric.connection.id": { "type": "string", "minLength": 1 },
+        "agoric.channel.id": { "type": "string", "minLength": 1 },
+        "agoric.port.id": { "type": "string", "minLength": 1 },
+        "agoric.counterparty.channel.id": { "type": "string", "minLength": 1 },
+        "agoric.counterparty.port.id": { "type": "string", "minLength": 1 },
+        "agoric.ibc.local.address": { "type": "string", "minLength": 1 },
+        "agoric.ibc.remote.address": { "type": "string", "minLength": 1 },
+        "agoric.packet.sequence": { "$ref": "#/$defs/decimalString" },
+        "agoric.packet.timeout.height": { "$ref": "#/$defs/decimalString" },
+        "agoric.packet.timeout.timestamp": { "$ref": "#/$defs/decimalString" },
+        "agoric.packet.ack": { "type": "string", "minLength": 1 },
+        "agoric.denom": { "type": "string", "minLength": 1 },
+        "agoric.denom.base": { "type": "string", "minLength": 1 },
+        "agoric.amount.value": { "$ref": "#/$defs/decimalString" },
+        "agoric.timer.abs.value": { "$ref": "#/$defs/decimalString" },
+        "agoric.timer.rel.value": { "$ref": "#/$defs/decimalString" },
+        "agoric.offer.id": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "agoric.event.kind": { "const": "timer.set" } },
+            "required": ["agoric.event.kind"]
+          },
+          "then": {
+            "anyOf": [
+              { "required": ["agoric.timer.abs.value"] },
+              { "required": ["agoric.timer.rel.value"] }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": { "agoric.event.kind": { "const": "timer.fired" } },
+            "required": ["agoric.event.kind"]
+          },
+          "then": { "required": ["agoric.timer.abs.value"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": { "enum": ["ica.send", "ica.ack"] }
+            },
+            "required": ["agoric.event.kind"]
+          },
+          "then": { "required": ["agoric.chain.address"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": { "enum": ["icq.query", "icq.result"] }
+            },
+            "required": ["agoric.event.kind"]
+          },
+          "then": { "required": ["agoric.connection.id"] }
+        },
+        {
+          "if": {
+            "properties": { "agoric.event.kind": { "const": "ibc.transfer" } },
+            "required": ["agoric.event.kind"]
+          },
+          "then": { "required": ["agoric.channel.id", "agoric.denom"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": { "enum": ["ibc.ack", "ibc.timeout"] }
+            },
+            "required": ["agoric.event.kind"]
+          },
+          "then": {
+            "required": ["agoric.channel.id", "agoric.packet.sequence"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": { "enum": ["offer.received", "offer.exited"] }
+            },
+            "required": ["agoric.event.kind"]
+          },
+          "then": { "required": ["agoric.offer.id"] }
+        },
+        {
+          "if": {
+            "properties": { "agoric.event.kind": { "const": "flow.restarted" } },
+            "required": ["agoric.event.kind"]
+          },
+          "then": { "required": ["agoric.flow.id", "agoric.flow.state"] }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "attributes": {
+            "properties": {
+              "agoric.event.kind": { "const": "vow.resolved" }
+            },
+            "required": ["agoric.event.kind"]
+          }
+        },
+        "required": ["attributes"]
+      },
+      "then": {
+        "properties": { "status": { "properties": { "code": { "const": "ok" } } } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "attributes": {
+            "properties": {
+              "agoric.event.kind": { "enum": ["vow.rejected", "ibc.timeout"] }
+            },
+            "required": ["agoric.event.kind"]
+          }
+        },
+        "required": ["attributes"]
+      },
+      "then": {
+        "properties": {
+          "status": { "properties": { "code": { "const": "error" } } }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "endTime": { "type": "null" } },
+        "required": ["endTime"]
+      },
+      "then": {
+        "properties": {
+          "status": { "properties": { "code": { "const": "unset" } } }
+        }
+      },
+      "else": {
+        "properties": {
+          "status": { "properties": { "code": { "enum": ["ok", "error"] } } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "decimalString": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$",
+      "description": "A non-negative integer as a decimal string. These are Nat or bigint upstream, and a JSON number would lose them."
+    }
+  }
+}
