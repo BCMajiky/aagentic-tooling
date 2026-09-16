@@ -50,14 +50,33 @@ export type Facet = {
   readonly methods: Readonly<Record<string, MethodEntry>>;
 };
 
-/** What an invitation's proposal must look like. */
-export type ProposalShape = {
-  readonly give?: Readonly<Record<string, SerialisedPattern>>;
-  readonly want?: Readonly<Record<string, SerialisedPattern>>;
-  readonly exit?: SerialisedPattern;
-  /** True when the shape permits keywords beyond those listed. */
-  readonly open?: boolean;
-};
+/**
+ * What an invitation's proposal must look like.
+ *
+ * Two forms, and a manifest uses exactly one of them.
+ *
+ * The **projected** form — `give`, `want`, `exit`, `open` — is for the common
+ * case where the proposal shape names its keywords, as Offer Up's does with
+ * `Price` and `Items`. It is what a client or a generator wants to read.
+ *
+ * The **raw** form — `shape` — carries the serialised proposal shape whole, for
+ * the case where there are no fixed keywords to project. send-anywhere's shape
+ * is `M.splitRecord({ give: SingleNatAmountRecord })`, which says "exactly one
+ * give keyword, whatever it is called, holding any nat amount". Projecting that
+ * into a keyword map would mean inventing a keyword.
+ *
+ * Both together is rejected: they would be two statements that can disagree.
+ */
+export type ProposalShape =
+  | {
+      readonly give?: Readonly<Record<string, SerialisedPattern>>;
+      readonly want?: Readonly<Record<string, SerialisedPattern>>;
+      readonly exit?: SerialisedPattern;
+      /** True when the shape permits keywords beyond those listed. */
+      readonly open?: boolean;
+      readonly shape?: never;
+    }
+  | { readonly shape: SerialisedPattern };
 
 export type Invitation = {
   /** The description string passed to `zcf.makeInvitation`. */

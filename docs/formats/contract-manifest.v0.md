@@ -1,6 +1,6 @@
 # Shared format B: contract interface manifest, v0
 
-**Status:** v0, Stage 0 day 4.
+**Status:** v0, Stage 0 day 5. Both subjects hand-authored.
 **Schema:** [`packages/schemas/schemas/contract-manifest.v0.schema.json`](../../packages/schemas/schemas/contract-manifest.v0.schema.json)
 **Fixtures:** [`packages/schemas/fixtures/contract-manifest/v0/`](../../packages/schemas/fixtures/contract-manifest/v0/)
 **Validator:** `validateContractManifest` from `@dcfoundation/aat-schemas`
@@ -105,6 +105,7 @@ and is exactly what the two Stage 0 subjects and
 | `or` | `M.or(…)` | zoe (2) |
 | `and` | `M.and(…)` | zoe (1), send-anywhere |
 | `gte` | `M.gte(x)` | offer-up `give.Price` |
+| `undefined` | `M.undefined()` | send-anywhere creator facet `registerChain` |
 
 ### Anything outside this list is rejected
 
@@ -166,14 +167,34 @@ Same rules as format A.
 
 ## Fixtures
 
-One valid: `valid/offer-up.json`, hand-authored from
-`examples/offer-up/src/offer-up.contract.js`. `send-anywhere.json` follows on
-day 5 and is the `guard: "interface"` half of the pair.
+Two valid, hand-authored, one for each `guard` value:
+
+| File | Subject | Exercises |
+|---|---|---|
+| `valid/offer-up.json` | `examples/offer-up` | `guard: "none"`, `gte`, `bag`, `exactRecord`, module-less `ref` |
+| `valid/send-anywhere.json` | `examples/send-anywhere` | `guard: "interface"`, both call kinds, `optionalParams`, resolvable `ref`, the raw proposal form |
 
 Nine invalid in `invalid/`, each paired in the test with the code it must
 report. The one that matters most is
 `guardless-facet-with-patterns.json`: a `guard: "none"` facet claiming `params`
 and `returns`, which is exactly the mistake D2 exists to prevent.
+
+### What the second manifest changed
+
+Hand-authoring `send-anywhere.json` found two gaps that Offer Up alone did not,
+which is the argument for having insisted on two subjects:
+
+- **`undefined` was missing from the vocabulary.** Its creator facet declares
+  `registerChain: …returns(M.undefined())`. Nothing in Offer Up or in
+  `zoe/src/typeGuards.js` uses `M.undefined()`, so the first pass missed it. A
+  void method is common enough that the omission would have bitten Release 6.
+- **`proposal` needed a raw form.** Offer Up's proposal shape names its
+  keywords, so it projects cleanly into `give`/`want`. send-anywhere's is
+  `M.splitRecord({ give: SingleNatAmountRecord })` — "exactly one give keyword,
+  whatever it is called, holding any nat amount". There is no keyword to
+  project, and projecting would mean inventing one. So `proposal` now takes
+  **either** the projected form **or** a raw `shape`, never both: two
+  statements that can disagree are worse than one that is general.
 
 ## Reviewer test
 

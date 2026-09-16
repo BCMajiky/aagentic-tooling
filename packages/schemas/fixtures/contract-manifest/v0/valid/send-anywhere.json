@@ -1,0 +1,154 @@
+{
+  "schema": "contract-manifest.v0",
+  "contract": {
+    "name": "send-anywhere",
+    "version": "0.1.0",
+    "bundleId": "b1-0082b5c1efd3c1a496cbf1214de8b7b0ff4d0c0594bd80eef01b8fe483154914c75fd02dfc9a020a099f6608658f2b6f37442257a23d5681bf9006f10bf6d780",
+    "source": {
+      "repo": "https://github.com/Agoric/agoric-sdk",
+      "commit": "cc25a29",
+      "path": "packages/orchestration/src/examples/send-anywhere.contract.js"
+    }
+  },
+  "facets": {
+    "public": {
+      "guard": "interface",
+      "label": "Send PF",
+      "methods": {
+        "makeSendInvitation": {
+          "callKind": "callWhen",
+          "params": [],
+          "returns": {
+            "kind": "ref",
+            "name": "InvitationShape",
+            "module": "@agoric/zoe/src/typeGuards.js"
+          },
+          "summary": "Return an invitation to send assets from an ERTP purse to an account on another chain."
+        }
+      }
+    },
+    "creator": {
+      "guard": "interface",
+      "label": "ChainHub Admin",
+      "methods": {
+        "registerChain": {
+          "callKind": "callWhen",
+          "params": [
+            { "kind": "string" },
+            {
+              "kind": "ref",
+              "name": "ChainInfoShape",
+              "module": "@agoric/orchestration/src/typeGuards.js"
+            }
+          ],
+          "optionalParams": [{ "kind": "record" }],
+          "returns": { "kind": "undefined" },
+          "summary": "Register a chain the local ChainHub does not already know, optionally with its IBC connection from the Agoric chain."
+        },
+        "registerAsset": {
+          "callKind": "call",
+          "params": [
+            { "kind": "string" },
+            {
+              "kind": "ref",
+              "name": "DenomDetailShape",
+              "module": "@agoric/orchestration/src/typeGuards.js"
+            }
+          ],
+          "returns": { "kind": "promise" },
+          "summary": "Register a denom that may be held on a chain other than the one that issued it. Its chainName and baseName must already be registered."
+        }
+      }
+    }
+  },
+  "invitations": {
+    "makeSendInvitation": {
+      "description": "send",
+      "maker": "makeSendInvitation",
+      "summary": "Send a single asset to an address on another chain. The destination is given in offer args, not in the proposal.",
+      "proposal": {
+        "shape": {
+          "kind": "splitRecord",
+          "required": {
+            "give": {
+              "kind": "and",
+              "of": [
+                {
+                  "kind": "recordOf",
+                  "keys": { "kind": "string" },
+                  "values": {
+                    "kind": "ref",
+                    "name": "AnyNatAmountShape",
+                    "module": "@agoric/orchestration/src/typeGuards.js"
+                  },
+                  "limits": { "numPropertiesLimit": 1 }
+                },
+                {
+                  "kind": "not",
+                  "of": { "kind": "literal", "value": {} }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "offerArgs": {
+        "kind": "exactRecord",
+        "entries": {
+          "chainName": { "kind": "scalar" },
+          "destAddr": { "kind": "string" }
+        }
+      }
+    }
+  },
+  "published": [
+    {
+      "path": "published.{instancePath}.log",
+      "valueSchema": { "kind": "string" },
+      "summary": "A line of progress text per step of the sendIt flow. A placeholder until Agoric/agoric-sdk#9066 gives orchestration a real progress channel."
+    }
+  ],
+  "terms": {},
+  "privateArgs": {
+    "localchain": { "kind": "remotable", "label": "LocalChain" },
+    "orchestrationService": { "kind": "remotable", "label": "CosmosInterchainService" },
+    "timerService": { "kind": "remotable", "label": "TimerService" },
+    "agoricNames": { "kind": "remotable", "label": "NameHub" },
+    "storageNode": { "kind": "remotable", "label": "StorageNode" },
+    "marshaller": { "kind": "remotable", "label": "Marshaller" },
+    "chainInfo": {
+      "kind": "opt",
+      "of": {
+        "kind": "recordOf",
+        "keys": { "kind": "string" },
+        "values": {
+          "kind": "ref",
+          "name": "CosmosChainInfoShape",
+          "module": "@agoric/orchestration/src/typeGuards.js"
+        }
+      }
+    },
+    "assetInfo": {
+      "kind": "opt",
+      "of": {
+        "kind": "arrayOf",
+        "items": {
+          "kind": "ref",
+          "name": "DenomDetailShape",
+          "module": "@agoric/orchestration/src/typeGuards.js"
+        }
+      }
+    }
+  },
+  "notes": [
+    "send-anywhere moves a single asset out of an ERTP purse to an account on another chain, over IBC for a Cosmos destination or over CCTP by way of Noble for USDC.",
+    "This is the guard: interface half of the Stage 0 pair. Both facets are zone.exo with M.interface, so unlike Offer Up every method here states its call kind, its parameters and its return pattern.",
+    "The creator facet is not the contract's own: it is prepareChainHubAdmin from @agoric/orchestration, which lets an operator teach the local ChainHub about a chain agoricNames does not carry yet.",
+    "The proposal uses the raw 'shape' form rather than the projected give/want form, and that is the point of it being here. The shape is M.splitRecord({ give: SingleNatAmountRecord }), which says 'exactly one give keyword, whatever it is called, holding any nat amount'. There is no keyword to project, so projecting would mean inventing one.",
+    "The destination is in offerArgs, not the proposal: { chainName, destAddr }. A client reading only the proposal would not know where the assets are going, which is worth knowing about this contract.",
+    "Every ref here names a shape exported by a package, so each carries a module and a generator can resolve it. That is the difference from Offer Up, whose refs name values that only exist once the contract has started.",
+    "terms is empty: the contract declares no meta.customTermsShape. It does read zcf.getTerms().brands.USDC, so it must be started with a USDC issuer keyword, which is a requirement the terms section cannot currently express. That is a gap worth raising before Release 6.",
+    "privateArgs is OrchestrationPowers plus marshaller, storageNode and the two optional ChainHub seeds. withOrchestration destructures marshaller out and passes the rest through, and publishAccountInfo: true means storageNode is required rather than optional here.",
+    "traces is absent: this contract is not instrumented. The multi-hop fixture in fixtures/trace-event/v0/valid/multi-hop-send-anywhere.json shows what it would emit once VowScope instruments it in Release 7, which is the intended join between the two formats."
+  ]
+}

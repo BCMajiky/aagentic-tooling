@@ -72,6 +72,85 @@ test('the Offer Up manifest carries the bundle id the SES smoke job computed', t
   t.regex(manifest.contract.bundleId ?? '', /^b1-[0-9a-f]{128}$/);
 });
 
+test('the send-anywhere manifest validates', t => {
+  const result = validateContractManifest(
+    readJson(`${fixtureDir}/valid/send-anywhere.json`),
+  );
+  if (!result.valid) {
+    t.fail(
+      `send-anywhere.json failed:\n${result.issues
+        .map(issue => `  ${issue.path} ${issue.code}: ${issue.message}`)
+        .join('\n')}`,
+    );
+    return;
+  }
+  t.pass();
+});
+
+test('the two subjects exercise both guard values', t => {
+  // D2 asks for exactly this: between the pair, both values are covered.
+  const offerUp = readJson(`${fixtureDir}/valid/offer-up.json`) as {
+    facets: Record<string, { guard: string }>;
+  };
+  const sendAnywhere = readJson(`${fixtureDir}/valid/send-anywhere.json`) as {
+    facets: Record<string, { guard: string }>;
+  };
+  t.is(offerUp.facets.public?.guard, 'none');
+  t.is(sendAnywhere.facets.public?.guard, 'interface');
+  t.is(sendAnywhere.facets.creator?.guard, 'interface');
+});
+
+test('the send-anywhere manifest uses the raw proposal form', t => {
+  // Its shape has no fixed keywords, so there is nothing to project.
+  const manifest = readJson(`${fixtureDir}/valid/send-anywhere.json`) as {
+    invitations: Record<string, { proposal: Record<string, unknown> }>;
+  };
+  const proposal = manifest.invitations.makeSendInvitation?.proposal;
+  t.truthy(proposal?.shape);
+  t.false('give' in (proposal ?? {}));
+});
+
+test('a proposal may not state both the raw and the projected form', t => {
+  const result = validateContractManifest({
+    schema: CONTRACT_MANIFEST_SCHEMA_ID,
+    contract: { name: 'x', version: '0.0.0', bundleId: null },
+    facets: { public: { guard: 'none', methods: { m: {} } } },
+    invitations: {
+      i: {
+        description: 'd',
+        maker: 'm',
+        proposal: { shape: { kind: 'record' }, give: { Price: { kind: 'any' } } },
+      },
+    },
+    published: [],
+    terms: {},
+    privateArgs: {},
+  });
+  t.false(result.valid);
+  if (result.valid) return;
+  t.true(result.issues.some(i => i.code === 'MANIFEST_PROPOSAL_BOTH_FORMS'));
+});
+
+test('every ref in the send-anywhere manifest names a resolvable module', t => {
+  // The difference from Offer Up: these refs point at exported shapes, so a
+  // generator can follow them. Offer Up's name start-time values instead.
+  const text = readFileSync(`${fixtureDir}/valid/send-anywhere.json`, 'utf8');
+  const manifest: unknown = JSON.parse(text);
+  const refs: Array<Record<string, unknown>> = [];
+  const walk = (node: unknown): void => {
+    if (Array.isArray(node)) return node.forEach(walk);
+    if (typeof node !== 'object' || node === null) return;
+    const record = node as Record<string, unknown>;
+    if (record.kind === 'ref') refs.push(record);
+    Object.values(record).forEach(walk);
+  };
+  walk(manifest);
+  t.true(refs.length >= 5, 'expected several refs');
+  for (const ref of refs) {
+    t.is(typeof ref.module, 'string', `ref ${String(ref.name)} has no module`);
+  }
+});
+
 // --- broken manifests fail, for the stated reason -------------------------
 
 const EXPECTED_FAILURES: Readonly<Record<string, string>> = {
@@ -138,6 +217,7 @@ test('the pattern vocabulary is exactly what the subjects and zoe use', t => {
       'scalar',
       'splitRecord',
       'string',
+      'undefined',
     ],
   );
 });

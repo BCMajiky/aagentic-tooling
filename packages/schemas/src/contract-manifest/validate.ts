@@ -370,13 +370,33 @@ const validateInvitation = (
       );
     } else {
       for (const member of Object.keys(proposal)) {
-        if (!['give', 'want', 'exit', 'open'].includes(member)) {
+        if (!['give', 'want', 'exit', 'open', 'shape'].includes(member)) {
           c.add(
             `${path}/proposal/${member}`,
             'MANIFEST_UNKNOWN_PROPOSAL_MEMBER',
-            `a proposal shape has no '${member}' member; it has give, want, exit, open`,
+            `a proposal shape has no '${member}' member; it has give, want, exit, open, shape`,
           );
         }
+      }
+
+      // The raw form and the projected form are two statements that can
+      // disagree, so a manifest makes exactly one of them.
+      const projected = ['give', 'want', 'exit', 'open'].filter(m => m in proposal);
+      if ('shape' in proposal) {
+        if (projected.length > 0) {
+          c.add(
+            `${path}/proposal/shape`,
+            'MANIFEST_PROPOSAL_BOTH_FORMS',
+            `a proposal states either the raw 'shape' or the projected form (${projected.join(', ')}), never both`,
+          );
+        }
+        validatePattern(proposal.shape, `${path}/proposal/shape`, c);
+      } else if (projected.length === 0) {
+        c.add(
+          `${path}/proposal`,
+          'MANIFEST_EMPTY_PROPOSAL',
+          "an empty proposal says nothing; omit the member, or use 'shape' for a proposal with no fixed keywords",
+        );
       }
       for (const side of ['give', 'want']) {
         if (!(side in proposal)) continue;

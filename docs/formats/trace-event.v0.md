@@ -1,6 +1,6 @@
 # Shared format A: workflow trace events, v0
 
-**Status:** v0, Stage 0 day 3.
+**Status:** v0, Stage 0 day 5.
 **Schema:** [`packages/schemas/schemas/trace-event.v0.schema.json`](../../packages/schemas/schemas/trace-event.v0.schema.json)
 **Fixtures:** [`packages/schemas/fixtures/trace-event/v0/`](../../packages/schemas/fixtures/trace-event/v0/)
 **Validator:** `validateTraceEvent` from `@dcfoundation/aat-schemas`

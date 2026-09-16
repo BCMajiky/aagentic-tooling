@@ -331,8 +331,67 @@
         "open": {
           "type": "boolean",
           "description": "True when keywords beyond those listed are permitted."
+        },
+        "shape": {
+          "$ref": "#/$defs/pattern",
+          "description": "The serialised proposal shape, whole, for a proposal with no fixed keywords to project. Mutually exclusive with give/want/exit/open."
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "shape"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "give"
+                ]
+              },
+              {
+                "required": [
+                  "want"
+                ]
+              },
+              {
+                "required": [
+                  "exit"
+                ]
+              },
+              {
+                "required": [
+                  "open"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "shape"
+            ]
+          },
+          "anyOf": [
+            {
+              "required": [
+                "give"
+              ]
+            },
+            {
+              "required": [
+                "want"
+              ]
+            },
+            {
+              "required": [
+                "exit"
+              ]
+            }
+          ]
+        }
+      ]
     },
     "publishedPath": {
       "type": "object",
@@ -385,7 +444,8 @@
             "remotable",
             "scalar",
             "splitRecord",
-            "string"
+            "string",
+            "undefined"
           ]
         }
       },

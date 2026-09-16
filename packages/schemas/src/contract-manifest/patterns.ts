@@ -24,6 +24,11 @@ export const PATTERN_KINDS = harden([
   'error', // M.error(), 1
   'pattern', // M.pattern(), 8 — "any pattern", used for proposalShape params
   'bag', // M.bag(), offer-up want.Items.value
+  // Found by hand-authoring the send-anywhere manifest: its creator facet
+  // declares `registerChain: ...returns(M.undefined())`. Nothing in offer-up or
+  // in zoe/src/typeGuards.js uses it, so the first pass missed it. A void
+  // method is common enough that leaving it out would have bitten Release 6.
+  'undefined', // M.undefined(), chain-hub-admin.js registerChain
   'literal', // a bare value used as a pattern, e.g. M.not(harden({}))
 
   // --- references ---
@@ -81,6 +86,7 @@ export const PATTERN_MEMBERS: Readonly<
   error: [],
   pattern: [],
   bag: [],
+  undefined: [],
   literal: ['value'],
   remotable: ['label'],
   ref: ['name', 'module'],
@@ -111,7 +117,11 @@ export const OPTIONAL_MEMBERS: Readonly<
 
 /** A serialised pattern. */
 export type SerialisedPattern =
-  | { kind: 'any' | 'string' | 'boolean' | 'bigint' | 'scalar' | 'error' | 'pattern' | 'bag' | 'promise' | 'record' }
+  | {
+      kind:
+        | 'any' | 'string' | 'boolean' | 'bigint' | 'scalar' | 'error'
+        | 'pattern' | 'bag' | 'undefined' | 'promise' | 'record';
+    }
   | { kind: 'literal'; value: unknown }
   | { kind: 'remotable'; label: string }
   | { kind: 'ref'; name: string; module?: string }
