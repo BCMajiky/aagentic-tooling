@@ -32,7 +32,10 @@
       "description": "16 lowercase hex characters."
     },
     "parentSpanId": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^[0-9a-f]{16}$",
       "description": "The enclosing span, or null for the root span of a trace. Must not equal spanId."
     },
@@ -47,17 +50,26 @@
       "description": "RFC 3339 UTC. Advisory: agoric.block.height is the authoritative ordering."
     },
     "endTime": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
       "description": "RFC 3339 UTC, or null while the span is still open. Must not precede startTime."
     },
     "status": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["code"],
+      "required": [
+        "code"
+      ],
       "properties": {
         "code": {
-          "enum": ["unset", "ok", "error"],
+          "enum": [
+            "unset",
+            "ok",
+            "error"
+          ],
           "description": "OpenTelemetry status codes, lowercased. unset means the span has not settled."
         },
         "message": {
@@ -67,29 +79,65 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "code": { "const": "error" } } },
-          "then": { "required": ["code", "message"] }
+          "if": {
+            "properties": {
+              "code": {
+                "const": "error"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "code",
+              "message"
+            ]
+          }
         },
         {
           "if": {
-            "properties": { "code": { "enum": ["unset", "ok"] } },
-            "required": ["code"]
+            "properties": {
+              "code": {
+                "enum": [
+                  "unset",
+                  "ok"
+                ]
+              }
+            },
+            "required": [
+              "code"
+            ]
           },
-          "then": { "not": { "required": ["message"] } }
+          "then": {
+            "not": {
+              "required": [
+                "message"
+              ]
+            }
+          }
         }
       ]
     },
     "attributes": {
       "type": "object",
-      "required": ["agoric.event.kind", "agoric.chain.id", "agoric.block.height"],
+      "required": [
+        "agoric.event.kind",
+        "agoric.chain.id",
+        "agoric.block.height"
+      ],
       "description": "Attribute names in the agoric.* namespace are a closed set; see propertyNames. Names outside that prefix are free-form. Values are scalars only: a nested value does not join across traces.",
       "additionalProperties": {
-        "type": ["string", "number", "boolean"]
+        "type": [
+          "string",
+          "number",
+          "boolean"
+        ]
       },
       "propertyNames": {
         "not": {
           "allOf": [
-            { "pattern": "^agoric\\." },
+            {
+              "pattern": "^agoric\\."
+            },
             {
               "not": {
                 "enum": [
@@ -125,7 +173,8 @@
                   "agoric.port.id",
                   "agoric.retry.attempt",
                   "agoric.timer.abs.value",
-                  "agoric.timer.rel.value"
+                  "agoric.timer.rel.value",
+                  "agoric.vat.incarnation"
                 ]
               }
             }
@@ -153,118 +202,296 @@
             "custom"
           ]
         },
-        "agoric.chain.id": { "type": "string", "minLength": 1 },
-        "agoric.block.height": { "type": "integer", "minimum": 0 },
-        "agoric.contract.instance": { "type": "string", "minLength": 1 },
-        "agoric.flow.id": { "type": "string", "minLength": 1 },
-        "agoric.flow.name": { "type": "string", "minLength": 1 },
+        "agoric.chain.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.block.height": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agoric.contract.instance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.flow.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.flow.name": {
+          "type": "string",
+          "minLength": 1
+        },
         "agoric.flow.state": {
           "type": "string",
           "minLength": 1,
           "description": "Spelled as async-flow's getFlowState returns it: Running, Sleeping, Replaying, Failed or Done."
         },
-        "agoric.retry.attempt": { "type": "integer", "minimum": 0 },
-        "agoric.exo.label": { "type": "string", "minLength": 1 },
+        "agoric.retry.attempt": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "agoric.vat.incarnation": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Which incarnation of the vat the span ran in. Increments on each vat upgrade, so a trace spanning an upgrade can be told from one spanning a restart within a single incarnation."
+        },
+        "agoric.exo.label": {
+          "type": "string",
+          "minLength": 1
+        },
         "agoric.exo.facet": {
           "type": "string",
           "minLength": 1,
           "description": "The facet key in the exoClassKit behavior record, never the M.interface label: upstream labels are not unique."
         },
-        "agoric.exo.method": { "type": "string", "minLength": 1 },
-        "agoric.operation": { "type": "string", "minLength": 1 },
-        "agoric.chain.name": { "type": "string", "minLength": 1 },
-        "agoric.chain.address": { "type": "string", "minLength": 1 },
-        "agoric.chain.address.encoding": { "type": "string", "minLength": 1 },
-        "agoric.account.id": { "type": "string", "minLength": 1 },
-        "agoric.connection.id": { "type": "string", "minLength": 1 },
-        "agoric.channel.id": { "type": "string", "minLength": 1 },
-        "agoric.port.id": { "type": "string", "minLength": 1 },
-        "agoric.counterparty.channel.id": { "type": "string", "minLength": 1 },
-        "agoric.counterparty.port.id": { "type": "string", "minLength": 1 },
-        "agoric.ibc.local.address": { "type": "string", "minLength": 1 },
-        "agoric.ibc.remote.address": { "type": "string", "minLength": 1 },
-        "agoric.packet.sequence": { "$ref": "#/$defs/decimalString" },
-        "agoric.packet.timeout.height": { "$ref": "#/$defs/decimalString" },
-        "agoric.packet.timeout.timestamp": { "$ref": "#/$defs/decimalString" },
-        "agoric.packet.ack": { "type": "string", "minLength": 1 },
-        "agoric.denom": { "type": "string", "minLength": 1 },
-        "agoric.denom.base": { "type": "string", "minLength": 1 },
-        "agoric.amount.value": { "$ref": "#/$defs/decimalString" },
-        "agoric.timer.abs.value": { "$ref": "#/$defs/decimalString" },
-        "agoric.timer.rel.value": { "$ref": "#/$defs/decimalString" },
-        "agoric.offer.id": { "type": "string", "minLength": 1 }
+        "agoric.exo.method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.chain.name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.chain.address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.chain.address.encoding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.account.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.connection.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.channel.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.port.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.counterparty.channel.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.counterparty.port.id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.ibc.local.address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.ibc.remote.address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.packet.sequence": {
+          "$ref": "#/$defs/decimalString"
+        },
+        "agoric.packet.timeout.height": {
+          "$ref": "#/$defs/decimalString"
+        },
+        "agoric.packet.timeout.timestamp": {
+          "$ref": "#/$defs/decimalString"
+        },
+        "agoric.packet.ack": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.denom": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.denom.base": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agoric.amount.value": {
+          "$ref": "#/$defs/decimalString"
+        },
+        "agoric.timer.abs.value": {
+          "$ref": "#/$defs/decimalString"
+        },
+        "agoric.timer.rel.value": {
+          "$ref": "#/$defs/decimalString"
+        },
+        "agoric.offer.id": {
+          "type": "string",
+          "minLength": 1
+        }
       },
       "allOf": [
         {
           "if": {
-            "properties": { "agoric.event.kind": { "const": "timer.set" } },
-            "required": ["agoric.event.kind"]
+            "properties": {
+              "agoric.event.kind": {
+                "const": "timer.set"
+              }
+            },
+            "required": [
+              "agoric.event.kind"
+            ]
           },
           "then": {
             "anyOf": [
-              { "required": ["agoric.timer.abs.value"] },
-              { "required": ["agoric.timer.rel.value"] }
+              {
+                "required": [
+                  "agoric.timer.abs.value"
+                ]
+              },
+              {
+                "required": [
+                  "agoric.timer.rel.value"
+                ]
+              }
             ]
           }
         },
         {
           "if": {
-            "properties": { "agoric.event.kind": { "const": "timer.fired" } },
-            "required": ["agoric.event.kind"]
-          },
-          "then": { "required": ["agoric.timer.abs.value"] }
-        },
-        {
-          "if": {
             "properties": {
-              "agoric.event.kind": { "enum": ["ica.send", "ica.ack"] }
+              "agoric.event.kind": {
+                "const": "timer.fired"
+              }
             },
-            "required": ["agoric.event.kind"]
-          },
-          "then": { "required": ["agoric.chain.address"] }
-        },
-        {
-          "if": {
-            "properties": {
-              "agoric.event.kind": { "enum": ["icq.query", "icq.result"] }
-            },
-            "required": ["agoric.event.kind"]
-          },
-          "then": { "required": ["agoric.connection.id"] }
-        },
-        {
-          "if": {
-            "properties": { "agoric.event.kind": { "const": "ibc.transfer" } },
-            "required": ["agoric.event.kind"]
-          },
-          "then": { "required": ["agoric.channel.id", "agoric.denom"] }
-        },
-        {
-          "if": {
-            "properties": {
-              "agoric.event.kind": { "enum": ["ibc.ack", "ibc.timeout"] }
-            },
-            "required": ["agoric.event.kind"]
+            "required": [
+              "agoric.event.kind"
+            ]
           },
           "then": {
-            "required": ["agoric.channel.id", "agoric.packet.sequence"]
+            "required": [
+              "agoric.timer.abs.value"
+            ]
           }
         },
         {
           "if": {
             "properties": {
-              "agoric.event.kind": { "enum": ["offer.received", "offer.exited"] }
+              "agoric.event.kind": {
+                "enum": [
+                  "ica.send",
+                  "ica.ack"
+                ]
+              }
             },
-            "required": ["agoric.event.kind"]
+            "required": [
+              "agoric.event.kind"
+            ]
           },
-          "then": { "required": ["agoric.offer.id"] }
+          "then": {
+            "required": [
+              "agoric.chain.address"
+            ]
+          }
         },
         {
           "if": {
-            "properties": { "agoric.event.kind": { "const": "flow.restarted" } },
-            "required": ["agoric.event.kind"]
+            "properties": {
+              "agoric.event.kind": {
+                "enum": [
+                  "icq.query",
+                  "icq.result"
+                ]
+              }
+            },
+            "required": [
+              "agoric.event.kind"
+            ]
           },
-          "then": { "required": ["agoric.flow.id", "agoric.flow.state"] }
+          "then": {
+            "required": [
+              "agoric.connection.id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": {
+                "const": "ibc.transfer"
+              }
+            },
+            "required": [
+              "agoric.event.kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "agoric.channel.id",
+              "agoric.denom"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": {
+                "enum": [
+                  "ibc.ack",
+                  "ibc.timeout"
+                ]
+              }
+            },
+            "required": [
+              "agoric.event.kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "agoric.channel.id",
+              "agoric.packet.sequence"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": {
+                "enum": [
+                  "offer.received",
+                  "offer.exited"
+                ]
+              }
+            },
+            "required": [
+              "agoric.event.kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "agoric.offer.id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "agoric.event.kind": {
+                "const": "flow.restarted"
+              }
+            },
+            "required": [
+              "agoric.event.kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "agoric.flow.id",
+              "agoric.flow.state"
+            ]
+          }
         }
       ]
     }
@@ -275,15 +502,29 @@
         "properties": {
           "attributes": {
             "properties": {
-              "agoric.event.kind": { "const": "vow.resolved" }
+              "agoric.event.kind": {
+                "const": "vow.resolved"
+              }
             },
-            "required": ["agoric.event.kind"]
+            "required": [
+              "agoric.event.kind"
+            ]
           }
         },
-        "required": ["attributes"]
+        "required": [
+          "attributes"
+        ]
       },
       "then": {
-        "properties": { "status": { "properties": { "code": { "const": "ok" } } } }
+        "properties": {
+          "status": {
+            "properties": {
+              "code": {
+                "const": "ok"
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -291,32 +532,68 @@
         "properties": {
           "attributes": {
             "properties": {
-              "agoric.event.kind": { "enum": ["vow.rejected", "ibc.timeout"] }
+              "agoric.event.kind": {
+                "enum": [
+                  "vow.rejected",
+                  "ibc.timeout"
+                ]
+              }
             },
-            "required": ["agoric.event.kind"]
+            "required": [
+              "agoric.event.kind"
+            ]
           }
         },
-        "required": ["attributes"]
+        "required": [
+          "attributes"
+        ]
       },
       "then": {
         "properties": {
-          "status": { "properties": { "code": { "const": "error" } } }
+          "status": {
+            "properties": {
+              "code": {
+                "const": "error"
+              }
+            }
+          }
         }
       }
     },
     {
       "if": {
-        "properties": { "endTime": { "type": "null" } },
-        "required": ["endTime"]
+        "properties": {
+          "endTime": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "endTime"
+        ]
       },
       "then": {
         "properties": {
-          "status": { "properties": { "code": { "const": "unset" } } }
+          "status": {
+            "properties": {
+              "code": {
+                "const": "unset"
+              }
+            }
+          }
         }
       },
       "else": {
         "properties": {
-          "status": { "properties": { "code": { "enum": ["ok", "error"] } } }
+          "status": {
+            "properties": {
+              "code": {
+                "enum": [
+                  "ok",
+                  "error"
+                ]
+              }
+            }
+          }
         }
       }
     }

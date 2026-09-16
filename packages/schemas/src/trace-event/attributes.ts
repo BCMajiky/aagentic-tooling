@@ -84,6 +84,12 @@ export const ATTRIBUTES: Readonly<Record<string, AttributeSpec>> = harden({
     source: 'plan §1.4',
     summary: 'Zero-based attempt number for a retried operation.',
   },
+  'agoric.vat.incarnation': {
+    type: 'integer',
+    source: "the vat's incarnation number, which increments on each vat upgrade",
+    summary:
+      'Which incarnation of the vat the span ran in. Distinguishes a trace that spans an upgrade from one that spans a restart within a single incarnation.',
+  },
 
   // --- exo identity. Facet KEYS, not M.interface labels: upstream has several
   // mismatches (pickDataWatcher is labelled 'pickArrayDataWatcher', and the

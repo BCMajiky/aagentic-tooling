@@ -1,5 +1,5 @@
 {
-  "$comment": "Fixture 4 of 5: a flow restart across a vat upgrade. The point of this fixture is that agoric.flow.id and traceId are the same on both sides of the restart, so the two halves stitch together, while the block heights and the flow states differ. The state strings are spelled as async-flow.js getFlowState() returns them: Running, Sleeping, Replaying, Failed, Done.",
+  "$comment": "Fixture 4 of 5: a flow restart across a vat upgrade. The point of this fixture is that agoric.flow.id and traceId are the same on both sides of the restart, so the two halves stitch together, while the block heights and the flow states differ. agoric.vat.incarnation goes 3 -> 4 across the upgrade, which is what distinguishes this from a restart within one incarnation, where it would stay the same. The state strings are spelled as async-flow.js getFlowState() returns them: Running, Sleeping, Replaying, Failed, Done.",
   "events": [
     {
       "schema": "trace-event.v0",
@@ -9,7 +9,9 @@
       "name": "sendIt",
       "startTime": "2026-09-16T08:00:00.000Z",
       "endTime": null,
-      "status": { "code": "unset" },
+      "status": {
+        "code": "unset"
+      },
       "attributes": {
         "agoric.event.kind": "custom",
         "agoric.chain.id": "agoriclocal",
@@ -17,7 +19,8 @@
         "agoric.contract.instance": "board0sendAnywhere",
         "agoric.flow.id": "flow-sendIt-0455",
         "agoric.flow.name": "sendIt",
-        "agoric.flow.state": "Sleeping"
+        "agoric.flow.state": "Sleeping",
+        "agoric.vat.incarnation": 3
       }
     },
     {
@@ -28,7 +31,9 @@
       "name": "flow.restart",
       "startTime": "2026-09-16T09:15:00.000Z",
       "endTime": "2026-09-16T09:15:00.000Z",
-      "status": { "code": "ok" },
+      "status": {
+        "code": "ok"
+      },
       "attributes": {
         "agoric.event.kind": "flow.restarted",
         "agoric.chain.id": "agoriclocal",
@@ -40,7 +45,8 @@
         "agoric.exo.label": "AsyncFlowKit",
         "agoric.exo.facet": "flow",
         "agoric.exo.method": "restart",
-        "agoric.retry.attempt": 1
+        "agoric.retry.attempt": 1,
+        "agoric.vat.incarnation": 4
       }
     },
     {
@@ -51,7 +57,9 @@
       "name": "flow.wake",
       "startTime": "2026-09-16T09:15:00.400Z",
       "endTime": "2026-09-16T09:15:03.000Z",
-      "status": { "code": "ok" },
+      "status": {
+        "code": "ok"
+      },
       "attributes": {
         "agoric.event.kind": "custom",
         "agoric.chain.id": "agoriclocal",
@@ -62,7 +70,8 @@
         "agoric.exo.label": "AsyncFlowKit",
         "agoric.exo.facet": "flow",
         "agoric.exo.method": "wake",
-        "agoric.retry.attempt": 1
+        "agoric.retry.attempt": 1,
+        "agoric.vat.incarnation": 4
       }
     },
     {
@@ -73,14 +82,17 @@
       "name": "vow resolved",
       "startTime": "2026-09-16T09:15:03.000Z",
       "endTime": "2026-09-16T09:15:03.000Z",
-      "status": { "code": "ok" },
+      "status": {
+        "code": "ok"
+      },
       "attributes": {
         "agoric.event.kind": "vow.resolved",
         "agoric.chain.id": "agoriclocal",
         "agoric.block.height": 201339,
         "agoric.flow.id": "flow-sendIt-0455",
         "agoric.flow.state": "Done",
-        "agoric.retry.attempt": 1
+        "agoric.retry.attempt": 1,
+        "agoric.vat.incarnation": 4
       }
     }
   ]

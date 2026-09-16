@@ -29,3 +29,7 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 ## 2026-09-16, day 2 findings
 
 **Config.** Added `aat config show` (resolved value plus source layer per key). Network resolution seeds endpoints before file and flag values, so `--network` overrides a file's endpoints and explicit flags override both. Unknown config keys and malformed env values are errors, not ignored. Testnet chain ids in networks.json are last-known and flagged; each entry carries its networkConfig URL for live verification. Mainnet entry carries no pay denom by design.
+
+## 2026-09-16, day 3 findings
+
+**Format A.** Sixteen event kinds as planned. Departures from OpenTelemetry: RFC 3339 times, agoric.block.height as ordering key, self-describing schema field. Nat/bigint values are decimal strings. Upstream port/channel spellings vary by layer (portId, portID, source_port); normalised to agoric.port.id and agoric.channel.id. Exo facet identity is the facet key, not the M.interface label, because labels collide upstream. The agoric.* namespace is closed; unregistered names are errors. Added agoric.vat.incarnation so restart and upgrade can be told apart. Validator is hand-written with a schema-drift test; the JSON Schema stays normative.

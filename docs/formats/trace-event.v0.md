@@ -132,6 +132,7 @@ field each one came from.
 | `agoric.flow.name` | string | the exported flow function, e.g. `sendIt` |
 | `agoric.flow.state` | string | `getFlowState()`: `Running`, `Sleeping`, `Replaying`, `Failed`, `Done` |
 | `agoric.retry.attempt` | integer | plan §1.4 |
+| `agoric.vat.incarnation` | integer | the vat's incarnation number |
 | `agoric.exo.label` | string | `zone.exoClassKit` first argument |
 | `agoric.exo.facet` | string | facet **key** in the behavior record |
 | `agoric.exo.method` | string | the method invoked |
@@ -221,7 +222,7 @@ with exactly one root span.
 | `flow-restart.json` | A flow restarts across an upgrade. Same `traceId` and `agoric.flow.id` on both sides; the `agoric.flow.state` changes. |
 | `multi-hop-send-anywhere.json` | The USDC branch of `sendIt` from the real send-anywhere contract: offer, local transfer, IBC to Noble, CCTP `depositForBurn`, seat exit. |
 
-Twelve invalid, in `invalid/`, each paired in the test with the code it must
+Thirteen invalid, in `invalid/`, each paired in the test with the code it must
 report — so a fixture that starts failing for a *different* reason is a test
 failure, not a silent pass. See that directory's README for the table.
 
@@ -266,5 +267,7 @@ cannot fall out of step silently.
 - Is the closed `agoric.*` namespace too strict for a first version? The
   alternative is a warning rather than an error, at the cost of letting
   misspellings into stored data where they cannot be fixed.
-- Should a span carry the vat incarnation number, so traces spanning an upgrade
-  can be told apart from traces spanning a restart within one incarnation?
+- ~~Should a span carry the vat incarnation number?~~ **Resolved 2026-09-16:**
+  yes, as the optional `agoric.vat.incarnation`. A restart within one
+  incarnation leaves it alone; an upgrade increments it, which is the only way
+  to tell the two apart from a trace. `flow-restart.json` shows it going 3 to 4.

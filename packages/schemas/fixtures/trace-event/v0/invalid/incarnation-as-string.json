@@ -1,0 +1,21 @@
+{
+  "$comment": "agoric.vat.incarnation as a string rather than an integer. The exact mirror of sequence-as-number.json: an incarnation number is a small counter and belongs in a JSON number, while a packet sequence is a bigint and must be a decimal string. Getting the two the wrong way round is the easy mistake, so both directions are fixtures.",
+  "schema": "trace-event.v0",
+  "traceId": "0123456789abcdef0123456789abcdef",
+  "spanId": "1f2e3d4c5b6a7980",
+  "parentSpanId": null,
+  "name": "flow.restart",
+  "startTime": "2026-09-16T09:15:00.000Z",
+  "endTime": "2026-09-16T09:15:00.000Z",
+  "status": {
+    "code": "ok"
+  },
+  "attributes": {
+    "agoric.event.kind": "flow.restarted",
+    "agoric.chain.id": "agoriclocal",
+    "agoric.block.height": 201337,
+    "agoric.flow.id": "flow-sendIt-0455",
+    "agoric.flow.state": "Replaying",
+    "agoric.vat.incarnation": "4"
+  }
+}

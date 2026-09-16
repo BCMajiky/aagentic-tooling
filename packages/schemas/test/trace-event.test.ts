@@ -101,6 +101,17 @@ test('the fixtures form connected traces: every parent exists in its own file', 
   }
 });
 
+test('the flow-restart fixture shows the incarnation changing across the upgrade', t => {
+  // This is what agoric.vat.incarnation exists for: a restart within one
+  // incarnation leaves it alone, an upgrade increments it.
+  const doc = readJson(`${fixtureDir}/valid/flow-restart.json`) as FixtureDoc;
+  const events = doc.events as Array<{ attributes: Record<string, unknown> }>;
+  const incarnations = events.map(
+    event => event.attributes['agoric.vat.incarnation'],
+  );
+  t.deepEqual(incarnations, [3, 4, 4, 4]);
+});
+
 test('the multi-hop fixture is a send-anywhere transfer with two hops', t => {
   // STAGE0-BRIEF.md asks specifically for this, so that the fixture can be
   // checked against the real contract once examples/send-anywhere lands.
@@ -132,6 +143,7 @@ const EXPECTED_FAILURES: Readonly<Record<string, string>> = {
   'end-before-start.json': 'TRACE_END_BEFORE_START',
   'error-without-message.json': 'TRACE_MISSING_ERROR_MESSAGE',
   'extra-top-level-field.json': 'TRACE_UNKNOWN_FIELD',
+  'incarnation-as-string.json': 'TRACE_BAD_ATTRIBUTE_TYPE',
   'missing-required-attribute.json': 'TRACE_MISSING_ATTRIBUTE',
   'nested-attribute.json': 'TRACE_BAD_ATTRIBUTE_VALUE',
   'rejected-but-ok.json': 'TRACE_STATUS_CONTRADICTS_KIND',

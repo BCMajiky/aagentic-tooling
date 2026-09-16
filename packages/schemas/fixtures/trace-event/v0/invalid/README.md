@@ -22,3 +22,4 @@ cheapest documentation of what the format actually rules out.
 | `end-before-start.json` | `TRACE_END_BEFORE_START` |
 | `nested-attribute.json` | `TRACE_BAD_ATTRIBUTE_VALUE` |
 | `extra-top-level-field.json` | `TRACE_UNKNOWN_FIELD` |
+| `incarnation-as-string.json` | `TRACE_BAD_ATTRIBUTE_TYPE` |
