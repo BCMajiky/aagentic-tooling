@@ -1,0 +1,24 @@
+{
+  "name": "@dcfoundation/example-offer-up",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "The Offer Up tutorial contract, copied from dapp-offer-up at 4ea27c5 and checked against zoe 0.28.0-u23.1. A format B and SES smoke subject.",
+  "main": "./src/offer-up.contract.js",
+  "files": [
+    "src"
+  ],
+  "engines": {
+    "node": "^22.11 || ^24.14"
+  },
+  "dependencies": {
+    "@agoric/ertp": "0.18.0-u23.1",
+    "@agoric/zoe": "0.28.0-u23.1",
+    "@endo/far": "1.1.14",
+    "@endo/patterns": "1.7.0"
+  },
+  "scripts": {
+    "test": "exit 0"
+  }
+}

@@ -13,6 +13,11 @@ export default tseslint.config(
       '.yarn/**',
       // Pinned upstream clones live outside this tree, but guard anyway.
       '**/upstream/**',
+      // examples/ holds @agoric API-exact copies of upstream contracts. They
+      // are checked by the SES smoke job, not by our house lint rules:
+      // linting them here would invite "improving" them, which the brief
+      // explicitly forbids.
+      'examples/**',
     ],
   },
 
@@ -62,7 +67,11 @@ export default tseslint.config(
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
     },
   },
@@ -81,5 +90,17 @@ export default tseslint.config(
     // plugins that ship no types. Lint it, but not with type information.
     files: ['**/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
+  },
+
+  {
+    // Entrypoint scripts. These are the places ambient authority is allowed,
+    // and the SES smoke job bundles each example in turn on purpose: a bundle
+    // is over a megabyte, and doing them concurrently spikes memory and
+    // interleaves the output that a failing job is read for.
+    files: ['scripts/**/*.mjs'],
+    rules: {
+      'no-await-in-loop': 'off',
+      'no-console': 'off',
+    },
   },
 );
