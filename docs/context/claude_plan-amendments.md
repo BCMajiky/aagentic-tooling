@@ -40,3 +40,13 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 
 **Format B.** 24-kind closed pattern vocabulary taken from the two subjects and zoe typeGuards; three structural kinds added: literal, exactRecord, ref. ref carries values that only exist at contract start (terms, brands). Offer Up's manifest has an empty facets section and a complete invitations section, which confirms D2: the offer surface is what clients need. bundleId is required and nullable; traces absent means not instrumented, traces: [] means instrumented and silent. examples/ is excluded from lint; the smoke job is its check.
 
+## 2026-09-16, day 5 manifest reviews
+
+**Both manifests reviewed by someone other than the author. Both passed, each with fixes applied.**
+
+**Offer Up.** Two changes. `"open": false` was unexplained in the file; it now states what it means and points at the spec. And the contract transfers Price to an internal proceeds seat that nothing withdraws from — no creator facet, and no recovery by upgrade either since it uses start rather than prepare and holds no baggage — so proceeds are stranded for the contract's lifetime. Correction to an earlier claim of mine: the reviewer found this by reading offer-up.contract.js, NOT from the manifest. The manifest did not carry it and the format cannot express it. That is now open question 9 in the design note: a manifest cannot say where value ends up or who can withdraw it.
+
+**send-anywhere.** One gap. `published` listed only the log node, but the contract starts with `withOrchestration(contract, { publishAccountInfo: true })`, which passes storageNode through to provideOrchestration; the chain facades then create a child node per orchestration account, named after the account's own address. Added: `published.{instancePath}.{localAccountAddress}` (LocalOrchestrationAccount writes the empty string, pending agoric-sdk#9066) and `published.{instancePath}.{nobleAccountAddress}` (CosmosOrchestrationAccount writes `{ localAddress, remoteAddress }`, the ICS-27 endpoint strings carrying port, channel and connection ids).
+
+**Lesson for Release 6.** The send-anywhere gap is not an authoring slip: two of the three paths are written by @agoric/orchestration on the contract's behalf, gated on an option to withOrchestration. A generator that reads only the contract body will reproduce the same omission. It has to follow the start-helper wrapper.
+

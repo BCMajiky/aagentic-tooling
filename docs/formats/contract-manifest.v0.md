@@ -54,7 +54,7 @@ taught us, and it is the argument for keeping unguarded facets in scope.
 | `contract` | package.json + the bundle | `name`, `version`, `bundleId`. |
 | `facets.<name>` | `M.interface` guards or the `Far` literal | `guard`, `label`, `methods`. |
 | `invitations` | invitation-maker methods and their `proposalShape` | description, maker, proposal, offer args. |
-| `published` | vstorage paths the contract writes | Path template, value schema if known. |
+| `published` | vstorage paths written while the contract runs, by it or on its behalf | Path template, value schema if known. |
 | `terms`, `privateArgs` | `meta.customTermsShape` and the `start` signature | The seed of Preflight's capability report. |
 | `traces` | optional | Trace event kinds emitted; the join to format A. |
 | `notes` | nobody | Prose. The one section not derived. |
@@ -68,10 +68,15 @@ Three details worth stating because they cost time otherwise:
   sha512 of the bundle's `endoZipBase64`.
 - **`traces` absent is not the same as `traces: []`.** Absent means the contract
   is not instrumented; empty means it is instrumented and emits nothing.
-- **`published` covers only what the *contract* writes.** Offer Up's `published`
-  is empty even though the dapp writes `published.boardAux.<boardId>`, because
-  that write is in `offer-up-proposal.js`, the core-eval deploy script, which is
-  not part of the contract bundle.
+- **`published` is drawn at the bundle boundary, not at the source file.** It
+  covers everything written while the contract runs, including what a library
+  writes on its behalf: two of send-anywhere's three paths are written by
+  `@agoric/orchestration`, not by any line in the contract. It excludes what the
+  deploy script writes, which is why Offer Up's `published` is empty even though
+  the dapp writes `published.boardAux.<boardId>` — that write lives in
+  `offer-up-proposal.js`, a core-eval script that is not part of the bundle.
+  Getting this boundary wrong in the obvious direction, by reading only the
+  contract body, is what the send-anywhere review caught.
 
 ## Pattern vocabulary
 
@@ -224,7 +229,30 @@ rounded off later.
 
 The gap itself is a candidate for v0.1; see the open questions.
 
-`send-anywhere` has not been reviewed yet.
+**send-anywhere: done, by someone other than the author, checked against the
+u23a source. It passed,** with one gap that has been fixed. `published` listed
+only the `log` node, but the contract starts with
+`withOrchestration(contract, { publishAccountInfo: true })`, and that flag is
+what makes `withOrchestration` pass `storageNode` through to
+`provideOrchestration`. The chain facades then create a child node per
+orchestration account:
+
+| Path | Written by | Value |
+|---|---|---|
+| `published.{instancePath}.log` | the contract, `E(storageNode).makeChildNode('log')` | a line of progress text per flow step |
+| `published.{instancePath}.{localAccountAddress}` | `prepareLocalChainFacade` → `LocalOrchestrationAccount` | the empty string, pending agoric-sdk#9066 |
+| `published.{instancePath}.{nobleAccountAddress}` | `prepareRemoteChainFacade` → `CosmosOrchestrationAccount` | `{ localAddress, remoteAddress }`, the ICS-27 endpoint strings carrying port, channel and connection ids |
+
+Both account nodes are named after the account's own address, so the path
+segment is not knowable until the contract runs — hence the placeholders.
+
+**What this says about the format.** Nothing in the manifest was wrong; it was
+incomplete, and incomplete in a way the author could not have caught by reading
+the contract file alone. Two of the three paths are written by
+`@agoric/orchestration` on the contract's behalf, gated on an option passed to
+`withOrchestration`. A generator that reads only the contract source will make
+exactly this mistake, so Release 6 has to follow the start-helper wrapper, not
+just the contract body.
 
 ## Open questions for the design note
 

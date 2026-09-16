@@ -34,28 +34,40 @@
         "registerChain": {
           "callKind": "callWhen",
           "params": [
-            { "kind": "string" },
+            {
+              "kind": "string"
+            },
             {
               "kind": "ref",
               "name": "ChainInfoShape",
               "module": "@agoric/orchestration/src/typeGuards.js"
             }
           ],
-          "optionalParams": [{ "kind": "record" }],
-          "returns": { "kind": "undefined" },
+          "optionalParams": [
+            {
+              "kind": "record"
+            }
+          ],
+          "returns": {
+            "kind": "undefined"
+          },
           "summary": "Register a chain the local ChainHub does not already know, optionally with its IBC connection from the Agoric chain."
         },
         "registerAsset": {
           "callKind": "call",
           "params": [
-            { "kind": "string" },
+            {
+              "kind": "string"
+            },
             {
               "kind": "ref",
               "name": "DenomDetailShape",
               "module": "@agoric/orchestration/src/typeGuards.js"
             }
           ],
-          "returns": { "kind": "promise" },
+          "returns": {
+            "kind": "promise"
+          },
           "summary": "Register a denom that may be held on a chain other than the one that issued it. Its chainName and baseName must already be registered."
         }
       }
@@ -75,17 +87,24 @@
               "of": [
                 {
                   "kind": "recordOf",
-                  "keys": { "kind": "string" },
+                  "keys": {
+                    "kind": "string"
+                  },
                   "values": {
                     "kind": "ref",
                     "name": "AnyNatAmountShape",
                     "module": "@agoric/orchestration/src/typeGuards.js"
                   },
-                  "limits": { "numPropertiesLimit": 1 }
+                  "limits": {
+                    "numPropertiesLimit": 1
+                  }
                 },
                 {
                   "kind": "not",
-                  "of": { "kind": "literal", "value": {} }
+                  "of": {
+                    "kind": "literal",
+                    "value": {}
+                  }
                 }
               ]
             }
@@ -95,8 +114,12 @@
       "offerArgs": {
         "kind": "exactRecord",
         "entries": {
-          "chainName": { "kind": "scalar" },
-          "destAddr": { "kind": "string" }
+          "chainName": {
+            "kind": "scalar"
+          },
+          "destAddr": {
+            "kind": "string"
+          }
         }
       }
     }
@@ -104,23 +127,67 @@
   "published": [
     {
       "path": "published.{instancePath}.log",
-      "valueSchema": { "kind": "string" },
+      "valueSchema": {
+        "kind": "string"
+      },
       "summary": "A line of progress text per step of the sendIt flow. A placeholder until Agoric/agoric-sdk#9066 gives orchestration a real progress channel."
+    },
+    {
+      "path": "published.{instancePath}.{localAccountAddress}",
+      "valueSchema": {
+        "kind": "string"
+      },
+      "summary": "The shared local (agoric1...) account created at start by sharedLocalAccountP. prepareLocalChainFacade names the child node after the account's bech32 address (local-chain-facade.js makeAccountWatcher: E(storageNode).makeChildNode(address)), and LocalOrchestrationAccount writes the empty string to it on construction, pending Agoric/agoric-sdk#9066 deciding what a local account should publish. The node's existence and its name are the information today; the value is not yet."
+    },
+    {
+      "path": "published.{instancePath}.{nobleAccountAddress}",
+      "valueSchema": {
+        "kind": "exactRecord",
+        "entries": {
+          "localAddress": {
+            "kind": "string"
+          },
+          "remoteAddress": {
+            "kind": "string"
+          }
+        }
+      },
+      "summary": "The Noble interchain account created at start by nobleAccountP. prepareRemoteChainFacade names the child node after chainAddress.value, and CosmosOrchestrationAccount writes { localAddress, remoteAddress } to it: the ICS-27 LocalIbcAddress and RemoteIbcAddress strings, which carry the port, channel and connection identifiers. Upstream notes these will not update if the IcaAccount is reopened with new values."
     }
   ],
   "terms": {},
   "privateArgs": {
-    "localchain": { "kind": "remotable", "label": "LocalChain" },
-    "orchestrationService": { "kind": "remotable", "label": "CosmosInterchainService" },
-    "timerService": { "kind": "remotable", "label": "TimerService" },
-    "agoricNames": { "kind": "remotable", "label": "NameHub" },
-    "storageNode": { "kind": "remotable", "label": "StorageNode" },
-    "marshaller": { "kind": "remotable", "label": "Marshaller" },
+    "localchain": {
+      "kind": "remotable",
+      "label": "LocalChain"
+    },
+    "orchestrationService": {
+      "kind": "remotable",
+      "label": "CosmosInterchainService"
+    },
+    "timerService": {
+      "kind": "remotable",
+      "label": "TimerService"
+    },
+    "agoricNames": {
+      "kind": "remotable",
+      "label": "NameHub"
+    },
+    "storageNode": {
+      "kind": "remotable",
+      "label": "StorageNode"
+    },
+    "marshaller": {
+      "kind": "remotable",
+      "label": "Marshaller"
+    },
     "chainInfo": {
       "kind": "opt",
       "of": {
         "kind": "recordOf",
-        "keys": { "kind": "string" },
+        "keys": {
+          "kind": "string"
+        },
         "values": {
           "kind": "ref",
           "name": "CosmosChainInfoShape",
@@ -149,6 +216,7 @@
     "Every ref here names a shape exported by a package, so each carries a module and a generator can resolve it. That is the difference from Offer Up, whose refs name values that only exist once the contract has started.",
     "terms is empty: the contract declares no meta.customTermsShape. It does read zcf.getTerms().brands.USDC, so it must be started with a USDC issuer keyword, which is a requirement the terms section cannot currently express. That is a gap worth raising before Release 6.",
     "privateArgs is OrchestrationPowers plus marshaller, storageNode and the two optional ChainHub seeds. withOrchestration destructures marshaller out and passes the rest through, and publishAccountInfo: true means storageNode is required rather than optional here.",
+    "The two account nodes are published because start is withOrchestration(contract, { publishAccountInfo: true }). That flag is what makes withOrchestration pass storageNode through to provideOrchestration (start-helper.js: publishAccountInfo ? allOrchPowers : requiredOrchPowers), and the chain facades only create a child node when they are given one. Started with publishAccountInfo unset, this contract would publish the log node and nothing else. The instance path segment is set by the deploy script rather than the contract; the SDK's own proposals/start-send-anywhere.js uses chainStorage.makeChildNode('send-anywhere'), giving published.send-anywhere.",
     "traces is absent: this contract is not instrumented. The multi-hop fixture in fixtures/trace-event/v0/valid/multi-hop-send-anywhere.json shows what it would emit once VowScope instruments it in Release 7, which is the intended join between the two formats."
   ]
 }
