@@ -1,0 +1,19 @@
+{
+  "$comment": "agoric.chainId, the camelCase spelling an emitter would reach for by habit, instead of the registered agoric.chain.id. This is the single most likely real-world mistake and the main reason the agoric.* namespace is closed.",
+  "schema": "trace-event.v0",
+  "traceId": "abcdef0123456789abcdef0123456789",
+  "spanId": "0000000000000001",
+  "parentSpanId": null,
+  "name": "sendIt",
+  "startTime": "2026-09-16T14:00:00.000Z",
+  "endTime": "2026-09-16T14:00:01.000Z",
+  "status": {
+    "code": "ok"
+  },
+  "attributes": {
+    "agoric.event.kind": "custom",
+    "agoric.chain.id": "agoriclocal",
+    "agoric.block.height": 210000,
+    "agoric.chainId": "agoriclocal"
+  }
+}

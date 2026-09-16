@@ -1,0 +1,83 @@
+{
+  "$comment": "Fixture 2 of 5: an ICA call with an acknowledgement. CosmosOrchestrationAccount.delegate sends a MsgDelegate over the interchain account and waits for the ack. Three spans: the flow, the send, and the ack that settles it. The send stays unset until the ack arrives, which is why its endTime is null while the trace is open; here it has settled.",
+  "events": [
+    {
+      "schema": "trace-event.v0",
+      "traceId": "77a0c1d2e3f405162738495a6b7c8d9e",
+      "spanId": "1122334455667788",
+      "parentSpanId": null,
+      "name": "delegate",
+      "startTime": "2026-09-16T11:20:00.000Z",
+      "endTime": "2026-09-16T11:20:14.500Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "custom",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 184500,
+        "agoric.contract.instance": "board05040",
+        "agoric.flow.id": "flow-delegate-0031",
+        "agoric.flow.name": "delegate",
+        "agoric.flow.state": "Done",
+        "agoric.exo.label": "Cosmos Orchestration Account Holder",
+        "agoric.exo.facet": "holder",
+        "agoric.exo.method": "delegate"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "77a0c1d2e3f405162738495a6b7c8d9e",
+      "spanId": "2233445566778899",
+      "parentSpanId": "1122334455667788",
+      "name": "ica.executeEncodedTx",
+      "startTime": "2026-09-16T11:20:00.100Z",
+      "endTime": "2026-09-16T11:20:14.400Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "ica.send",
+        "agoric.chain.id": "osmosis-1",
+        "agoric.block.height": 184501,
+        "agoric.contract.instance": "board05040",
+        "agoric.flow.id": "flow-delegate-0031",
+        "agoric.chain.name": "osmosis",
+        "agoric.chain.address": "osmo1test0account0for0fixture0only0000000",
+        "agoric.chain.address.encoding": "bech32",
+        "agoric.connection.id": "connection-1",
+        "agoric.port.id": "icacontroller-1",
+        "agoric.channel.id": "channel-1",
+        "agoric.counterparty.port.id": "icahost",
+        "agoric.counterparty.channel.id": "channel-42",
+        "agoric.ibc.local.address": "/ibc-port/icacontroller-1/ordered/{\"version\":\"ics27-1\"}",
+        "agoric.ibc.remote.address": "/ibc-hop/connection-1/ibc-port/icahost/ordered/{\"version\":\"ics27-1\"}",
+        "agoric.exo.label": "IcaAccountKit",
+        "agoric.exo.facet": "account",
+        "agoric.exo.method": "executeEncodedTx",
+        "agoric.packet.sequence": "17",
+        "agoric.packet.timeout.timestamp": "1789576451000000000"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "77a0c1d2e3f405162738495a6b7c8d9e",
+      "spanId": "33445566778899aa",
+      "parentSpanId": "2233445566778899",
+      "name": "ica.ack",
+      "startTime": "2026-09-16T11:20:14.300Z",
+      "endTime": "2026-09-16T11:20:14.400Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "ica.ack",
+        "agoric.chain.id": "osmosis-1",
+        "agoric.block.height": 184512,
+        "agoric.flow.id": "flow-delegate-0031",
+        "agoric.chain.address": "osmo1test0account0for0fixture0only0000000",
+        "agoric.chain.address.encoding": "bech32",
+        "agoric.channel.id": "channel-1",
+        "agoric.packet.sequence": "17",
+        "agoric.packet.ack": "EiUKIy9jb3Ntb3Muc3Rha2luZy52MWJldGExLk1zZ0RlbGVnYXRl",
+        "agoric.exo.label": "IcaAccountKit",
+        "agoric.exo.facet": "parseTxPacketWatcher",
+        "agoric.exo.method": "onFulfilled"
+      }
+    }
+  ]
+}

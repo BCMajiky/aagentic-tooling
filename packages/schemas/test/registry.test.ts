@@ -8,8 +8,17 @@ test('the format registry is hardened', t => {
   t.true(Object.isFrozen(formats));
 });
 
-test('no formats are registered yet', t => {
-  // Day 3 replaces this with `trace-event v0`, day 4 adds
-  // `contract-manifest v0`. Until then the registry is empty on purpose.
-  t.deepEqual([...formats], []);
+test('trace-event v0 is registered', t => {
+  // Day 4 adds `contract-manifest v0` as one more entry here.
+  t.deepEqual(
+    formats.map(format => `${format.name} ${format.version}`),
+    ['trace-event v0'],
+  );
+});
+
+test('every registered format has a usable summary', t => {
+  for (const format of formats) {
+    t.true(format.summary.length > 10, `${format.name} has a stub summary`);
+    t.regex(format.version, /^v\d+$/, `${format.name} has an odd version`);
+  }
 });

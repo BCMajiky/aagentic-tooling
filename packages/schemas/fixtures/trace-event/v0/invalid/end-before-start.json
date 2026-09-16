@@ -1,0 +1,18 @@
+{
+  "$comment": "endTime precedes startTime.",
+  "schema": "trace-event.v0",
+  "traceId": "abcdef0123456789abcdef0123456789",
+  "spanId": "0000000000000001",
+  "parentSpanId": null,
+  "name": "sendIt",
+  "startTime": "2026-09-16T14:00:05.000Z",
+  "endTime": "2026-09-16T14:00:01.000Z",
+  "status": {
+    "code": "ok"
+  },
+  "attributes": {
+    "agoric.event.kind": "custom",
+    "agoric.chain.id": "agoriclocal",
+    "agoric.block.height": 210000
+  }
+}

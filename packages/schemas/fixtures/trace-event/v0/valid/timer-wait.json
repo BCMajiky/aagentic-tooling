@@ -1,0 +1,49 @@
+{
+  "$comment": "Fixture 1 of 5: a timer wait. A flow sets a timer and is woken by it. Two spans: the set is the parent, the firing is its child, and the gap between them is the wait. Modelled on CosmosOrchestrationAccount undelegate, which calls E(this.state.timer).wakeAt(completionTime) and sleeps until the unbonding period is up.",
+  "events": [
+    {
+      "schema": "trace-event.v0",
+      "traceId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+      "spanId": "a1b2c3d4e5f60718",
+      "parentSpanId": null,
+      "name": "timer.wakeAt",
+      "startTime": "2026-09-16T10:04:11.000Z",
+      "endTime": "2026-09-16T10:04:11.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "timer.set",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 184021,
+        "agoric.contract.instance": "board05040",
+        "agoric.flow.id": "flow-undelegate-0007",
+        "agoric.flow.name": "undelegate",
+        "agoric.flow.state": "Running",
+        "agoric.exo.label": "Cosmos Orchestration Account Holder",
+        "agoric.exo.facet": "holder",
+        "agoric.exo.method": "undelegate",
+        "agoric.timer.abs.value": "1789574651000000000",
+        "agoric.timer.rel.value": "1814400000000000"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "4f1a2b3c4d5e6f708192a3b4c5d6e7f8",
+      "spanId": "b2c3d4e5f6071829",
+      "parentSpanId": "a1b2c3d4e5f60718",
+      "name": "timer.wake",
+      "startTime": "2026-09-16T10:04:11.000Z",
+      "endTime": "2026-09-30T10:04:11.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "timer.fired",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 385117,
+        "agoric.contract.instance": "board05040",
+        "agoric.flow.id": "flow-undelegate-0007",
+        "agoric.flow.name": "undelegate",
+        "agoric.flow.state": "Running",
+        "agoric.timer.abs.value": "1789574651000000000"
+      }
+    }
+  ]
+}

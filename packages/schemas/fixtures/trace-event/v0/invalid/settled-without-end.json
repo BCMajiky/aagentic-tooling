@@ -1,0 +1,18 @@
+{
+  "$comment": "status.code ok but endTime null. The span claims to have settled and to still be open.",
+  "schema": "trace-event.v0",
+  "traceId": "abcdef0123456789abcdef0123456789",
+  "spanId": "0000000000000001",
+  "parentSpanId": null,
+  "name": "sendIt",
+  "startTime": "2026-09-16T14:00:00.000Z",
+  "endTime": null,
+  "status": {
+    "code": "ok"
+  },
+  "attributes": {
+    "agoric.event.kind": "custom",
+    "agoric.chain.id": "agoriclocal",
+    "agoric.block.height": 210000
+  }
+}

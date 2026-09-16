@@ -1,0 +1,192 @@
+{
+  "$comment": "Fixture 5 of 5: a multi-hop transfer, traced against the real send-anywhere contract (agoric-sdk-u23 packages/orchestration/src/examples/send-anywhere.flows.js at cc25a29). This is the USDC branch of sendIt: the offer arrives, zoeTools.localTransfer moves the give into the contract's shared local account, sharedLocalAccount.transfer sends it over IBC to the Noble account (hop 1), nobleAccount.depositForBurn burns it for CCTP delivery to the destination (hop 2), and the seat exits. Two hops, one trace, one flow id throughout. Chosen so it can be checked against the contract itself once examples/send-anywhere lands on day 5.",
+  "events": [
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000001",
+      "parentSpanId": null,
+      "name": "sendIt",
+      "startTime": "2026-09-16T14:00:00.000Z",
+      "endTime": "2026-09-16T14:01:12.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "custom",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 210000,
+        "agoric.contract.instance": "board0sendAnywhere",
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.flow.name": "sendIt",
+        "agoric.flow.state": "Done",
+        "agoric.chain.name": "ethereum"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000002",
+      "parentSpanId": "0000000000000001",
+      "name": "offer sendIt",
+      "startTime": "2026-09-16T14:00:00.000Z",
+      "endTime": "2026-09-16T14:00:00.200Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "offer.received",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 210000,
+        "agoric.contract.instance": "board0sendAnywhere",
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.offer.id": "offer-1789574400",
+        "agoric.denom": "ibc/usdc-on-agoric",
+        "agoric.amount.value": "5000000"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000003",
+      "parentSpanId": "0000000000000001",
+      "name": "localTransfer",
+      "startTime": "2026-09-16T14:00:00.300Z",
+      "endTime": "2026-09-16T14:00:01.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "custom",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 210001,
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.exo.label": "Local Orchestration Account Kit",
+        "agoric.exo.facet": "holder",
+        "agoric.exo.method": "deposit",
+        "agoric.chain.address": "agoric1sendanywherelocalaccount000000000000",
+        "agoric.chain.address.encoding": "bech32",
+        "agoric.denom": "ibc/usdc-on-agoric",
+        "agoric.amount.value": "5000000"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000004",
+      "parentSpanId": "0000000000000001",
+      "name": "hop 1: agoric to noble",
+      "startTime": "2026-09-16T14:00:01.100Z",
+      "endTime": "2026-09-16T14:00:38.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "ibc.transfer",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 210002,
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.chain.name": "noble",
+        "agoric.exo.label": "Local Orchestration Account Kit",
+        "agoric.exo.facet": "holder",
+        "agoric.exo.method": "transfer",
+        "agoric.connection.id": "connection-3",
+        "agoric.port.id": "transfer",
+        "agoric.channel.id": "channel-8",
+        "agoric.counterparty.port.id": "transfer",
+        "agoric.counterparty.channel.id": "channel-21",
+        "agoric.chain.address": "noble1sendanywhereintermediate00000000000",
+        "agoric.chain.address.encoding": "bech32",
+        "agoric.denom": "ibc/usdc-on-agoric",
+        "agoric.denom.base": "uusdc",
+        "agoric.amount.value": "5000000",
+        "agoric.packet.sequence": "512",
+        "agoric.packet.timeout.timestamp": "1789578000000000000",
+        "agoric.operation": "transfer"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000005",
+      "parentSpanId": "0000000000000004",
+      "name": "hop 1 ack",
+      "startTime": "2026-09-16T14:00:37.500Z",
+      "endTime": "2026-09-16T14:00:38.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "ibc.ack",
+        "agoric.chain.id": "noble-1",
+        "agoric.block.height": 210007,
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.chain.name": "noble",
+        "agoric.channel.id": "channel-8",
+        "agoric.packet.sequence": "512",
+        "agoric.packet.ack": "AQ==",
+        "agoric.denom": "uusdc",
+        "agoric.amount.value": "5000000",
+        "agoric.operation": "transfer"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000006",
+      "parentSpanId": "0000000000000001",
+      "name": "hop 2: depositForBurn",
+      "startTime": "2026-09-16T14:00:38.500Z",
+      "endTime": "2026-09-16T14:01:11.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "ica.send",
+        "agoric.chain.id": "noble-1",
+        "agoric.block.height": 210008,
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.chain.name": "noble",
+        "agoric.exo.label": "Cosmos Orchestration Account Holder",
+        "agoric.exo.facet": "holder",
+        "agoric.exo.method": "depositForBurn",
+        "agoric.chain.address": "noble1sendanywhereintermediate00000000000",
+        "agoric.chain.address.encoding": "bech32",
+        "agoric.account.id": "eip155:1:0x00000000000000000000000000000000deadbeef",
+        "agoric.connection.id": "connection-3",
+        "agoric.port.id": "icacontroller-7",
+        "agoric.channel.id": "channel-9",
+        "agoric.denom": "uusdc",
+        "agoric.amount.value": "5000000",
+        "agoric.packet.sequence": "513"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000007",
+      "parentSpanId": "0000000000000006",
+      "name": "hop 2 ack",
+      "startTime": "2026-09-16T14:01:10.500Z",
+      "endTime": "2026-09-16T14:01:11.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "ica.ack",
+        "agoric.chain.id": "noble-1",
+        "agoric.block.height": 210013,
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.chain.address": "noble1sendanywhereintermediate00000000000",
+        "agoric.chain.address.encoding": "bech32",
+        "agoric.channel.id": "channel-9",
+        "agoric.packet.sequence": "513",
+        "agoric.packet.ack": "EiIKIC9jaXJjbGUuY2N0cC52MS5Nc2dEZXBvc2l0Rm9yQnVybg=="
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "abcdef0123456789abcdef0123456789",
+      "spanId": "0000000000000008",
+      "parentSpanId": "0000000000000001",
+      "name": "seat.exit",
+      "startTime": "2026-09-16T14:01:11.500Z",
+      "endTime": "2026-09-16T14:01:12.000Z",
+      "status": { "code": "ok" },
+      "attributes": {
+        "agoric.event.kind": "offer.exited",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 210014,
+        "agoric.contract.instance": "board0sendAnywhere",
+        "agoric.flow.id": "flow-sendIt-0900",
+        "agoric.offer.id": "offer-1789574400"
+      }
+    }
+  ]
+}

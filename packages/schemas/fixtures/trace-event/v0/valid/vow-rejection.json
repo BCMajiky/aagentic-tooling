@@ -1,0 +1,97 @@
+{
+  "$comment": "Fixture 3 of 5: a vow rejection. LocalOrchestrationAccount.transfer sends an ICS20 packet and the counterparty chain times it out; packet-tools rejects the vow. Four spans: the flow, the pending vow, the timeout that causes it, and the rejection that settles it. The error message is the one ibc-packet.js actually produces, `${bare(opName)} operation received timeout packet`.",
+  "events": [
+    {
+      "schema": "trace-event.v0",
+      "traceId": "9c8b7a6958473625140f1e2d3c4b5a69",
+      "spanId": "aabbccddeeff0011",
+      "parentSpanId": null,
+      "name": "sendIt",
+      "startTime": "2026-09-16T12:00:00.000Z",
+      "endTime": "2026-09-16T12:10:02.000Z",
+      "status": {
+        "code": "error",
+        "message": "IBC Transfer failed \"[Error: transfer operation received timeout packet]\""
+      },
+      "attributes": {
+        "agoric.event.kind": "custom",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 190000,
+        "agoric.contract.instance": "board0sendAnywhere",
+        "agoric.flow.id": "flow-sendIt-0102",
+        "agoric.flow.name": "sendIt",
+        "agoric.flow.state": "Done",
+        "agoric.chain.name": "osmosis"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "9c8b7a6958473625140f1e2d3c4b5a69",
+      "spanId": "bbccddeeff001122",
+      "parentSpanId": "aabbccddeeff0011",
+      "name": "vow sendThenWaitForAck",
+      "startTime": "2026-09-16T12:00:00.500Z",
+      "endTime": null,
+      "status": { "code": "unset" },
+      "attributes": {
+        "agoric.event.kind": "vow.pending",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 190001,
+        "agoric.flow.id": "flow-sendIt-0102",
+        "agoric.exo.label": "Local Orchestration Account Kit",
+        "agoric.exo.facet": "holder",
+        "agoric.exo.method": "sendThenWaitForAck",
+        "agoric.operation": "transfer"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "9c8b7a6958473625140f1e2d3c4b5a69",
+      "spanId": "ccddeeff00112233",
+      "parentSpanId": "bbccddeeff001122",
+      "name": "timeoutPacket",
+      "startTime": "2026-09-16T12:10:01.000Z",
+      "endTime": "2026-09-16T12:10:01.000Z",
+      "status": {
+        "code": "error",
+        "message": "transfer operation received timeout packet"
+      },
+      "attributes": {
+        "agoric.event.kind": "ibc.timeout",
+        "agoric.chain.id": "osmosis-1",
+        "agoric.block.height": 190600,
+        "agoric.flow.id": "flow-sendIt-0102",
+        "agoric.channel.id": "channel-0",
+        "agoric.port.id": "transfer",
+        "agoric.packet.sequence": "204",
+        "agoric.packet.timeout.timestamp": "1789578600000000000",
+        "agoric.denom": "ibc/toyusdc",
+        "agoric.amount.value": "1250000",
+        "agoric.operation": "transfer"
+      }
+    },
+    {
+      "schema": "trace-event.v0",
+      "traceId": "9c8b7a6958473625140f1e2d3c4b5a69",
+      "spanId": "ddeeff0011223344",
+      "parentSpanId": "bbccddeeff001122",
+      "name": "vow rejected",
+      "startTime": "2026-09-16T12:10:01.500Z",
+      "endTime": "2026-09-16T12:10:01.500Z",
+      "status": {
+        "code": "error",
+        "message": "transfer operation received timeout packet"
+      },
+      "attributes": {
+        "agoric.event.kind": "vow.rejected",
+        "agoric.chain.id": "agoriclocal",
+        "agoric.block.height": 190601,
+        "agoric.flow.id": "flow-sendIt-0102",
+        "agoric.exo.label": "Local Orchestration Account Kit",
+        "agoric.exo.facet": "seatExiterHandler",
+        "agoric.exo.method": "onRejected",
+        "agoric.retry.attempt": 0
+      }
+    }
+  ]
+}
