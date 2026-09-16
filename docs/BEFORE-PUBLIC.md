@@ -37,14 +37,47 @@ failed. A GitHub transfer preserves history, issues and stars.
 
 ## 3. Turn on branch protection
 
-Protected branches on a *private* repo need GitHub Team or Enterprise. If that
-was not available on day 1, this is the moment it becomes possible for free.
+Confirmed unavailable on day 1. Both API surfaces return the same 403 on a
+private repo under a free account:
 
-- [ ] `main` requires the CI contexts: `lint`, `types`, `test (node 22)`,
-      `test (node 24)`.
-- [ ] Squash merges only; merge commits and rebase merges off.
-- [ ] Confirm the settings actually took, rather than trusting the API's
-      success response.
+```
+PUT  /repos/:owner/:repo/branches/main/protection   403
+POST /repos/:owner/:repo/rulesets                   403
+"Upgrade to GitHub Pro or make this repository public to enable this feature."
+```
+
+So D4's "branch protection requiring CI on `main`" cannot hold while the repo
+is private, unless someone pays for Pro. Making it public is the other half of
+the same sentence, which is why this lives here rather than in day 1's work.
+
+Squash-merge-only *was* applied on day 1 and does not need redoing:
+`allow_squash_merge: true`, `allow_merge_commit: false`,
+`allow_rebase_merge: false`, `delete_branch_on_merge: true`.
+
+After the flip, run:
+
+```sh
+gh api -X PUT repos/DCFoundation/aagentic-tooling/branches/main/protection \
+  --input - <<'JSON'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["lint", "types", "test (node 22)", "test (node 24)"]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null
+}
+JSON
+```
+
+The four context names are the CI jobs' `name:` fields. If a job is renamed or
+the Node matrix changes, this list has to change with it or `main` will block
+on a check that never reports.
+
+- [ ] `main` requires those four CI contexts.
+- [ ] Confirm the settings actually took, by reading them back rather than
+      trusting the API's success response.
 
 ## 4. Check what the licence and NOTICE now have to cover
 
