@@ -124,10 +124,24 @@ test('--json works before or after the subcommand', t => {
 
 // --- subcommands ----------------------------------------------------------
 
-test('schemas list reports an empty registry at the end of day 2', t => {
+test('schemas list reports the registered formats', t => {
   const { code, envelope } = invokeJson(['schemas', 'list']);
   t.is(code, ExitCode.OK);
-  t.deepEqual((envelope.data as { formats: unknown[] }).formats, []);
+  const { formats } = envelope.data as {
+    formats: Array<{ name: string; version: string; summary: string }>;
+  };
+  t.deepEqual(
+    formats.map(format => `${format.name} ${format.version}`),
+    ['trace-event v0'],
+  );
+});
+
+test('schemas list prints trace-event v0 for a human too', t => {
+  const { code, out } = invoke(['schemas', 'list']);
+  t.is(code, ExitCode.OK);
+  const text = out.join('\n');
+  t.true(text.includes('trace-event'));
+  t.true(text.includes('v0'));
 });
 
 test('schemas with no action is a usage error', t => {
