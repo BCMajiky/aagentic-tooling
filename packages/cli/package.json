@@ -1,0 +1,53 @@
+{
+  "name": "@dcfoundation/aat-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "The aat umbrella CLI: subcommand registry, config, output and errors.",
+  "bin": {
+    "aagentic-tooling": "./dist/src/main.js",
+    "aat": "./dist/src/main.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist/src"
+  ],
+  "engines": {
+    "node": "^22.11 || ^24.14"
+  },
+  "dependencies": {
+    "@dcfoundation/aat-core": "workspace:^",
+    "@dcfoundation/aat-schemas": "workspace:^",
+    "@endo/init": "1.1.12"
+  },
+  "devDependencies": {
+    "@endo/init": "1.1.12",
+    "@endo/ses-ava": "1.3.2",
+    "ava": "6.4.1"
+  },
+  "scripts": {
+    "test": "ava"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.test.ts"
+    ],
+    "require": [
+      "@endo/init/debug.js"
+    ],
+    "typescript": {
+      "rewritePaths": {
+        "src/": "dist/src/",
+        "test/": "dist/test/"
+      },
+      "compile": false
+    },
+    "timeout": "2m"
+  }
+}

@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# build output
+dist/
+*.tsbuildinfo
+
+# dependencies
+node_modules/
+
+# yarn 4 (corepack; no committed release binary)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/versions
+.pnp.*
+
+# test / coverage
+coverage/
+.nyc_output/
+
+# local config that must never be committed
+.aat.json
+*.local
