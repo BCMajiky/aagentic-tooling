@@ -7,7 +7,7 @@
   "description": "Developer tooling for the Agoric L1.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DCFoundation/aagentic-tooling.git"
+    "url": "git+https://github.com/BCMajiky/aagentic-tooling.git"
   },
   "packageManager": "yarn@4.17.1",
   "engines": {
