@@ -1,0 +1,395 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dcfoundation.github.io/aagentic-tooling/schemas/contract-manifest.v0.schema.json",
+  "title": "Agoric contract interface manifest, v0",
+  "description": "A machine-readable description of what a contract accepts and publishes, derived from what the contract already declares: its M.interface guards, its proposal shapes and its start signature. Consumed by type generation (Release 6), Offer Lab (Release 9) and Studio.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract",
+    "facets",
+    "invitations",
+    "published",
+    "terms",
+    "privateArgs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "contract-manifest.v0"
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "bundleId"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bundleId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^b1-[0-9a-f]{128}$",
+          "description": "The bundle id agd computes: 'b1-' plus the sha512 of the endoZipBase64. null when the contract has not been bundled, which is deliberately different from the field being absent."
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repo",
+            "commit",
+            "path"
+          ],
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "description": "Where the source came from, for a contract copied from upstream."
+        }
+      }
+    },
+    "facets": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/facet"
+      },
+      "description": "Keyed by facet name; 'public' and 'creator' are the usual two."
+    },
+    "invitations": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/invitation"
+      }
+    },
+    "published": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/publishedPath"
+      },
+      "description": "vstorage paths the contract itself writes. Paths written by a deploy script do not belong here."
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/pattern"
+      },
+      "description": "Custom terms, from meta.customTermsShape and the start signature. The standard issuers and brands terms are omitted."
+    },
+    "privateArgs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/pattern"
+      }
+    },
+    "traces": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "timer.set",
+          "timer.fired",
+          "vow.pending",
+          "vow.resolved",
+          "vow.rejected",
+          "ica.send",
+          "ica.ack",
+          "icq.query",
+          "icq.result",
+          "ibc.transfer",
+          "ibc.ack",
+          "ibc.timeout",
+          "offer.received",
+          "offer.exited",
+          "flow.restarted",
+          "custom"
+        ]
+      },
+      "description": "Trace event kinds this contract emits. The join to trace-event.v0; absent means the contract is not instrumented, which is different from an empty array meaning it emits nothing."
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Prose for a human. The one section not derived from the contract."
+    }
+  },
+  "$defs": {
+    "facet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guard",
+        "methods"
+      ],
+      "properties": {
+        "guard": {
+          "enum": [
+            "interface",
+            "none"
+          ],
+          "description": "'interface' when the facet is declared with M.interface, so parameter and return patterns are known. 'none' for a bare Far() facet, where only method names are known."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The M.interface label or the Far tag. Worth carrying either way: it is what appears in runtime error messages."
+        },
+        "methods": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/method"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "guard": {
+                "const": "none"
+              }
+            },
+            "required": [
+              "guard"
+            ]
+          },
+          "then": {
+            "properties": {
+              "methods": {
+                "additionalProperties": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "callKind"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "params"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "optionalParams"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "restParams"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "returns"
+                        ]
+                      }
+                    ]
+                  },
+                  "description": "An unguarded facet knows method names and nothing else. Claiming a pattern here would invent a signature the contract never declared."
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "guard": {
+                "const": "interface"
+              }
+            },
+            "required": [
+              "guard"
+            ]
+          },
+          "then": {
+            "properties": {
+              "methods": {
+                "additionalProperties": {
+                  "required": [
+                    "callKind",
+                    "params",
+                    "returns"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "method": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "callKind": {
+          "enum": [
+            "call",
+            "callWhen"
+          ],
+          "description": "M.call is synchronous; M.callWhen awaits its arguments first."
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pattern"
+          }
+        },
+        "optionalParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pattern"
+          }
+        },
+        "restParams": {
+          "$ref": "#/$defs/pattern"
+        },
+        "returns": {
+          "$ref": "#/$defs/pattern"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "invitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "maker"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The string passed as zcf.makeInvitation's second argument."
+        },
+        "maker": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The facet method that hands this invitation out. Must be a method named in facets."
+        },
+        "proposal": {
+          "$ref": "#/$defs/proposalShape"
+        },
+        "offerArgs": {
+          "$ref": "#/$defs/pattern"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "proposalShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "give": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[A-Z][a-zA-Z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/pattern"
+          },
+          "description": "Keyed by Zoe keyword, which must start with an upper-case letter."
+        },
+        "want": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[A-Z][a-zA-Z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/pattern"
+          }
+        },
+        "exit": {
+          "$ref": "#/$defs/pattern"
+        },
+        "open": {
+          "type": "boolean",
+          "description": "True when keywords beyond those listed are permitted."
+        }
+      }
+    },
+    "publishedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^published\\.",
+          "description": "A vstorage path, with {placeholders} for variable segments."
+        },
+        "valueSchema": {
+          "$ref": "#/$defs/pattern"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "and",
+            "any",
+            "arrayOf",
+            "await",
+            "bag",
+            "bigint",
+            "boolean",
+            "eref",
+            "error",
+            "exactRecord",
+            "gte",
+            "literal",
+            "not",
+            "opt",
+            "or",
+            "pattern",
+            "promise",
+            "record",
+            "recordOf",
+            "ref",
+            "remotable",
+            "scalar",
+            "splitRecord",
+            "string"
+          ]
+        }
+      },
+      "description": "A serialised @endo/patterns pattern. The vocabulary is closed: it is exactly what the two Stage 0 subjects and zoe/src/typeGuards.js use at cc25a29. Anything outside it is rejected rather than rendered as 'any', because a generator told a method accepts anything is worse off than one told nothing."
+    }
+  }
+}

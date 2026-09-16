@@ -16,7 +16,7 @@ export type FormatDescriptor = {
  * Every format this repository defines.
  *
  * Adding a format is one entry here plus a schema file under `schemas/`; the
- * `schemas list` subcommand does not change. Day 4 adds `contract-manifest v0`.
+ * `schemas list` subcommand does not change. Both Stage 0 formats are now registered.
  */
 export const formats: readonly FormatDescriptor[] = harden([
   {
@@ -24,5 +24,11 @@ export const formats: readonly FormatDescriptor[] = harden([
     version: 'v0',
     summary:
       'Workflow trace events: an OpenTelemetry span with an Agoric attribute set.',
+  },
+  {
+    name: 'contract-manifest',
+    version: 'v0',
+    summary:
+      'What a contract accepts and publishes, projected from its guards and proposal shapes.',
   },
 ]);
