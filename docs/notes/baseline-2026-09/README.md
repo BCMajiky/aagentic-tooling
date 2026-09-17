@@ -272,7 +272,9 @@ Recorded forward. The struck text above is what was first published.
      and 0.4.4 nested under `@endo/bundle-source`. `test/loader.test.js`
      records that the loader resolves to the root 0.6.2 and that
      `setupOrchestrationTest` and `ibc-mocks.ts` import and run through it,
-     on Node 22.23.2 and 24.19.0 locally and in CI. The whole corpus (offer-up,
+     on Node 22.23.2 and 24.19.0 locally and in CI. *Correction:* that
+     sentence was written before CI ran; CI run 35218351982 then passed on
+     Node 22.23.2 and 24.20.0, both resolving the root 0.6.2. The whole corpus (offer-up,
      basic-flows, send-anywhere, auto-stake-it, unbond) runs on the published
      tools. The `@ava/typescript` question above does not arise there: those
      tests are plain JavaScript. It still applies to `packages/evals` if its
