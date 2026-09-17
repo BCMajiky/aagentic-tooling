@@ -27,6 +27,15 @@ fine in a private repo and wrong in a public one.
       already restated in `docs/PINS.md`, `CONTRIBUTING.md` and the spec pages.
 - [ ] Update the `docs/context/` paths in `CLAUDE.md`, which currently point at
       files that would no longer be there.
+- [ ] Before the flip, move the deploy sequence out of `docs/context/`.
+      `agoric-deploy` and several catalogue refs cite
+      `docs/context/agoric-deploy-sequence.md` and
+      `docs/context/agoric-devnet-sharp-edges.md`, which are rewritten out of
+      history with the rest of `docs/context/`. Move the deploy sequence to a
+      first-party `docs/deploy-sequence.md` that keeps its devnet attribution,
+      repoint every ref in the skill sources and `packages/core/src/hints.ts`,
+      and re-render. (Added 2026-09-17 by the Release 1 correctness pass; not
+      done yet.)
 - [ ] Remember that removing a file in a later commit does not remove it from
       the history. If anything in there is genuinely sensitive, the repo needs
       its history rewritten before the flip, not after.
