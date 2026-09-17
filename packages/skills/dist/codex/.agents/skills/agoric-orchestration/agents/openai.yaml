@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agoric Orchestration"
+  short_description: "Orchestration contracts, flows and chain accounts"

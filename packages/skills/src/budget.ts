@@ -23,3 +23,12 @@ export const budgetVerdict = (tokens: number): BudgetVerdict => {
   if (tokens > SKILL_BODY_TARGET_TOKENS) return 'over-target';
   return 'within-target';
 };
+
+/**
+ * RELEASE1-BRIEF.md D3 as set on day 4: the pack AGENTS.md (and the Copilot
+ * instructions, which Copilot also loads whole) warns above 1,600 tokens and
+ * fails above 2,000. Per-package AGENTS.md files fail above 500.
+ */
+export const AGENTS_MD_WARN_TOKENS = 1600;
+export const AGENTS_MD_LIMIT_TOKENS = 2000;
+export const PACKAGE_AGENTS_MD_LIMIT_TOKENS = 500;

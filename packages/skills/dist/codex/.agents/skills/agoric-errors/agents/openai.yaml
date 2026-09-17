@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agoric Errors"
+  short_description: "Known failures: match, cause and fix"

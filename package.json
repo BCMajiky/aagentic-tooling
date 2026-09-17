@@ -29,7 +29,9 @@
     "smoke": "node scripts/ses-smoke.mjs",
     "agents:write": "node scripts/agents-md.mjs",
     "agents:check": "node scripts/agents-md.mjs --check",
-    "docs:build": "node scripts/docs-build.mjs"
+    "docs:build": "node scripts/docs-build.mjs",
+    "skills:build": "yarn build && node packages/skills/scripts/build.mjs",
+    "skills:check": "yarn build && node packages/skills/scripts/build.mjs --check"
   },
   "devDependencies": {
     "@ava/typescript": "7.0.0",

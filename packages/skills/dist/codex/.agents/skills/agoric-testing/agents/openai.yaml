@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agoric Testing"
+  short_description: "Contract tests under SES on the SDK test tools"

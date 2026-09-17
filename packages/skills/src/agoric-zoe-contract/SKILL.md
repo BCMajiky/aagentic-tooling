@@ -1,6 +1,9 @@
 ---
 name: agoric-zoe-contract
 description: "Zoe contract design on Agoric at upgrade-23. Load when writing or reviewing a Zoe contract (start, terms, invitations, offer handlers, proposal shapes, seats, reallocation, facets) or when an error mentions proposal, offer safety, customTerms, offerHandler or @agoric/zoe/exported.js. Do not load for orchestration flows (agoric-orchestration), upgrade and durable storage rules (agoric-durable-state) or deploying (agoric-deploy)."
+display-name: "Agoric Zoe Contract"
+short-description: "Zoe offers, seats, terms and facets"
+when: "designing invitations, proposal shapes, reallocation or facets"
 ---
 
 # Zoe contracts

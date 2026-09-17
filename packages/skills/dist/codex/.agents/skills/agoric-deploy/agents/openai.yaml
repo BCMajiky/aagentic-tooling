@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agoric Deploy"
+  short_description: "Bundling, installing and verifying a deploy"

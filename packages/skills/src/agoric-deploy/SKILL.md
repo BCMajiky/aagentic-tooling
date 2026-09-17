@@ -1,6 +1,9 @@
 ---
 name: agoric-deploy
 description: "Bundling and deploying an Agoric contract to a local chain, devnet, emerynet or mainnet at upgrade-23 (project setup for bundling, bundle install, CoreEval, verification, wallet offers, per-network values). Load when setting up a contract package to bundle, installing a bundle, submitting or voting on a CoreEval, checking that a deploy landed, sending wallet offers that move funds, or when a transaction succeeds and nothing happens. Do not load for writing contract logic or tests."
+display-name: "Agoric Deploy"
+short-description: "Bundling, installing and verifying a deploy"
+when: "bundling, installing, proposing, voting, verifying or sending wallet offers"
 ---
 
 # Deploying a contract

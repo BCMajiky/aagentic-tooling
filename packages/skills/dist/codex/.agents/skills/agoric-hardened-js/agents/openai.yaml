@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agoric Hardened JS"
+  short_description: "Hardened JavaScript rules for contract code"

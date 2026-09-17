@@ -1,0 +1,147 @@
+
+# Zoe contracts
+
+A Zoe contract exports `start(zcf, privateArgs, baggage)` and returns facets.
+Zoe holds the offerer's assets in escrow and guarantees offer safety; the
+contract only reallocates between seats. Examples here are pinned to
+`@agoric/zoe` 0.28.0-u23.1.
+
+## Idioms
+
+### Import Zoe types from `@agoric/zoe`
+
+Types such as `ZCF`, `ZCFSeat` and `OfferHandler` are imported with a JSDoc
+`@import` from `@agoric/zoe`. The old `@agoric/zoe/exported.js` module that
+supplied them as ambient globals does not exist at u23. The bundle still
+builds, so the failure appears when the contract is evaluated: on chain the
+install succeeds and `startInstance` fails.
+
+**Correct:** `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L57-L60`
+
+```js wrong=ZOE_EXPORTED_MISSING
+import '@agoric/zoe/exported.js';
+```
+
+**Produces:** `Cannot find file for internal module "./exported.js" (with candidates …) in package file:///…/node_modules/@agoric/zoe/`
+
+### Give every invitation a proposal shape
+
+Pass a `proposalShape` as the fourth argument to `zcf.makeInvitation`. Zoe
+checks it before escrow, so a malformed offer is refused with a precise message
+and the handler can rely on `give` and `want` having the right keywords and
+brands. Without one, the handler receives anything and has to refuse it by
+hand after escrow.
+
+**Correct:** `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L126-L130` `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L166-L167`
+
+```js wrong=PROPOSAL_SHAPE_MISSING
+zcf.makeInvitation(buyHandler, 'buy item');
+```
+
+**Produces:** silent. Bad offers are escrowed; a mismatching offer against a shaped invitation fails instead with `"buy item" proposal: … - Must be: …` (PROPOSAL_SHAPE_MISMATCH).
+
+### Reallocate with `zcf.atomicRearrange`
+
+Move amounts between seats with one `zcf.atomicRearrange(harden([[from, to, amounts], …]))`,
+which applies all transfers or none. The `atomicRearrange(zcf, …)` helper from
+`@agoric/zoe/src/contractSupport` is deprecated at u23 and only forwards to it.
+`aagentic-tooling/examples/offer-up` still calls the helper because it is an API-exact copy of
+the tutorial; do not copy that line.
+
+**Correct:** [`agoric-sdk@cc25a29:packages/orchestration/src/utils/zoe-tools.js#L81`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/orchestration/src/utils/zoe-tools.js#L81)
+
+```js wrong=ATOMIC_REARRANGE_HELPER
+import { atomicRearrange } from '@agoric/zoe/src/contractSupport/index.js';
+atomicRearrange(zcf, harden([[buyerSeat, proceeds, { Price: price }]]));
+```
+
+**Produces:** no error. It works, and it is the deprecated form.
+
+### Validate terms through `meta.customTermsShape`
+
+Export `meta = harden({ customTermsShape })` from the contract module. ZCF reads
+the shape from `meta` only, and checks it inside `zcf.getTerms()`, so call
+`getTerms()` early in `start`. A shape anywhere else is ignored; a missing shape
+means terms are never checked (CUSTOM_TERMS_SHAPE_MISSING).
+
+**Correct:** `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L88-L94`
+
+```js wrong=CUSTOM_TERMS_SHAPE_LOCATION
+export const start = async zcf => {
+  const customTermsShape = M.splitRecord({ tradePrice: AmountShape });
+  const { tradePrice } = zcf.getTerms(); // shape never consulted
+```
+
+**Produces:** silent. Bad terms are accepted. With the shape in `meta` they fail with `customTerms: … - Must be …`.
+
+### Satisfy offer safety in one rearrangement
+
+Every seat must end up with what it wanted or what it gave. Take the payment
+and deliver the goods in the same `atomicRearrange`; minted goods come from
+`zcfMint.mintGains`. Zoe rejects a rearrangement that would leave any seat worse
+off, and none of its transfers happen.
+
+**Correct:** `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L136-L157`
+
+```js wrong=OFFER_SAFETY_VIOLATION
+zcf.atomicRearrange(harden([[buyerSeat, proceeds, { Price: price }]]));
+buyerSeat.exit(); // the Item the buyer wanted was never moved to them
+```
+
+**Produces:** `Offer safety was violated by the proposed allocation: …`
+
+### Refuse an offer by throwing an Error
+
+To refuse an offer, throw an `Error` (`` throw Fail`…` ``). ZCF fails the seat
+with it and the offerer gets a full refund. Throwing anything that is not an
+Error loses the reason.
+
+**Correct:** [`agoric-sdk@cc25a29:packages/zoe/src/contracts/coveredCall-durable.js#L72-L77`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/zoe/src/contracts/coveredCall-durable.js#L72-L77)
+
+```js wrong=OFFER_HANDLER_UNDEFINED_REASON
+const handler = seat => {
+  if (!ok(seat)) return Promise.reject(); // rejects with undefined
+};
+```
+
+**Produces:** `If an offerHandler throws, it must provide a reason of type Error, but the reason was undefined.`
+
+### Put authority on the facet that needs it
+
+`publicFacet` is reachable by anyone who knows the instance. Only methods that
+are safe for everyone belong there: making invitations, reading public info.
+Administration goes on `creatorFacet`; per-user control goes to that user
+through a continuing invitation. The POLA section below is upstream's rule.
+
+**Correct:** `aagentic-tooling/examples/send-anywhere/src/send-anywhere.contract.js#L66` `aagentic-tooling/examples/send-anywhere/src/send-anywhere.contract.js#L141`
+
+```js wrong=PUBLIC_FACET_AUTHORITY
+const publicFacet = zone.exo('Shop PF', ShopI, {
+  makeBuyInvitation() { … },
+  withdrawProceeds() { … }, // anyone can call this
+});
+```
+
+**Produces:** silent. It works for everyone, including people who should not have it.
+
+## Capability security, from agoric-sdk
+
+Lifted word for word from `AGENTS.md` in Agoric/agoric-sdk at commit a2a3de9,
+lines 44 to 55 (Apache-2.0; see `NOTICE`). Its "Entrypoints vs modules" rule is
+another section of that file, not reproduced here, and
+`packages/portfolio-contract` is in agoric-sdk.
+
+<!-- lift: agoric-sdk@a2a3de9:AGENTS.md#L44-L55 -->
+## Capability Security & POLA
+
+This is a capability-security codebase. Apply the [Principle of Least Authority](https://docs.agoric.com/guides/js-programming/hardened-js.html#the-principle-of-least-authority-pola) by default: every object — facet, capability, callback — should hold and expose only the authority needed to do its legitimate job. POLA "limits the damage that can happen if there is an exploitable bug."
+
+When you add a method or pass a capability, ask **"who can reach this, and what stops an unauthorized caller?"** Use the answer to decide placement:
+
+- Per-principal operations (acting on one portfolio, account, vault, …) belong on that principal's facet, not on the public facet. Zoe exposes a contract's `publicFacet` to anyone with the instance (`E(zoe).getPublicFacet(instance)`), so a method placed there is reachable by anyone — only acceptable when it creates new state owned by a verifiable principal, returns pure info, or carries its own proof of authority.
+- A dispatch lookup that throws on miss (e.g., `wallet.foo.get(id)`) is often the entire enforcement mechanism for "the caller must own this thing." Don't sidestep that pattern when adding a new op — route through the same per-principal reference.
+- Pass narrowed capabilities into modules, not whole objects. Inline adapters like `{ publish: node.setValue }` are cheap; over-broad refs are expensive when they leak. The "Entrypoints vs modules" rule above is one instance of this.
+- Default to read-only first; split (e.g., `agoricNames` / `agoricNamesAdmin`) before exposing write access.
+
+The facet splits in contracts like `packages/portfolio-contract/src/portfolio.exo.ts` (`reader`, `reporter`, `manager`, `planner`, `evmHandler`, …) are textbook POLA — study a few before adding a method.
+<!-- /lift -->

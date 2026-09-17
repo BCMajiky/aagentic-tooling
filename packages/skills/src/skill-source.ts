@@ -7,7 +7,9 @@
  * The conventions below are what the checks in `test/` enforce, and what the
  * day 4 render step will rely on.
  *
- * - Frontmatter carries `name` and `description`, one line each.
+ * - Frontmatter carries `name` and `description`, which render into every
+ *   target, and `display-name`, `short-description` and `when`, which render
+ *   into the Codex sidecar and the pack AGENTS.md only. One line each.
  * - Every idiom is a `### ` section under `## Idioms` or `## Project setup`
  *   with at least one
  *   `**Correct:**` line whose code spans are refs (see `@dcfoundation/aat-core`
@@ -22,6 +24,12 @@
 export interface SkillFrontmatter {
   readonly name: string;
   readonly description: string;
+  /** Codex sidecar `interface.display_name`. */
+  readonly displayName: string;
+  /** Codex sidecar `interface.short_description`. */
+  readonly shortDescription: string;
+  /** One line for the pack AGENTS.md: load this skill when … */
+  readonly when: string;
 }
 
 export interface WrongSnippet {
@@ -63,9 +71,18 @@ export const parseSkillFile = (
   }
   const name = fields.get('name');
   const description = fields.get('description');
+  const displayName = fields.get('display-name');
+  const shortDescription = fields.get('short-description');
+  const when = fields.get('when');
   if (!name) return 'frontmatter has no name';
   if (!description) return 'frontmatter has no description';
-  return harden({ frontmatter: { name, description }, body: text.slice(m[0].length) });
+  if (!displayName) return 'frontmatter has no display-name';
+  if (!shortDescription) return 'frontmatter has no short-description';
+  if (!when) return 'frontmatter has no when';
+  return harden({
+    frontmatter: { name, description, displayName, shortDescription, when },
+    body: text.slice(m[0].length),
+  });
 };
 
 const WRONG_FENCE = /^```(\w+) wrong=([A-Z][A-Z0-9_]*)\s*$/;

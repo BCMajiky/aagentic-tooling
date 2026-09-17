@@ -3,6 +3,11 @@
 
 # build output
 dist/
+# ...except the rendered skill pack, which is committed and checked for drift.
+# tsc still writes dist/src and dist/test there, which stay ignored.
+!packages/skills/dist/
+packages/skills/dist/src/
+packages/skills/dist/test/
 docs/_site/
 *.tsbuildinfo
 

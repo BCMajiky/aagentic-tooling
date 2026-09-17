@@ -66,6 +66,27 @@ jobs:
       # seed of Preflight's test suite (plan §1.6).
       - run: yarn smoke
 
+  skills:
+    name: skills
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      # RELEASE1-BRIEF.md D2: the rendered pack is committed. Render it again
+      # and fail if anything changed or appeared, so a hand edit to a rendered
+      # file, or a source change without a re-render, cannot merge.
+      # skills:check then names the drifted files and runs the token budgets.
+      - run: yarn skills:build
+      - run: git diff --exit-code -- packages/skills/dist docs/skills
+      - run: test -z "$(git status --porcelain -- packages/skills/dist docs/skills)"
+      - run: yarn skills:check
+
   test:
     name: test (node ${{ matrix.node }})
     runs-on: ubuntu-latest

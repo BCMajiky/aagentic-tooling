@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agoric Durable State"
+  short_description: "Durable state and upgrade-safe contracts"

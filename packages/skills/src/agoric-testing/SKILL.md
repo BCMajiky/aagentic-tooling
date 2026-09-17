@@ -1,6 +1,9 @@
 ---
 name: agoric-testing
 description: "Testing Agoric contracts and orchestration flows with ava under SES at upgrade-23 (prepare-test-env-ava, setUpZoeForTest, setupOrchestrationTest, ibc-mocks). Load when writing, reviewing or fixing tests for a Zoe or orchestration contract, when tests pass but you are not sure they test the real contract, or when a test fails with VatData unavailable, a type-stripping error or a ChainHub registration error. Do not load for writing contract code alone or for deploying."
+display-name: "Agoric Testing"
+short-description: "Contract tests under SES on the SDK test tools"
+when: "writing or fixing tests for a contract"
 ---
 
 # Testing contracts

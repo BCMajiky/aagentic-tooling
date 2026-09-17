@@ -1,6 +1,9 @@
 ---
 name: agoric-hardened-js
 description: "Hardened JavaScript rules for Agoric contract code and the project setup it needs. Load when writing or reviewing any contract, flow or exo module, when an error mentions harden, non-frozen objects, Remotables, Must be, lockdown or secure mode, or when setting up a package that bundles or tests a contract (yarn linker, dependencies, @endo pins, the orchestration test loader). Do not load for deploy commands, Zoe offer design or durable upgrade rules alone; those have their own agoric- skills."
+display-name: "Agoric Hardened JS"
+short-description: "Hardened JavaScript rules for contract code"
+when: "writing or reviewing any contract, flow or exo module"
 ---
 
 # Hardened JavaScript for Agoric contracts

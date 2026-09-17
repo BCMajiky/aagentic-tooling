@@ -1,6 +1,9 @@
 ---
 name: agoric-orchestration
 description: "Orchestration contracts and flows on Agoric at upgrade-23 (withOrchestration, orchestrate, orch.getChain, makeAccount, transfer, zoeTools, vows). Load when writing or reviewing a contract that creates remote or local chain accounts, sends IBC transfers, or has a *.flows.js file, or when a flow hangs or reports guest eventual … not yet supported. Do not load for a plain Zoe contract with no chain accounts (agoric-zoe-contract) or for deploy steps (agoric-deploy)."
+display-name: "Agoric Orchestration"
+short-description: "Orchestration contracts, flows and chain accounts"
+when: "the contract makes chain accounts, sends IBC transfers or has a `*.flows.js` file"
 ---
 
 # Orchestration

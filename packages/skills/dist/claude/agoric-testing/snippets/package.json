@@ -1,0 +1,42 @@
+{
+  "name": "@dcfoundation/aat-skill-snippets",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "The skill pack's snippet corpus: API-exact copies from examples/offer-up and agoric-sdk at agoric-upgrade-23a, each with a test.",
+  "engines": {
+    "node": "^22.11 || ^24.14"
+  },
+  "dependencies": {
+    "@agoric/ertp": "0.18.0-u23.1",
+    "@agoric/internal": "0.5.0-u23.1",
+    "@agoric/orchestration": "0.3.0-u23.1",
+    "@agoric/vow": "0.3.0-u23.1",
+    "@agoric/zoe": "0.28.0-u23.1",
+    "@endo/base64": "1.0.12",
+    "@endo/errors": "1.2.13",
+    "@endo/far": "1.1.14",
+    "@endo/patterns": "1.7.0"
+  },
+  "devDependencies": {
+    "@agoric/cosmic-proto": "0.6.0-u23.1",
+    "@agoric/vats": "0.17.0-u23.1",
+    "@endo/bundle-source": "4.1.2",
+    "ava": "6.4.1",
+    "ts-blank-space": "0.6.2"
+  },
+  "scripts": {
+    "test": "ava"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.test.js"
+    ],
+    "nodeArguments": [
+      "--loader=ts-blank-space/register",
+      "--no-warnings"
+    ],
+    "timeout": "10m"
+  }
+}
