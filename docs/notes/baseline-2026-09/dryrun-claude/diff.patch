@@ -1,0 +1,360 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..b3a41fe
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,3 @@
++node_modules/
++.yarn/
++bundles/
+diff --git a/.yarnrc.yml b/.yarnrc.yml
+new file mode 100644
+index 0000000..94f5c25
+--- /dev/null
++++ b/.yarnrc.yml
+@@ -0,0 +1,2 @@
++nodeLinker: node-modules
++enableScripts: false
+diff --git a/package.json b/package.json
+index aee4176..fb75f7b 100644
+--- a/package.json
++++ b/package.json
+@@ -9,7 +9,10 @@
+     "@agoric/orchestration": "0.3.0-u23.1",
+     "@agoric/time": "0.5.0-u23.0",
+     "@agoric/vat-data": "0.7.0-u23.1",
+-    "@agoric/zoe": "0.28.0-u23.1"
++    "@agoric/zoe": "0.28.0-u23.1",
++    "@endo/errors": "1.2.13",
++    "@endo/far": "1.1.14",
++    "@endo/patterns": "1.7.0"
+   },
+   "devDependencies": {
+     "@endo/bundle-source": "4.1.2",
+@@ -50,5 +53,15 @@
+     "@endo/where": "1.0.11",
+     "@endo/zip": "1.0.11",
+     "ses": "1.14.0"
++  },
++  "type": "module",
++  "scripts": {
++    "test": "ava"
++  },
++  "ava": {
++    "files": [
++      "test/**/*.test.js"
++    ],
++    "timeout": "10m"
+   }
+ }
+diff --git a/src/item-shop.contract.js b/src/item-shop.contract.js
+new file mode 100644
+index 0000000..2387116
+--- /dev/null
++++ b/src/item-shop.contract.js
+@@ -0,0 +1,118 @@
++// @ts-check
++/**
++ * @file Sell one named item at a fixed unit price, at most two per offer.
++ *
++ * Terms:
++ *   - `itemName`: the only item this shop sells (a string).
++ *   - `price`: the price of one item, in the brand of the `Price` issuer.
++ *
++ * Issuer keywords: `Price` (the money accepted).
++ *
++ * Buyers make an offer with `makeBuyInvitation()`:
++ *   give: { Price: >= price * n }
++ *   want: { Items: bag of `itemName` with count n }, where 1 <= n <= 2
++ * The contract charges exactly `price * n`; anything over that is refunded.
++ *
++ * The creator collects proceeds with `creatorFacet.makeWithdrawInvitation()`.
++ */
++import { Fail, q } from '@endo/errors';
++import { Far } from '@endo/far';
++import { M, getCopyBagEntries, makeCopyBag } from '@endo/patterns';
++import { AmountMath, AssetKind, BrandShape } from '@agoric/ertp';
++
++/**
++ * @import {Amount, NatValue} from '@agoric/ertp';
++ * @import {ZCF, OfferHandler} from '@agoric/zoe';
++ */
++
++export const MAX_ITEMS_PER_OFFER = 2n;
++
++/**
++ * @typedef {{
++ *   itemName: string;
++ *   price: Amount<'nat'>;
++ * }} ItemShopTerms
++ */
++
++export const meta = harden({
++  customTermsShape: M.splitRecord({
++    itemName: M.string(),
++    price: { brand: BrandShape, value: M.nat() },
++  }),
++});
++
++/** @param {ZCF<ItemShopTerms>} zcf */
++export const start = async zcf => {
++  const { itemName, price, brands } = zcf.getTerms();
++  brands.Price === price.brand ||
++    Fail`price brand ${price.brand} must be the Price issuer's brand ${brands.Price}`;
++
++  const itemMint = await zcf.makeZCFMint('Item', AssetKind.COPY_BAG);
++  const { brand: itemBrand } = itemMint.getIssuerRecord();
++
++  const buyProposalShape = harden({
++    give: { Price: M.gte(price) },
++    want: {
++      Items: {
++        brand: itemBrand,
++        value: M.and(
++          M.bagOf(itemName, M.lte(MAX_ITEMS_PER_OFFER)),
++          M.not(makeCopyBag([])),
++        ),
++      },
++    },
++    exit: M.any(),
++  });
++
++  const proceeds = zcf.makeEmptySeatKit().zcfSeat;
++
++  /** @type {OfferHandler} */
++  const buyHandler = buyerSeat => {
++    // Zoe has checked the proposal against buyProposalShape before escrow.
++    const { give, want } = buyerSeat.getProposal();
++    const [[_name, count]] = getCopyBagEntries(want.Items.value);
++    const cost = AmountMath.make(price.brand, price.value * count);
++    AmountMath.isGTE(give.Price, cost) ||
++      Fail`${q(count)} ${q(itemName)} cost ${cost}, but only ${give.Price} was given`;
++
++    const mintSeat = itemMint.mintGains(harden({ Items: want.Items }));
++    zcf.atomicRearrange(
++      harden([
++        [buyerSeat, proceeds, { Price: cost }],
++        [mintSeat, buyerSeat, { Items: want.Items }],
++      ]),
++    );
++    mintSeat.exit();
++    buyerSeat.exit();
++    return 'purchase complete';
++  };
++
++  /** @type {OfferHandler} */
++  const withdrawHandler = seat => {
++    const amount = proceeds.getAmountAllocated('Price', price.brand);
++    zcf.atomicRearrange(harden([[proceeds, seat, { Price: amount }]]));
++    seat.exit();
++    return amount;
++  };
++
++  const publicFacet = Far('Item Shop Public Facet', {
++    makeBuyInvitation: () =>
++      zcf.makeInvitation(buyHandler, 'buy item', undefined, buyProposalShape),
++    getItemName: () => itemName,
++    getPrice: () => price,
++    getMaxItemsPerOffer: () => MAX_ITEMS_PER_OFFER,
++  });
++
++  const creatorFacet = Far('Item Shop Creator Facet', {
++    makeWithdrawInvitation: () =>
++      zcf.makeInvitation(
++        withdrawHandler,
++        'withdraw proceeds',
++        undefined,
++        harden({ give: {}, want: {}, exit: M.any() }),
++      ),
++  });
++
++  return harden({ publicFacet, creatorFacet });
++};
++harden(start);
+diff --git a/test/item-shop.test.js b/test/item-shop.test.js
+new file mode 100644
+index 0000000..23d02d1
+--- /dev/null
++++ b/test/item-shop.test.js
+@@ -0,0 +1,181 @@
++import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
++
++import { AmountMath, makeIssuerKit } from '@agoric/ertp';
++import { setUpZoeForTest } from '@agoric/zoe/tools/setup-zoe.js';
++import { E } from '@endo/far';
++import { makeCopyBag } from '@endo/patterns';
++
++const contractPath = new URL('../src/item-shop.contract.js', import.meta.url)
++  .pathname;
++
++const install = async () => {
++  const { zoe, bundleAndInstall } = await setUpZoeForTest();
++  // Bundled from the file path, as on chain.
++  const installation = await bundleAndInstall(contractPath);
++  return { zoe, installation };
++};
++
++const setup = async () => {
++  const { zoe, installation } = await install();
++  const money = makeIssuerKit('Money');
++  const price = AmountMath.make(money.brand, 10n);
++  const { publicFacet, creatorFacet, instance } = await E(zoe).startInstance(
++    installation,
++    { Price: money.issuer },
++    { itemName: 'sword', price },
++  );
++  const { brands, issuers } = await E(zoe).getTerms(instance);
++  const money$ = value => AmountMath.make(money.brand, value);
++  /** @param {[string, bigint][]} entries */
++  const items$ = entries => AmountMath.make(brands.Item, makeCopyBag(entries));
++
++  /**
++   * @param {bigint} pay
++   * @param {[string, bigint][]} entries
++   */
++  const buy = (pay, entries) =>
++    E(zoe).offer(
++      E(publicFacet).makeBuyInvitation(),
++      harden({ give: { Price: money$(pay) }, want: { Items: items$(entries) } }),
++      harden({ Price: money.mint.mintPayment(money$(pay)) }),
++    );
++
++  const payouts = async seat => {
++    const p = await E(seat).getPayouts();
++    return {
++      Price: await money.issuer.getAmountOf(p.Price),
++      Items: p.Items && (await E(issuers.Item).getAmountOf(p.Items)),
++    };
++  };
++
++  return { zoe, money, price, publicFacet, creatorFacet, money$, items$, buy, payouts };
++};
++
++test('public facet reports name, price and limit', async t => {
++  const { publicFacet, price } = await setup();
++  t.is(await E(publicFacet).getItemName(), 'sword');
++  t.deepEqual(await E(publicFacet).getPrice(), price);
++  t.is(await E(publicFacet).getMaxItemsPerOffer(), 2n);
++});
++
++test('terms without a valid price are refused', async t => {
++  const { zoe, installation } = await install();
++  const money = makeIssuerKit('Money');
++  await t.throwsAsync(
++    E(zoe).startInstance(
++      installation,
++      { Price: money.issuer },
++      { itemName: 'sword', price: 10n },
++    ),
++    { message: /customTerms: price: .* - Must be a copyRecord/ },
++  );
++  await t.throwsAsync(
++    E(zoe).startInstance(
++      installation,
++      { Price: money.issuer },
++      { price: AmountMath.make(money.brand, 10n) },
++    ),
++    { message: /customTerms: .*itemName/ },
++  );
++});
++
++test('price in a brand other than the Price issuer is refused', async t => {
++  const { zoe, installation } = await install();
++  const money = makeIssuerKit('Money');
++  const other = makeIssuerKit('Other');
++  await t.throwsAsync(
++    E(zoe).startInstance(
++      installation,
++      { Price: money.issuer },
++      { itemName: 'sword', price: AmountMath.make(other.brand, 10n) },
++    ),
++    { message: /must be the Price issuer's brand/ },
++  );
++});
++
++test('buying one item at the price', async t => {
++  const { buy, payouts, money$, items$ } = await setup();
++  const seat = await buy(10n, [['sword', 1n]]);
++  t.is(await E(seat).getOfferResult(), 'purchase complete');
++  const { Price, Items } = await payouts(seat);
++  t.deepEqual(Items, items$([['sword', 1n]]));
++  t.deepEqual(Price, money$(0n));
++});
++
++test('buying two items costs twice the price', async t => {
++  const { buy, payouts, money$, items$ } = await setup();
++  const seat = await buy(20n, [['sword', 2n]]);
++  t.is(await E(seat).getOfferResult(), 'purchase complete');
++  const { Price, Items } = await payouts(seat);
++  t.deepEqual(Items, items$([['sword', 2n]]));
++  t.deepEqual(Price, money$(0n));
++});
++
++test('overpayment is refunded', async t => {
++  const { buy, payouts, money$, items$ } = await setup();
++  const seat = await buy(25n, [['sword', 2n]]);
++  t.is(await E(seat).getOfferResult(), 'purchase complete');
++  const { Price, Items } = await payouts(seat);
++  t.deepEqual(Items, items$([['sword', 2n]]));
++  t.deepEqual(Price, money$(5n));
++});
++
++test('three items in one offer are refused before escrow', async t => {
++  const { buy } = await setup();
++  await t.throwsAsync(buy(30n, [['sword', 3n]]), {
++    message: /"buy item" proposal: want: Items: value: .* - Must be <= "\[2n\]"/,
++  });
++});
++
++test('an item with another name is refused before escrow', async t => {
++  const { buy } = await setup();
++  await t.throwsAsync(buy(10n, [['shield', 1n]]), {
++    message: /"buy item" proposal: want: Items: value: .*"shield".* - Must be: "sword"/,
++  });
++  await t.throwsAsync(
++    buy(20n, [
++      ['sword', 1n],
++      ['shield', 1n],
++    ]),
++    { message: /"buy item" proposal: want: Items/ },
++  );
++});
++
++test('an offer for no items is refused before escrow', async t => {
++  const { buy } = await setup();
++  await t.throwsAsync(buy(10n, []), {
++    message: /"buy item" proposal: want: Items: value: .* - Must fail negated pattern/,
++  });
++});
++
++test('less than one price is refused before escrow', async t => {
++  const { buy } = await setup();
++  await t.throwsAsync(buy(9n, [['sword', 1n]]), {
++    message: /"buy item" proposal: give: Price: .* - Must be >= /,
++  });
++});
++
++test('paying for one but wanting two is refused and fully refunded', async t => {
++  const { buy, payouts, money$, items$ } = await setup();
++  const seat = await buy(15n, [['sword', 2n]]);
++  await t.throwsAsync(E(seat).getOfferResult(), {
++    message: /"\[2n\]" "sword" cost .* but only .* was given/,
++  });
++  const { Price, Items } = await payouts(seat);
++  t.deepEqual(Price, money$(15n));
++  t.deepEqual(Items, items$([]));
++});
++
++test('the creator withdraws the proceeds of sales', async t => {
++  const { zoe, money, creatorFacet, buy, money$ } = await setup();
++  await E(await buy(10n, [['sword', 1n]])).getOfferResult();
++  await E(await buy(25n, [['sword', 2n]])).getOfferResult();
++
++  const seat = await E(zoe).offer(E(creatorFacet).makeWithdrawInvitation());
++  t.deepEqual(await E(seat).getOfferResult(), money$(30n));
++  const paid = await money.issuer.getAmountOf(E(seat).getPayout('Price'));
++  t.deepEqual(paid, money$(30n));
++
++  const again = await E(zoe).offer(E(creatorFacet).makeWithdrawInvitation());
++  t.deepEqual(await E(again).getOfferResult(), money$(0n));
++});

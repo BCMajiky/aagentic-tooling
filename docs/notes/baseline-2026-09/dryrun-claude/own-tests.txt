@@ -1,0 +1,328 @@
+
+[2m[bundleTool][registry] loaded 2 bundle(s) in 16.570791999999983ms [22m
+  ✔ public facet reports name, price and limit (16s)
+Temporary logging of sent error (Error#1)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#4)
+  ✔ terms without a valid price are refused (16.6s)
+Error#1: customTerms: price: "[10n]" - Must be a copyRecord to match a copyRecord pattern: "`{\n  brand: makeTagged(\"match:remotable\", {\n    label: \"Brand\",\n  }),\n  value: makeTagged(\"match:nat\", []),\n}`"
+  at throwLabeled (common/throw-labeled.js:23:20)
+  at applyLabelingError (common/apply-labeling-error.js:43:5)
+  at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+  at mustMatch (patterns/src/patterns/patternMatchers.js:607:5)
+  at Object.getTerms (zoe/src/contractFacet/zcfZygote.js:365:9)
+  at start (baseline-dryrun-claude/src/item-shop.contract.js:46:43)
+  at Object.startContract (zoe/src/contractFacet/zcfZygote.js:442:9)
+
+Error#1 ERROR_NOTE: Caused by (Error#2)
+Error#1 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#1
+  Error#2: price: "[10n]" - Must be a copyRecord to match a copyRecord pattern: "`{\n  brand: makeTagged(\"match:remotable\", {\n    label: \"Brand\",\n  }),\n  value: makeTagged(\"match:nat\", []),\n}`"
+    at throwLabeled (common/throw-labeled.js:23:20)
+    at applyLabelingError (common/apply-labeling-error.js:43:5)
+    at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+    at eval (patterns/src/patterns/patternMatchers.js:531:11)
+    at Array.every (<anonymous>)
+    at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:530:26)
+    at applyLabelingError (common/apply-labeling-error.js:37:12)
+    at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+    at Alleged: match:splitRecord helper.checkMatches (patterns/src/patterns/patternMatchers.js:1743:9)
+    at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:574:30)
+    at applyLabelingError (common/apply-labeling-error.js:41:14)
+    at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+    at mustMatch (patterns/src/patterns/patternMatchers.js:607:5)
+    at Object.getTerms (zoe/src/contractFacet/zcfZygote.js:365:9)
+    at start (baseline-dryrun-claude/src/item-shop.contract.js:46:43)
+    at Object.startContract (zoe/src/contractFacet/zcfZygote.js:442:9)
+  
+  Error#2 ERROR_NOTE: Caused by (Error#3)
+  Nested error under Error#2
+    Error#3: 10n - Must be a copyRecord to match a copyRecord pattern: `{
+      brand: makeTagged("match:remotable", {
+        label: "Brand",
+      }),
+      value: makeTagged("match:nat", []),
+    }`
+      at assertChecker (pass-style/src/passStyle-helpers.js:79:3)
+      at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:498:18)
+      at applyLabelingError (common/apply-labeling-error.js:41:14)
+      at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+      at eval (patterns/src/patterns/patternMatchers.js:531:11)
+      at Array.every (<anonymous>)
+      at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:530:26)
+      at applyLabelingError (common/apply-labeling-error.js:37:12)
+      at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+      at Alleged: match:splitRecord helper.checkMatches (patterns/src/patterns/patternMatchers.js:1743:9)
+      at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:574:30)
+      at applyLabelingError (common/apply-labeling-error.js:41:14)
+      at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+      at mustMatch (patterns/src/patterns/patternMatchers.js:607:5)
+      at Object.getTerms (zoe/src/contractFacet/zcfZygote.js:365:9)
+      at start (baseline-dryrun-claude/src/item-shop.contract.js:46:43)
+      at Object.startContract (zoe/src/contractFacet/zcfZygote.js:442:9)
+    
+Temporary logging of sent error (Error#5)
+Error#5: customTerms: {"price":{"brand":"[Alleged: Money brand]","value":"[10n]"}} - Must have missing properties ["itemName"]
+  at throwLabeled (common/throw-labeled.js:23:20)
+  at applyLabelingError (common/apply-labeling-error.js:43:5)
+  at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+  at mustMatch (patterns/src/patterns/patternMatchers.js:607:5)
+  at Object.getTerms (zoe/src/contractFacet/zcfZygote.js:365:9)
+  at start (baseline-dryrun-claude/src/item-shop.contract.js:46:43)
+  at Object.startContract (zoe/src/contractFacet/zcfZygote.js:442:9)
+
+Error#5 ERROR_NOTE: Caused by (Error#6)
+Error#5 ERROR_NOTE: Sent as error:captp:far-zoeTest#20002
+Nested error under Error#5
+  Error#6: { price: { brand: Object [Alleged: Money brand] {}, value: 10n } } - Must have missing properties [ 'itemName' ]
+    at assertChecker (pass-style/src/passStyle-helpers.js:79:3)
+    at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:514:18)
+    at applyLabelingError (common/apply-labeling-error.js:37:12)
+    at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+    at Alleged: match:splitRecord helper.checkMatches (patterns/src/patterns/patternMatchers.js:1743:9)
+    at checkMatchesInternal (patterns/src/patterns/patternMatchers.js:574:30)
+    at applyLabelingError (common/apply-labeling-error.js:41:14)
+    at checkMatches (patterns/src/patterns/patternMatchers.js:430:5)
+    at mustMatch (patterns/src/patterns/patternMatchers.js:607:5)
+    at Object.getTerms (zoe/src/contractFacet/zcfZygote.js:365:9)
+    at start (baseline-dryrun-claude/src/item-shop.contract.js:46:43)
+    at Object.startContract (zoe/src/contractFacet/zcfZygote.js:442:9)
+  
+RemoteError(error:captp:far-zoeTest#20001)#4: customTerms: price: "[10n]" - Must be a copyRecord to match a copyRecord pattern: "`{\n  brand: makeTagged(\"match:remotable\", {\n    label: \"Brand\",\n  }),\n  value: makeTagged(\"match:nat\", []),\n}`"
+Error: customTerms: price: "[10n]" - Must be a copyRecord to match a copyRecord pattern: "`{\n  brand: makeTagged(\"match:remotable\", {\n    label: \"Brand\",\n  }),\n  value: makeTagged(\"match:nat\", []),\n}`"
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20002)#7)
+RemoteError(error:captp:far-zoeTest#20002)#7: customTerms: {"price":{"brand":"[Alleged: Money brand]","value":"[10n]"}} - Must have missing properties ["itemName"]
+Error: customTerms: {"price":{"brand":"[Alleged: Money brand]","value":"[10n]"}} - Must have missing properties ["itemName"]
+
+Temporary logging of sent error (Error#8)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#9)
+  ✔ price in a brand other than the Price issuer is refused (17.1s)
+Error#8: price brand Object [Alleged: Other brand] {} must be the Price issuer's brand Object [Alleged: Money brand] {}
+  at start (baseline-dryrun-claude/src/item-shop.contract.js:48:9)
+  at Object.startContract (zoe/src/contractFacet/zcfZygote.js:442:9)
+
+Error#8 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+RemoteError(error:captp:far-zoeTest#20001)#9: price brand "[Alleged: Other brand]" must be the Price issuer's brand "[Alleged: Money brand]"
+Error: price brand "[Alleged: Other brand]" must be the Price issuer's brand "[Alleged: Money brand]"
+
+  ✔ buying one item at the price (17.6s)
+  ✔ buying two items costs twice the price (18.1s)
+  ✔ overpayment is refunded (18.5s)
+Temporary logging of sent error (Error#10)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#16)
+  ✔ three items in one offer are refused before escrow (18.9s)
+Error#10: "buy item" proposal: want: Items: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+Error: "buy item" proposal: want: Items: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+
+Error#10 ERROR_NOTE: Caused by (Error#11)
+Error#10 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#10
+  Error#11: want: Items: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+    at Array.every (<anonymous>)
+  
+  Error#11 ERROR_NOTE: Caused by (Error#12)
+  Nested error under Error#11
+    Error#12: Items: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+      at Array.every (<anonymous>)
+      at Array.every (<anonymous>)
+    
+    Error#12 ERROR_NOTE: Caused by (Error#13)
+    Nested error under Error#12
+      Error#13: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+      
+      Error#13 ERROR_NOTE: Caused by (Error#14)
+      Nested error under Error#13
+        Error#14: bag counts[0]: "[3n]" - Must be <= "[2n]"
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+        
+        Error#14 ERROR_NOTE: Caused by (Error#15)
+        Nested error under Error#14
+          Error#15: 3n - Must be <= 2n
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+          
+RemoteError(error:captp:far-zoeTest#20001)#16: "buy item" proposal: want: Items: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+Error: "buy item" proposal: want: Items: value: bag counts[0]: "[3n]" - Must be <= "[2n]"
+
+Temporary logging of sent error (Error#17)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#23)
+  ✔ an item with another name is refused before escrow (19.4s)
+Error#17: "buy item" proposal: want: Items: value: bag keys[0]: "shield" - Must be: "sword"
+Error: "buy item" proposal: want: Items: value: bag keys[0]: "shield" - Must be: "sword"
+
+Error#17 ERROR_NOTE: Caused by (Error#18)
+Error#17 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#17
+  Error#18: want: Items: value: bag keys[0]: "shield" - Must be: "sword"
+    at Array.every (<anonymous>)
+  
+  Error#18 ERROR_NOTE: Caused by (Error#19)
+  Nested error under Error#18
+    Error#19: Items: value: bag keys[0]: "shield" - Must be: "sword"
+      at Array.every (<anonymous>)
+      at Array.every (<anonymous>)
+    
+    Error#19 ERROR_NOTE: Caused by (Error#20)
+    Nested error under Error#19
+      Error#20: value: bag keys[0]: "shield" - Must be: "sword"
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+      
+      Error#20 ERROR_NOTE: Caused by (Error#21)
+      Nested error under Error#20
+        Error#21: bag keys[0]: "shield" - Must be: "sword"
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+        
+        Error#21 ERROR_NOTE: Caused by (Error#22)
+        Nested error under Error#21
+          Error#22: shield - Must be: sword
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+          
+Temporary logging of sent error (Error#24)
+Error#24: "buy item" proposal: want: Items: value: bag keys[1]: "shield" - Must be: "sword"
+Error: "buy item" proposal: want: Items: value: bag keys[1]: "shield" - Must be: "sword"
+
+Error#24 ERROR_NOTE: Caused by (Error#25)
+Error#24 ERROR_NOTE: Sent as error:captp:far-zoeTest#20002
+Nested error under Error#24
+  Error#25: want: Items: value: bag keys[1]: "shield" - Must be: "sword"
+    at Array.every (<anonymous>)
+  
+  Error#25 ERROR_NOTE: Caused by (Error#26)
+  Nested error under Error#25
+    Error#26: Items: value: bag keys[1]: "shield" - Must be: "sword"
+      at Array.every (<anonymous>)
+      at Array.every (<anonymous>)
+    
+    Error#26 ERROR_NOTE: Caused by (Error#27)
+    Nested error under Error#26
+      Error#27: value: bag keys[1]: "shield" - Must be: "sword"
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+      
+      Error#27 ERROR_NOTE: Caused by (Error#28)
+      Nested error under Error#27
+        Error#28: bag keys[1]: "shield" - Must be: "sword"
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+        
+        Error#28 ERROR_NOTE: Caused by (Error#29)
+        Nested error under Error#28
+          Error#29: shield - Must be: sword
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+            at Array.every (<anonymous>)
+          
+RemoteError(error:captp:far-zoeTest#20001)#23: "buy item" proposal: want: Items: value: bag keys[0]: "shield" - Must be: "sword"
+Error: "buy item" proposal: want: Items: value: bag keys[0]: "shield" - Must be: "sword"
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20002)#30)
+RemoteError(error:captp:far-zoeTest#20002)#30: "buy item" proposal: want: Items: value: bag keys[1]: "shield" - Must be: "sword"
+Error: "buy item" proposal: want: Items: value: bag keys[1]: "shield" - Must be: "sword"
+
+Temporary logging of sent error (Error#31)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#36)
+  ✔ an offer for no items is refused before escrow (19.8s)
+Error#31: "buy item" proposal: want: Items: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+Error: "buy item" proposal: want: Items: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+
+Error#31 ERROR_NOTE: Caused by (Error#32)
+Error#31 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#31
+  Error#32: want: Items: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+    at Array.every (<anonymous>)
+  
+  Error#32 ERROR_NOTE: Caused by (Error#33)
+  Nested error under Error#32
+    Error#33: Items: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+      at Array.every (<anonymous>)
+      at Array.every (<anonymous>)
+    
+    Error#33 ERROR_NOTE: Caused by (Error#34)
+    Nested error under Error#33
+      Error#34: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+      
+      Error#34 ERROR_NOTE: Caused by (Error#35)
+      Nested error under Error#34
+        Error#35: Object [copyBag] { payload: [] } - Must fail negated pattern: `makeTagged("copyBag", [])`
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+          at Array.every (<anonymous>)
+        
+RemoteError(error:captp:far-zoeTest#20001)#36: "buy item" proposal: want: Items: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+Error: "buy item" proposal: want: Items: value: "[copyBag]" - Must fail negated pattern: "`makeTagged(\"copyBag\", [])`"
+
+Temporary logging of sent error (Error#37)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#41)
+  ✔ less than one price is refused before escrow (20.2s)
+Error#37: "buy item" proposal: give: Price: {"brand":"[Alleged: Money brand]","value":"[9n]"} - Must be >= {"brand":"[Alleged: Money brand]","value":"[10n]"}
+Error: "buy item" proposal: give: Price: {"brand":"[Alleged: Money brand]","value":"[9n]"} - Must be >= {"brand":"[Alleged: Money brand]","value":"[10n]"}
+
+Error#37 ERROR_NOTE: Caused by (Error#38)
+Error#37 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#37
+  Error#38: give: Price: {"brand":"[Alleged: Money brand]","value":"[9n]"} - Must be >= {"brand":"[Alleged: Money brand]","value":"[10n]"}
+    at Array.every (<anonymous>)
+  
+  Error#38 ERROR_NOTE: Caused by (Error#39)
+  Nested error under Error#38
+    Error#39: Price: {"brand":"[Alleged: Money brand]","value":"[9n]"} - Must be >= {"brand":"[Alleged: Money brand]","value":"[10n]"}
+      at Array.every (<anonymous>)
+      at Array.every (<anonymous>)
+    
+    Error#39 ERROR_NOTE: Caused by (Error#40)
+    Nested error under Error#39
+      Error#40: { brand: Object [Alleged: Money brand] {}, value: 9n } - Must be >= { brand: Object [Alleged: Money brand] {}, value: 10n }
+        at Array.every (<anonymous>)
+        at Array.every (<anonymous>)
+      
+RemoteError(error:captp:far-zoeTest#20001)#41: "buy item" proposal: give: Price: {"brand":"[Alleged: Money brand]","value":"[9n]"} - Must be >= {"brand":"[Alleged: Money brand]","value":"[10n]"}
+Error: "buy item" proposal: give: Price: {"brand":"[Alleged: Money brand]","value":"[9n]"} - Must be >= {"brand":"[Alleged: Money brand]","value":"[10n]"}
+
+Temporary logging of sent error (Error#42)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#43)
+  ✔ paying for one but wanting two is refused and fully refunded (20.7s)
+Error#42: 2n sword cost { brand: Object [Alleged: Money brand] {}, value: 20n } , but only { brand: Object [Alleged: Money brand] {}, value: 15n } was given
+  at buyHandler (baseline-dryrun-claude/src/item-shop.contract.js:76:11)
+  at eval (pass-style/src/make-far.js:224:36)
+
+Error#42 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Error#42 ERROR_NOTE: Sent as error:fakeLiveSlots#80001
+Error#42 ERROR_NOTE: Sent as error:fakeLiveSlots#80002
+RemoteError(error:captp:far-zoeTest#20001)#43: "[2n]" "sword" cost {"brand":"[Alleged: Money brand]","value":"[20n]"}, but only {"brand":"[Alleged: Money brand]","value":"[15n]"} was given
+Error: "[2n]" "sword" cost {"brand":"[Alleged: Money brand]","value":"[20n]"}, but only {"brand":"[Alleged: Money brand]","value":"[15n]"} was given
+
+  ✔ the creator withdraws the proceeds of sales (21.2s)
+  ─
+
+  12 tests passed
+exit=0

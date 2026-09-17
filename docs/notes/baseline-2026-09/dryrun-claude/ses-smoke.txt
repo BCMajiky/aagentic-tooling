@@ -1,0 +1,16 @@
+/Users/bc/Desktop/Agoric-L1/baseline/dryrun-claude/src/item-shop.contract.js
+  bundleId  b1-e5d5d8eea8a7c1142ca9aa5d37f9267887c8fb3da6a7dc2ff7f982c6ae93a35fef5484ff5795d83bcd19b419dea4c3d35d44b353d4e45be9df2c3c8859742f32
+  format    endoZipBase64, 1207056 bytes
+  ok        bundles
+  ok        exports start
+  ok        start is hardened
+  ok        meta is hardened
+
+SES taming
+  ok        Math.random is unavailable or throws in a compartment (secure mode %SharedMath%.random() throws)
+  ok        Date.now is tamed in a compartment (secure mode Calling %SharedDate%.now() throws)
+  ok        process is unavailable in a compartment (typeof is undefined)
+  ok        require is unavailable in a compartment (typeof is undefined)
+  ok        globalThis.fetch is unavailable in a compartment (typeof is undefined)
+
+SES smoke passed.

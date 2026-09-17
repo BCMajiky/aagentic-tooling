@@ -1,0 +1,1 @@
+Write a Zoe contract that sells a single named item for a fixed price, with a maximum of two items per offer, with tests. Do not read docs.agoric.com.

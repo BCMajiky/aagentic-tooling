@@ -4,6 +4,7 @@
 # Release 1 D1 manual baseline: one agent run in one workspace.
 #
 #   run-baseline.sh <task1|task4> <claude|codex>
+#   run-baseline.sh dryrun claude   (prompt.txt from the workspace; see README, "Dry run")
 #
 # The workspace ~/Desktop/Agoric-L1/baseline/<task>-<agent>/ must already exist
 # as `git init` plus a committed package.json (see README.md). Output goes to
@@ -30,6 +31,9 @@ CODEX_BIN="/Applications/ChatGPT.app/Contents/Resources/codex"
 
 case $task in
   task1) prompt="Write a Zoe smart contract for Agoric that sells one kind of item for a fixed price. The price brand and amount are contract terms. A buyer offers the price and wants the item. Include ava tests that start the contract and show a successful purchase and a refused underpayment. Use the package versions already in package.json." ;;
+  # Release 1 day 5 dry run: the prompt is the workspace's prompt.txt, and the
+  # workspace carries the rendered pack in .claude/skills/.
+  dryrun) prompt="$(cat "$ws/prompt.txt")" ;;
   task4) prompt="Write an Agoric orchestration contract with one invitation. The offer handler runs an orchestration flow that creates an account on the osmosis chain and transfers the offered amount to it. If the transfer fails the funds return to the offerer. Include ava tests. Use the package versions already in package.json." ;;
   *) echo "unknown task $task" >&2; exit 2 ;;
 esac
@@ -40,6 +44,15 @@ case $agent in
     cmd=("$CLAUDE_BIN" -p --safe-mode --permission-mode bypassPermissions
          --output-format stream-json --verbose "$prompt")
     isolation="--safe-mode"
+    if [ "$task" = dryrun ]; then
+      # Departure from day 1, decided 2026-09-17: --safe-mode hides project
+      # skills (and did not exclude the user plugin frontend-design on day 1).
+      # Excluding the user settings source and all MCP config isolates user
+      # config and lets .claude/skills/ load. See the README, "Dry run".
+      cmd=("$CLAUDE_BIN" -p --setting-sources project,local --strict-mcp-config
+           --permission-mode bypassPermissions --output-format stream-json --verbose "$prompt")
+      isolation="--setting-sources project,local --strict-mcp-config"
+    fi
     permissions="--permission-mode bypassPermissions (no sandbox; cwd is the workspace)"
     ;;
   codex)
@@ -86,9 +99,9 @@ timed_out=false
 
 # Everything the agent changed relative to the setup commit, including new
 # untracked files and any commits it made, minus installed dependencies.
-git -C "$ws" add -A -N -- . ':!node_modules' ':!.yarn' ':!.pnp.cjs' ':!.pnp.loader.mjs' 2>/dev/null
-git -C "$ws" diff "$base" -- . ':!node_modules' ':!.yarn' ':!.pnp.cjs' ':!.pnp.loader.mjs' ':!yarn.lock' > "$out/diff.patch"
-git -C "$ws" status --short --untracked-files=all -- . ':!node_modules' ':!.yarn' > "$out/status.txt"
+git -C "$ws" add -A -N -- . ':!node_modules' ':!.yarn' ':!.pnp.cjs' ':!.pnp.loader.mjs' ':!prompt.txt' 2>/dev/null
+git -C "$ws" diff "$base" -- . ':!node_modules' ':!.yarn' ':!.pnp.cjs' ':!.pnp.loader.mjs' ':!yarn.lock' ':!prompt.txt' > "$out/diff.patch"
+git -C "$ws" status --short --untracked-files=all -- . ':!node_modules' ':!.yarn' ':!prompt.txt' > "$out/status.txt"
 
 printf '{"started":"%s","finished":"%s","exitStatus":%s,"timedOut":%s}\n' \
   "$started" "$finished" "$status" "$timed_out" > "$out/run.json"

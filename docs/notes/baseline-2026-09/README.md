@@ -303,6 +303,95 @@ Recorded forward. The struck text above is what was first published.
    'canUpgrade' }`, durable zone, exos; `zoe/src/contracts/valueVow.contract.js`)
    do not change.
 
+## Dry run (Release 1 day 5)
+
+One Claude Code run with the rendered skill pack installed, before the pack is
+tagged. Run 2026-09-17, 14:40:02 to 14:42:29 UTC. Correctness check against
+`upstream/agoric-sdk-u23` at cc25a29 by the project's Claude Code session:
+correctness pass, Agoric review pending.
+
+**Not comparable to the baseline table as a before-and-after.** The prompt is
+different from task 1, the workspace carries the pack, and the isolation flags
+differ (below). It shows what one run does with the pack, nothing more.
+
+| Task | Agent | SES bundle | Own tests | Defects (code, severity) |
+| :-- | :-- | :-- | :-- | :-- |
+| dry run: named item, max two per offer | Claude, with pack | pass | 12/12 pass | `CONTRACT_NOT_UPGRADABLE` medium |
+
+**Prompt** (`dryrun-claude/prompt.txt`): "Write a Zoe contract that sells a
+single named item for a fixed price, with a maximum of two items per offer, with
+tests. Do not read docs.agoric.com."
+
+**Workspace:** `~/Desktop/Agoric-L1/baseline/dryrun-claude/`, made with
+`yarn baseline:workspace dryrun-claude --with-pack`: the baseline `package.json`
+and `.claude/skills/` holding `packages/skills/dist/claude/` at 9fd3b2c, both in
+the setup commit `0d196c8`. `prompt.txt` is not committed and is excluded from
+`diff.patch` and `status.txt`.
+
+**Flags, a departure from day 1.** `claude -p --setting-sources project,local
+--strict-mcp-config --permission-mode bypassPermissions --output-format
+stream-json --verbose`, same binary (2.1.274), no model flag, thirty-minute
+cap. Day 1 used `--safe-mode` instead of the two isolation flags. Decided by Bob
+on 2026-09-17 after two probes with the same binary in a scratch copy of the
+pack, each stopped after the init event:
+
+- `--safe-mode`: the init event lists no `agoric-*` skill, and does list the
+  user plugin `frontend-design`. The pack would not have been offered.
+- `--setting-sources project,local --strict-mcp-config`: all seven `agoric-*`
+  skills listed, `plugins: []`, `mcp_servers: []`.
+
+The dry run's own init event matches the second probe: model
+`claude-opus-5[1m]`, the seven `agoric-*` skills among the available skills,
+no plugins, no MCP servers. Both arms of the v0.2 eval use these flags.
+
+**Skills loaded.** Through the Skill tool, in order: `agoric-zoe-contract`,
+`agoric-testing`, `agoric-hardened-js`. It also read files from the pack with
+shell commands: `agoric-deploy/SKILL.md` (grep for the yarn linker), and the
+snippet copies `agoric-hardened-js/snippets/zoe/offer-up.contract.js`,
+`agoric-testing/snippets/package.json`, `agoric-testing/snippets/test/support.js`
+and `agoric-testing/snippets/test/zoe-offer-up.test.js`. It did not load
+`agoric-durable-state`, `agoric-orchestration` or `agoric-errors`.
+
+**Cost:** 2m27s, exit 0, 17 turns, 13 tool calls, $0.78 (Opus $0.775, Haiku
+$0.001), 9,819 output tokens, 360 diff lines.
+
+### Defects
+
+**`CONTRACT_NOT_UPGRADABLE`**, medium. `src/item-shop.contract.js` exports
+`start` returning `Far` facets that close over heap state (`itemMint`,
+`proceeds`), with no `meta.upgradability`, durable zone or exos. The same shape
+as both task 1 contracts. `agoric-durable-state` was not loaded; the prompt did
+not mention upgrade, and `agoric-zoe-contract` does not send a reader there.
+
+### Checked and not defects
+
+Every SDK API used exists at u23a with the signature used: `zcf.makeZCFMint`
+with `AssetKind.COPY_BAG`, `mintGains` (`zcfMint.js:84`), `zcf.atomicRearrange`,
+`getAmountAllocated` (`zcfSeat.js:156`), `BrandShape` (`ertp/src/typeGuards.js:9`,
+re-exported by `ertp/src/index.js`), `M.bagOf(keyPatt, countPatt)` and
+`getCopyBagEntries` (`@endo/patterns` 1.7.0), `@import {ZCF, OfferHandler}
+from '@agoric/zoe'`.
+
+Compared with the baseline's task 1 defects: terms are validated through
+`meta.customTermsShape`; the invitation has a proposal shape that enforces the
+item name and the maximum of two before escrow; reallocation uses
+`zcf.atomicRearrange`, not the deprecated helper; proceeds are withdrawable
+through a creator-facet invitation, not stranded; `@endo/errors`, `@endo/far`
+and `@endo/patterns` are declared; `.yarnrc.yml` sets the node-modules linker
+before install; tests import `test` from `prepare-test-env-ava.js`, bundle from
+the file path, and cover refusals as well as purchases. The agent's first
+`yarn test` had one failing test (it expected no `Items` payout where Zoe pays
+an empty amount); it fixed the assertion and the second run passed 12/12.
+
+### Observations
+
+- `.yarnrc.yml` also sets `enableScripts: false`, which nothing in the pack
+  asks for. Install and tests work with it.
+- The agent ran `ls ~/.yarnrc.yml`, a read outside the workspace. Nothing was
+  written outside it.
+- For the pack: `agoric-zoe-contract` could point at `agoric-durable-state`
+  when a contract uses `start` with `Far` facets. Not changed here.
+
 ## How the runs were set up
 
 ### Workspaces
@@ -347,6 +436,18 @@ Codex) and records the model id, CLI version and binary path for every run.
 Vendor built-in defaults remain and differ between the agents: each vendor's
 system prompt, built-in tools and Codex's `.system` skills. Stripping user
 config removes Bob's plugins, hooks and MCP servers, nothing more.
+
+*Correction, 2026-09-17 (Release 1 day 5):* the sentence above overclaims for
+Claude Code. `--safe-mode` did not exclude Bob's user plugin: the init event of
+the day 1 task1-claude transcript lists
+`plugins: [{"name": "frontend-design", …}]` alongside the bundled skills, and a
+probe with the same binary (2.1.274) and flags on 2026-09-17 shows the same
+plugin loaded. It lists no MCP servers in either. Whether user hooks ran was
+not checked. The same probe showed `--safe-mode` hides project skills in
+`.claude/skills/`. The day 1 results stand; the description of their isolation
+was wrong. From the dry run on, Claude Code runs with
+`--setting-sources project,local --strict-mcp-config` instead (see "Dry run"),
+and **both arms of the v0.2 eval (with and without the pack) use those flags**.
 
 The Codex sandbox was chosen per Bob's instruction: use a workspace-write
 network option if the installed version has one, and the bypass flag only if it
