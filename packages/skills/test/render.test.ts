@@ -2,7 +2,7 @@
 
 import { test } from './prepare-test-env-ava.js';
 
-import { catalogue } from '@dcfoundation/aat-core';
+import { catalogue, notCarriedOver } from '@dcfoundation/aat-core';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, normalize } from 'node:path';
@@ -37,7 +37,7 @@ const tokenizer = {
   version: (require('gpt-tokenizer/package.json') as { version: string }).version,
   encoding: 'o200k_base',
 };
-const render = () => renderPack(loadRenderInputs(io, { skillNames: SKILL_NAMES, catalogue, tokenizer }));
+const render = () => renderPack(loadRenderInputs(io, { skillNames: SKILL_NAMES, catalogue, notCarriedOver, tokenizer }));
 const files = render();
 const byPath = new Map(files.map(f => [f.path, f.content]));
 
@@ -130,6 +130,10 @@ test('agoric-errors renders every catalogue entry, by topic, silent first', t =>
     t.true(references.includes(entry.fix), `${entry.code} fix is not rendered in full`);
   }
 
+  for (const { sharpEdge } of notCarriedOver) {
+    t.true(index.includes(`- **Sharp edge ${sharpEdge}.**`), `sharp edge ${sharpEdge} is not listed as not carried over`);
+  }
+
   // Within each topic, no silent entry follows a non-silent one.
   const ordered = orderCatalogue(catalogue);
   for (let i = 1; i < ordered.length; i += 1) {
@@ -146,7 +150,7 @@ test('the pack AGENTS.md carries the rules from pack-rules.md', t => {
     .split('\n')
     .filter(l => l.startsWith('- '));
   const agents = byPath.get(`${DIST}/agents-md/AGENTS.md`) ?? '';
-  t.is(rules.length, 5);
+  t.is(rules.length, 11);
   for (const rule of rules) t.true(agents.includes(`${rule}\n`), rule);
   t.regex(agents, /counted with gpt-tokenizer \d+\.\d+\.\d+ \(o200k_base\)\.\n$/);
 });

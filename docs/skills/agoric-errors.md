@@ -1,8 +1,8 @@
 # Agoric error catalogue
 
-Every known failure, grouped by topic. Within a topic the **silent** ones come first: no error, a hang, or a success code with nothing done. Check those when nothing is visibly wrong; for the rest, search for a distinctive part of the message.
+Every known failure, grouped by topic. Within a topic the **silent** ones come first: no error, a hang, or a success code with nothing done. Check those when nothing is visibly wrong; for the rest, search for a distinctive part of the message. When a message matches more than one entry, the more specific entry applies: PATTERN_MISMATCH is the fallback for any pattern failure without its own entry.
 
-Rendered from `packages/core/src/hints.ts`: 44 entries.
+Rendered from `packages/core/src/hints.ts`: 50 entries.
 
 ## Hardened JavaScript
 
@@ -26,16 +26,6 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **See:** `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L170-L172` · skill `agoric-hardened-js`
 
-### PATTERN_MISMATCH
-
-**Match:** matches ` - Must (be|have|not|fail|match)`
-
-**Cause:** A value did not match the `@endo/patterns` shape passed to `mustMatch`, an interface guard, `customTermsShape` or a store `valueShape`. The label before the first colon says which check failed.
-
-**Fix:** Read the path in the message (for example `offerArgs: chainName: number 42 - Must be a string`) and fix the value or the pattern.
-
-**See:** `aagentic-tooling/examples/send-anywhere/src/send-anywhere.flows.js#L79` · skill `agoric-hardened-js`
-
 ### SES_TAMED_DATE_RANDOM
 
 **Match:** matches `secure mode Calling %SharedDate%\.now\(\) throws|secure mode %SharedMath%\.random\(\) throws`
@@ -45,6 +35,16 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 **Fix:** Take time from the timer service (`E(timer).getCurrentTimestamp()`) passed in `privateArgs`. Take randomness from nowhere: design it out.
 
 **See:** [`agoric-sdk@cc25a29:packages/zoe/src/contracts/priceAggregator.js#L157`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/zoe/src/contracts/priceAggregator.js#L157) · `aagentic-tooling/scripts/ses-smoke.mjs` · skill `agoric-hardened-js`
+
+### PATTERN_MISMATCH
+
+**Match:** matches ` - Must (be|have|not|fail|match)`
+
+**Cause:** A value did not match the `@endo/patterns` shape passed to `mustMatch`, an interface guard, `customTermsShape` or a store `valueShape`. The label before the first colon says which check failed.
+
+**Fix:** Read the path in the message (for example `offerArgs: chainName: number 42 - Must be a string`) and fix the value or the pattern.
+
+**See:** `aagentic-tooling/examples/send-anywhere/src/send-anywhere.flows.js#L79` · skill `agoric-hardened-js`
 
 ## Zoe contracts
 
@@ -180,6 +180,16 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **See:** devnet sharp edge 9 · [`agoric-sdk@cc25a29:packages/SwingSet/docs/vat-upgrade.md#L62`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/SwingSet/docs/vat-upgrade.md#L62) · `DURABLE_KIND_SUBSET` · `aagentic-tooling/packages/skills/src/agoric-durable-state/references/upgrade-rules.md`
 
+### REDEPLOY_ID_COLLISION
+
+**Match:** silent
+
+**Cause:** Unverified devnet observation (sharp edge 10): a fresh instance restarts its counters, so records published as `…-1` overwrite the previous deployment's vstorage nodes.
+
+**Fix:** Carry an id prefix as a term (`v2-1`) and treat the terms on chain as the truth; the repository can carry a different prefix from the deployed instance.
+
+**See:** devnet sharp edge 10 · skill `agoric-durable-state`
+
 ### DURABLE_STATESHAPE_MISMATCH
 
 **Match:** contains `durable Kind stateShape mismatch`
@@ -246,7 +256,7 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **Match:** silent
 
-**Cause:** Unverified. `orch.getChain('agoric')` (or another chain lookup) was awaited during contract start rather than inside a flow. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.
+**Cause:** Unverified. A chain lookup (`orch.getChain('agoric')`) ran in an orchestrated flow that contract start awaited, instead of in a flow run later by an offer. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.
 
 **Fix:** Look chains up inside the flow that needs them, and pass per-network values such as the pay denom as terms.
 
@@ -262,6 +272,36 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **See:** `aagentic-tooling/examples/send-anywhere/src/send-anywhere.contract.js#L69-L71` · skill `agoric-orchestration`
 
+### PUBLISH_READ_AFTER_AWAIT
+
+**Match:** silent
+
+**Cause:** Unverified design rule from devnet (sharp edge 2): data a flow read from durable records after an `await` came back as empty objects or stale values, so what it published was wrong.
+
+**Fix:** Read and serialise everything the flow will publish synchronously, before its first `await`.
+
+**See:** devnet sharp edge 2 · skill `agoric-orchestration`
+
+### FLOW_STATE_RACE
+
+**Match:** silent
+
+**Cause:** Unverified design rule from devnet (sharp edge 5): flows yield at every `await`, so two activations can read the same record status and both act on it.
+
+**Fix:** Re-read the record immediately before each `store.set` and throw if its status changed since the flow read it.
+
+**See:** devnet sharp edge 5 · skill `agoric-orchestration`
+
+### SPLIT_PAYOUT_PARTIAL_FAILURE
+
+**Match:** silent
+
+**Cause:** Unverified design rule from devnet (sharp edge 13): a flow that pays two parties and fails between the payments can pay the first party again when it is retried.
+
+**Fix:** Pay the first party, record a terminal state, then pay the second inside try/catch with a pending flag, so a retry cannot repeat the first payment.
+
+**See:** devnet sharp edge 13 · skill `agoric-orchestration`
+
 ### E_IN_FLOW
 
 **Match:** contains `guest eventual applyMethod not yet supported: `
@@ -271,6 +311,16 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 **Fix:** Call account and chain methods directly and `await` them: `await account.transfer(dest, amount)`. The flow runner handles the vows.
 
 **See:** [`agoric-sdk@cc25a29:packages/async-flow/src/replay-membrane.js#L349`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/async-flow/src/replay-membrane.js#L349) · [`agoric-sdk@cc25a29:packages/async-flow/src/async-flow.js#L195-L201`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/async-flow/src/async-flow.js#L195-L201) · [`agoric-sdk@cc25a29:packages/async-flow/src/async-flow.js#L58-L60`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/async-flow/src/async-flow.js#L58-L60) · [`agoric-sdk@cc25a29:packages/async-flow/src/async-flow.js#L313`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/async-flow/src/async-flow.js#L313) · `aagentic-tooling/examples/send-anywhere/src/send-anywhere.flows.js#L122-L131` · devnet sharp edge 1 · skill `agoric-orchestration`
+
+### VSTORAGE_PATH_SEGMENT_INVALID
+
+**Match:** contains `Path segment names must consist of`
+
+**Cause:** A vstorage node name contains a character other than ASCII alphanumerics, underscore and dash (a dot, for example), or is empty or over 100 characters. `makeChildNode` throws. On devnet this was seen as silent (sharp edge 8), because the publish ran inside a vow nothing watched, so the rejection was never observed.
+
+**Fix:** Build node names from `[a-zA-Z0-9_-]`, 1 to 100 characters (`escrow-1`, not `escrow.1`), and watch the vow that publishes so a failure is seen.
+
+**See:** [`agoric-sdk@cc25a29:packages/internal/src/lib-chainStorage.js#L108-L111`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/internal/src/lib-chainStorage.js#L108-L111) · [`agoric-sdk@cc25a29:packages/internal/src/lib-chainStorage.js#L204`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/internal/src/lib-chainStorage.js#L204) · devnet sharp edge 8 · skill `agoric-orchestration`
 
 ## Testing
 
@@ -370,7 +420,7 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **Match:** silent
 
-**Cause:** A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15).
+**Cause:** A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15). Reported on devnet; not reproduced here.
 
 **Fix:** Install with `--gas 100000000`, then query the chain for the bundle id before submitting the CoreEval.
 
@@ -406,6 +456,16 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **See:** devnet sharp edge 19 · `aagentic-tooling/packages/core/src/networks.json#L30-L40` · skill `agoric-deploy`
 
+### DEVNET_TIMER_WAKEUP_MISSING
+
+**Match:** silent
+
+**Cause:** Unverified devnet observation (sharp edge 22): timer wakeups did not fire on the shared devnet. An infrastructure problem, not a contract bug.
+
+**Fix:** Check timer behaviour on a local chain before debugging contract timer logic against devnet.
+
+**See:** devnet sharp edge 22 · skill `agoric-deploy`
+
 ### ENDO_MULTIPLE_SES
 
 **Match:** contains `TypeError: Cannot redefine property: sliceToImmutable`
@@ -440,7 +500,7 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **Match:** contains `413 Payload Too Large`
 
-**Cause:** Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Text as reported on devnet; not reproduced here.
+**Cause:** Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Reported on devnet; not reproduced here.
 
 **Fix:** Compress the bundle before installing; a contract still over the limit needs the multi-bundle install pattern.
 
@@ -454,6 +514,18 @@ Rendered from `packages/core/src/hints.ts`: 44 entries.
 
 **Cause:** A contract fails under a local SES harness but runs on chain, because the harness endowed less than SwingSet gives a vat (for example no `assert`).
 
-**Fix:** Endow exactly what SwingSet endows: `console`, `assert`, `TextEncoder`, `TextDecoder`, `URL`. The harness is wrong, not the contract.
+**Fix:** Endow what SwingSet endows: `console`, `assert`, `TextEncoder`, `TextDecoder` and `URL`, as `scripts/ses-smoke.mjs` does (line 120 for `URL`). The harness is wrong, not the contract. At u23a SwingSet marks `URL` "Unavailable only on XSnap" and `Base64` "Available only on XSnap", and chain vats run under XSnap, so a contract must not rely on `URL`.
 
-**See:** `aagentic-tooling/scripts/ses-smoke.mjs`
+**See:** `aagentic-tooling/scripts/ses-smoke.mjs#L114-L122` · [`agoric-sdk@cc25a29:packages/SwingSet/src/kernel/vat-loader/manager-local.js#L74-L83`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/SwingSet/src/kernel/vat-loader/manager-local.js#L74-L83)
+
+## Not carried over
+
+Devnet sharp edges (from the Servandum contract work) that are not entries above, and why. Every other sharp edge is an entry.
+
+- **Sharp edge 3.** Returning `JSON.stringify(result)` from a flow was a FiDeal-specific smart-wallet workaround, not a rule; upstream returns a hardened continuing offer from a flow. See [`agoric-sdk@cc25a29:packages/orchestration/src/examples/basic-flows.flows.js#L34`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/orchestration/src/examples/basic-flows.flows.js#L34).
+- **Sharp edge 4.** Keeping state in the invitation handler rather than the flow is a FiDeal architecture choice, not a failure mode; where durable state belongs is in agoric-durable-state. See skill `agoric-durable-state`.
+- **Sharp edge 6.** Harden everything that crosses a boundary: already covered by PASS_STYLE_NOT_FROZEN and the pack rules. See `PASS_STYLE_NOT_FROZEN`.
+- **Sharp edge 11.** Wakeup handlers using `async wake()` with `E()` were an accepted risk in Servandum, and the note itself asks whether seatless flows now cover the case; not checked at u23a.
+- **Sharp edge 12.** Authorising by a self-reported `offerArgs` address is the standard pattern, recorded as a review note, not a failure.
+- **Sharp edge 20.** Lockfiles going stale after a package rename is generic package-manager behaviour, not specific to Agoric.
+- **Sharp edge 21.** A case-sensitive constant misuse in an untested wakeup path is an ordinary coding bug caught by review, not an Agoric failure mode.

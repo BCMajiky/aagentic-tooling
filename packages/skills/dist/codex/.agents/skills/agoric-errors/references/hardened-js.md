@@ -20,16 +20,6 @@
 
 **See:** `aagentic-tooling/examples/offer-up/src/offer-up.contract.js#L170-L172` · skill `agoric-hardened-js`
 
-### PATTERN_MISMATCH
-
-**Match:** matches ` - Must (be|have|not|fail|match)`
-
-**Cause:** A value did not match the `@endo/patterns` shape passed to `mustMatch`, an interface guard, `customTermsShape` or a store `valueShape`. The label before the first colon says which check failed.
-
-**Fix:** Read the path in the message (for example `offerArgs: chainName: number 42 - Must be a string`) and fix the value or the pattern.
-
-**See:** `aagentic-tooling/examples/send-anywhere/src/send-anywhere.flows.js#L79` · skill `agoric-hardened-js`
-
 ### SES_TAMED_DATE_RANDOM
 
 **Match:** matches `secure mode Calling %SharedDate%\.now\(\) throws|secure mode %SharedMath%\.random\(\) throws`
@@ -39,3 +29,13 @@
 **Fix:** Take time from the timer service (`E(timer).getCurrentTimestamp()`) passed in `privateArgs`. Take randomness from nowhere: design it out.
 
 **See:** [`agoric-sdk@cc25a29:packages/zoe/src/contracts/priceAggregator.js#L157`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/zoe/src/contracts/priceAggregator.js#L157) · `aagentic-tooling/scripts/ses-smoke.mjs` · skill `agoric-hardened-js`
+
+### PATTERN_MISMATCH
+
+**Match:** matches ` - Must (be|have|not|fail|match)`
+
+**Cause:** A value did not match the `@endo/patterns` shape passed to `mustMatch`, an interface guard, `customTermsShape` or a store `valueShape`. The label before the first colon says which check failed.
+
+**Fix:** Read the path in the message (for example `offerArgs: chainName: number 42 - Must be a string`) and fix the value or the pattern.
+
+**See:** `aagentic-tooling/examples/send-anywhere/src/send-anywhere.flows.js#L79` · skill `agoric-hardened-js`

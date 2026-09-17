@@ -40,6 +40,16 @@
 
 **See:** devnet sharp edge 9 · [`agoric-sdk@cc25a29:packages/SwingSet/docs/vat-upgrade.md#L62`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/SwingSet/docs/vat-upgrade.md#L62) · `DURABLE_KIND_SUBSET` · `aagentic-tooling/packages/skills/src/agoric-durable-state/references/upgrade-rules.md`
 
+### REDEPLOY_ID_COLLISION
+
+**Match:** silent
+
+**Cause:** Unverified devnet observation (sharp edge 10): a fresh instance restarts its counters, so records published as `…-1` overwrite the previous deployment's vstorage nodes.
+
+**Fix:** Carry an id prefix as a term (`v2-1`) and treat the terms on chain as the truth; the repository can carry a different prefix from the deployed instance.
+
+**See:** devnet sharp edge 10 · skill `agoric-durable-state`
+
 ### DURABLE_STATESHAPE_MISMATCH
 
 **Match:** contains `durable Kind stateShape mismatch`

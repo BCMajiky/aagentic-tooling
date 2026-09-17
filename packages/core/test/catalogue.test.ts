@@ -5,7 +5,7 @@ import { test } from './prepare-test-env-ava.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { catalogue } from '../src/hints.js';
+import { catalogue, findCatalogueEntry, notCarriedOver } from '../src/hints.js';
 import { checkRef, makeRefIo } from '../src/refs.js';
 
 const codes = new Set(catalogue.map(e => e.code));
@@ -59,45 +59,50 @@ test('every match is a literal, a regex that compiles, or silent', t => {
   }
 });
 
+// One real message per non-silent entry, as reproduced or quoted in
+// docs/notes/baseline-2026-09/README.md and the u23a source.
+const samples: Record<string, string> = {
+  ZOE_EXPORTED_MISSING:
+    'Cannot find file for internal module "./exported.js" (with candidates "./exported.js") in package file:///w/node_modules/@agoric/zoe/',
+  ATOMIC_REARRANGE_HELPER:
+    "import { atomicRearrange } from '@agoric/zoe/src/contractSupport/index.js';",
+  ENDO_MULTIPLE_SES: 'TypeError: Cannot redefine property: sliceToImmutable',
+  YARN_PNP_DEFAULT: "Error: EROFS: read-only filesystem, mkdir '/node_modules/bundles'",
+  ENDO_ERRORS_BEFORE_SES:
+    "Error: Cannot initialize @endo/errors, missing globalThis.assert, import 'ses' before '@endo/errors'",
+  VATDATA_UNAVAILABLE: 'Error#1: VatData unavailable',
+  OFFER_SAFETY_VIOLATION:
+    'Offer safety was violated by the proposed allocation: {"Item":{}}. Proposal was {}',
+  BUNDLE_UNDECLARED_DEP:
+    'Failed to load module "./src/c.js" in package "file:///w/" (2 underlying failures: Cannot find external module "@endo/patterns" in package file:///w/',
+  PROPOSAL_SHAPE_MISMATCH:
+    '"fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}',
+  ORCH_TEST_TOOLS_TS:
+    'Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules',
+  CHAINHUB_DENOM_UNREGISTERED:
+    'no denom detail for: "uist" on "agoric". ensure it is registered in chainHub.',
+  CHAIN_PAYLOAD_TOO_LARGE: 'Error: 413 Payload Too Large',
+  VSTORAGE_PATH_SEGMENT_INVALID:
+    'Path segment names must consist of 1 to 100 characters limited to ASCII alphanumerics, underscores, and/or dashes: "escrow.1"',
+  PASS_STYLE_NOT_FROZEN: 'Cannot pass non-frozen objects like {"a":1}. Use harden()',
+  FAR_NON_METHOD:
+    'cannot serialize Remotables with non-methods like "value" in {"get":"[Function get]","value":1}',
+  PATTERN_MISMATCH: 'offerArgs: chainName: number 42 - Must be a string',
+  SES_TAMED_DATE_RANDOM: 'secure mode Calling %SharedDate%.now() throws',
+  OFFER_HANDLER_UNDEFINED_REASON:
+    'If an offerHandler throws, it must provide a reason of type Error, but the reason was undefined.',
+  DURABLE_STATESHAPE_MISMATCH: 'durable Kind stateShape mismatch (body price)',
+  START_VALUES_NOT_DURABLE:
+    'with "canUpgrade", values from start() must be durable {"publicFacet":false}',
+  DURABLE_VALUE_NOT_DURABLE: 'value is not durable: [object Alleged: x] at slot 0 of {}',
+  E_IN_FLOW:
+    'guest eventual applyMethod not yet supported: [object Alleged: account].transfer -> [object Promise]',
+};
+
 test('regex and literal matches accept the error text they were written from', t => {
   // One real message per non-silent entry, as reproduced or quoted in
   // docs/notes/baseline-2026-09/README.md and the u23a source. If a match is
   // edited so it no longer recognises its own error, this fails.
-  const samples: Record<string, string> = {
-    ZOE_EXPORTED_MISSING:
-      'Cannot find file for internal module "./exported.js" (with candidates "./exported.js") in package file:///w/node_modules/@agoric/zoe/',
-    ATOMIC_REARRANGE_HELPER:
-      "import { atomicRearrange } from '@agoric/zoe/src/contractSupport/index.js';",
-    ENDO_MULTIPLE_SES: 'TypeError: Cannot redefine property: sliceToImmutable',
-    YARN_PNP_DEFAULT: "Error: EROFS: read-only filesystem, mkdir '/node_modules/bundles'",
-    ENDO_ERRORS_BEFORE_SES:
-      "Error: Cannot initialize @endo/errors, missing globalThis.assert, import 'ses' before '@endo/errors'",
-    VATDATA_UNAVAILABLE: 'Error#1: VatData unavailable',
-    OFFER_SAFETY_VIOLATION:
-      'Offer safety was violated by the proposed allocation: {"Item":{}}. Proposal was {}',
-    BUNDLE_UNDECLARED_DEP:
-      'Failed to load module "./src/c.js" in package "file:///w/" (2 underlying failures: Cannot find external module "@endo/patterns" in package file:///w/',
-    PROPOSAL_SHAPE_MISMATCH:
-      '"fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}',
-    ORCH_TEST_TOOLS_TS:
-      'Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules',
-    CHAINHUB_DENOM_UNREGISTERED:
-      'no denom detail for: "uist" on "agoric". ensure it is registered in chainHub.',
-    CHAIN_PAYLOAD_TOO_LARGE: 'Error: 413 Payload Too Large',
-    PASS_STYLE_NOT_FROZEN: 'Cannot pass non-frozen objects like {"a":1}. Use harden()',
-    FAR_NON_METHOD:
-      'cannot serialize Remotables with non-methods like "value" in {"get":"[Function get]","value":1}',
-    PATTERN_MISMATCH: 'offerArgs: chainName: number 42 - Must be a string',
-    SES_TAMED_DATE_RANDOM: 'secure mode Calling %SharedDate%.now() throws',
-    OFFER_HANDLER_UNDEFINED_REASON:
-      'If an offerHandler throws, it must provide a reason of type Error, but the reason was undefined.',
-    DURABLE_STATESHAPE_MISMATCH: 'durable Kind stateShape mismatch (body price)',
-    START_VALUES_NOT_DURABLE:
-      'with "canUpgrade", values from start() must be durable {"publicFacet":false}',
-    DURABLE_VALUE_NOT_DURABLE: 'value is not durable: [object Alleged: x] at slot 0 of {}',
-    E_IN_FLOW:
-      'guest eventual applyMethod not yet supported: [object Alleged: account].transfer -> [object Promise]',
-  };
   for (const { code, match } of catalogue) {
     if (match.kind === 'silent') {
       t.false(code in samples, `${code} is silent but has a sample message`);
@@ -131,5 +136,44 @@ test('every ref resolves', t => {
     for (const ref of refs) {
       t.deepEqual(checkRef(ref, io), [], `${code}: ${ref}`);
     }
+  }
+});
+
+test('first match wins, and every message is claimed by its own entry', t => {
+  // Specific entries come before generic ones (hints.ts, "Precedence"). A
+  // proposal-shape failure also contains " - Must be", which PATTERN_MISMATCH
+  // matches, so this fails if the order is ever reversed.
+  for (const [code, message] of Object.entries(samples)) {
+    t.is(findCatalogueEntry(message)?.code, code, `${code}: ${message}`);
+  }
+  t.is(
+    findCatalogueEntry('customTerms: price: bigint "[5n]" - Must be a copyRecord')?.code,
+    'PATTERN_MISMATCH',
+    'a customTerms failure has no specific entry and falls through to the generic one',
+  );
+  t.is(findCatalogueEntry('nothing we know about'), undefined);
+  t.is(catalogue.at(-1)?.code, 'PATTERN_MISMATCH', 'the generic pattern entry is last');
+});
+
+test('silent entries never match a message', t => {
+  for (const entry of catalogue.filter(e => e.match.kind === 'silent')) {
+    t.not(findCatalogueEntry(entry.cause)?.code, entry.code);
+  }
+});
+
+test('every devnet sharp edge is an entry or listed as not carried over, once', t => {
+  const asEntries = new Set(
+    catalogue.flatMap(e => e.refs.filter(r => r.startsWith('sharp-edge:')).map(r => Number(r.slice('sharp-edge:'.length)))),
+  );
+  const notCarried = notCarriedOver.map(n => n.sharpEdge);
+  t.is(new Set(notCarried).size, notCarried.length, 'a sharp edge is listed twice');
+  for (const n of notCarried) t.false(asEntries.has(n), `sharp edge ${n} is both an entry and not carried over`);
+  t.deepEqual(
+    [...asEntries, ...notCarried].sort((a, b) => a - b),
+    Array.from({ length: 22 }, (_, i) => i + 1),
+  );
+  for (const { sharpEdge, reason, refs } of notCarriedOver) {
+    t.true(reason.length > 20, `sharp edge ${sharpEdge} has a stub reason`);
+    for (const ref of refs) t.deepEqual(checkRef(ref, io), [], `sharp edge ${sharpEdge}: ${ref}`);
   }
 });

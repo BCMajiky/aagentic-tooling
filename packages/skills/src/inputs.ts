@@ -47,10 +47,12 @@ export const loadRenderInputs = (
   {
     skillNames,
     catalogue,
+    notCarriedOver,
     tokenizer,
   }: {
     readonly skillNames: readonly string[];
     readonly catalogue: readonly CatalogueEntry[];
+    readonly notCarriedOver: RenderInputs['notCarriedOver'];
     readonly tokenizer: RenderInputs['tokenizer'];
   },
 ): RenderInputs => {
@@ -86,6 +88,7 @@ export const loadRenderInputs = (
   return harden({
     skills,
     catalogue,
+    notCarriedOver,
     packRules: io.readText(`${SKILLS_SRC}/pack-rules.md`),
     snippets,
     examples,

@@ -116,8 +116,8 @@ zone.exo('Shop PF', ShopI, { makeBuyInvitation() { … } }); // getPrice dropped
 
 ## Devnet reports not yet checked against u23a
 
-From `docs/context/agoric-devnet-sharp-edges.md`. Sharp edge 10 is entered in
-the catalogue on day 4.
+From `docs/context/agoric-devnet-sharp-edges.md`. Sharp edge 10 is in the
+catalogue as `REDEPLOY_ID_COLLISION` (silent, unverified).
 
 - **Sharp edge 9, exo interfaces freeze on first creation.** The devnet report
   says a method added under the same exo label did nothing after redeploy.

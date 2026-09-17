@@ -41,6 +41,12 @@ Pin the `@endo/*` tree and `ses` 1.14.0 through `resolutions` copied from the SD
 - Every test runs under `@endo/ses-ava`.
 - No `Date.now()`, `Math.random()`, network or filesystem in contract code.
 - On upgrade, redefine every durable kind with the same facets and methods or a superset, never a subset.
+- Host code that a flow waits on returns vows, not promises.
+- In a flow, compute anything you will publish before the first `await`.
+- vstorage path segments are ASCII alphanumerics, underscores and dashes only.
+- Install bundles with explicit gas (`--gas 100000000`), then query the chain for the bundle id before relying on it.
+- Wallet actions that move funds need `--allow-spend`.
+- Create singletons (accounts, vow kits, anything that must exist once) with `zone.makeOnce`.
 
 ---
 

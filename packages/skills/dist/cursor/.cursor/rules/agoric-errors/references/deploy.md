@@ -4,7 +4,7 @@
 
 **Match:** silent
 
-**Cause:** A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15).
+**Cause:** A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15). Reported on devnet; not reproduced here.
 
 **Fix:** Install with `--gas 100000000`, then query the chain for the bundle id before submitting the CoreEval.
 
@@ -40,6 +40,16 @@
 
 **See:** devnet sharp edge 19 · `aagentic-tooling/packages/core/src/networks.json#L30-L40` · skill `agoric-deploy`
 
+### DEVNET_TIMER_WAKEUP_MISSING
+
+**Match:** silent
+
+**Cause:** Unverified devnet observation (sharp edge 22): timer wakeups did not fire on the shared devnet. An infrastructure problem, not a contract bug.
+
+**Fix:** Check timer behaviour on a local chain before debugging contract timer logic against devnet.
+
+**See:** devnet sharp edge 22 · skill `agoric-deploy`
+
 ### ENDO_MULTIPLE_SES
 
 **Match:** contains `TypeError: Cannot redefine property: sliceToImmutable`
@@ -74,7 +84,7 @@
 
 **Match:** contains `413 Payload Too Large`
 
-**Cause:** Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Text as reported on devnet; not reproduced here.
+**Cause:** Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Reported on devnet; not reproduced here.
 
 **Fix:** Compress the bundle before installing; a contract still over the limit needs the multi-bundle install pattern.
 

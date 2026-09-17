@@ -26,7 +26,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { catalogue } from '@dcfoundation/aat-core';
+import { catalogue, notCarriedOver } from '@dcfoundation/aat-core';
 import {
   AGENTS_MD_LIMIT_TOKENS,
   AGENTS_MD_WARN_TOKENS,
@@ -59,6 +59,7 @@ const files = renderPack(
   loadRenderInputs(io, {
     skillNames: SKILL_NAMES,
     catalogue,
+    notCarriedOver,
     tokenizer: { name: 'gpt-tokenizer', version: tokenizerVersion, encoding: 'o200k_base' },
   }),
 );

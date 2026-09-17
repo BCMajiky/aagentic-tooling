@@ -27,6 +27,12 @@ export interface SkillSource {
 export interface RenderInputs {
   readonly skills: readonly SkillSource[];
   readonly catalogue: readonly CatalogueEntry[];
+  /** Devnet sharp edges that are not catalogue entries, with reasons. */
+  readonly notCarriedOver: ReadonlyArray<{
+    readonly sharpEdge: number;
+    readonly reason: string;
+    readonly refs: readonly string[];
+  }>;
   /** Text of `src/pack-rules.md`. */
   readonly packRules: string;
   /** Every file under `packages/skills/snippets/` except node_modules, keyed by path relative to it. */
@@ -365,10 +371,22 @@ const renderErrorEntries = (inputs: RenderInputs, mode: Mode, entries: readonly 
     ])
     .join('\n');
 
+/** The devnet sharp edges that are not entries, for the index and the site page. */
+const renderNotCarriedOver = (inputs: RenderInputs, mode: Mode) => [
+  '',
+  '## Not carried over',
+  '',
+  'Devnet sharp edges (from the Servandum contract work) that are not entries above, and why. Every other sharp edge is an entry.',
+  '',
+  ...inputs.notCarriedOver.map(({ sharpEdge, reason, refs }) =>
+    `- **Sharp edge ${sharpEdge}.** ${reason}${refs.length ? ` See ${refs.map(ref => renderRef(inputs, mode, ref)).join(', ')}.` : ''}`,
+  ),
+];
+
 const ERRORS_INTRO = [
   '# Agoric error catalogue',
   '',
-  'Every known failure, grouped by topic. Within a topic the **silent** ones come first: no error, a hang, or a success code with nothing done. Check those when nothing is visibly wrong; for the rest, search for a distinctive part of the message.',
+  'Every known failure, grouped by topic. Within a topic the **silent** ones come first: no error, a hang, or a success code with nothing done. Check those when nothing is visibly wrong; for the rest, search for a distinctive part of the message. When a message matches more than one entry, the more specific entry applies: PATTERN_MISMATCH is the fallback for any pattern failure without its own entry.',
 ];
 
 /**
@@ -393,6 +411,7 @@ const renderErrorsIndex = (inputs: RenderInputs, referencesPrefix: string) => {
       ...entries.map(entry => `- **${entry.code}**: ${matchText(entry)}`),
     );
   }
+  out.push(...renderNotCarriedOver(inputs, { kind: 'page' }));
   return `${out.join('\n')}\n`;
 };
 
@@ -415,6 +434,7 @@ const renderErrorsPage = (inputs: RenderInputs) =>
       '',
       renderErrorEntries(inputs, { kind: 'page' }, entries).trimEnd(),
     ]),
+    ...renderNotCarriedOver(inputs, { kind: 'page' }),
   ].join('\n')}\n`;
 
 // ---------------------------------------------------------------------------

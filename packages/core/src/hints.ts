@@ -93,6 +93,13 @@ export type CatalogueMatch =
  * - `sharp-edge:<n>` for `docs/context/agoric-devnet-sharp-edges.md` item n
  *
  * Codes are provisional until the v0.1 tag and are never reused after it.
+ *
+ * **Precedence.** Some messages match more than one entry: a proposal-shape
+ * failure contains ` - Must be`, which the generic PATTERN_MISMATCH also
+ * matches. The rule is that specific entries come before generic ones in this
+ * list and the first match wins (`findCatalogueEntry`). The order of this list
+ * is therefore meaningful. The agoric-errors skill displays entries grouped by
+ * topic, which is a different order and does not change precedence.
  */
 export interface CatalogueEntry {
   readonly code: string;
@@ -171,8 +178,8 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     match: silent,
     cause:
       'A contract fails under a local SES harness but runs on chain, because the harness endowed less than SwingSet gives a vat (for example no `assert`).',
-    fix: 'Endow exactly what SwingSet endows: `console`, `assert`, `TextEncoder`, `TextDecoder`, `URL`. The harness is wrong, not the contract.',
-    refs: ['scripts/ses-smoke.mjs'],
+    fix: 'Endow what SwingSet endows: `console`, `assert`, `TextEncoder`, `TextDecoder` and `URL`, as `scripts/ses-smoke.mjs` does (line 120 for `URL`). The harness is wrong, not the contract. At u23a SwingSet marks `URL` "Unavailable only on XSnap" and `Base64` "Available only on XSnap", and chain vats run under XSnap, so a contract must not rely on `URL`.',
+    refs: ['scripts/ses-smoke.mjs#L114-L122', `${U23}:packages/SwingSet/src/kernel/vat-loader/manager-local.js#L74-L83`],
   },
 
   // --- baseline output defects (docs/notes/baseline-2026-09) ---------------
@@ -373,7 +380,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'CHAIN_BUNDLE_INSTALL_UNDERGASSED',
     match: silent,
     cause:
-      'A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15).',
+      'A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15). Reported on devnet; not reproduced here.',
     fix: 'Install with `--gas 100000000`, then query the chain for the bundle id before submitting the CoreEval.',
     refs: ['sharp-edge:14', 'sharp-edge:15', 'docs/context/agoric-deploy-sequence.md#L15-L24', `${SKILLS}/agoric-deploy/SKILL.md`],
   },
@@ -381,7 +388,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'CHAIN_PAYLOAD_TOO_LARGE',
     match: literal('413 Payload Too Large'),
     cause:
-      "Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Text as reported on devnet; not reproduced here.",
+      "Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Reported on devnet; not reproduced here.",
     fix: 'Compress the bundle before installing; a contract still over the limit needs the multi-bundle install pattern.',
     refs: ['sharp-edge:16', 'docs/context/agoric-deploy-sequence.md#L22', `${SKILLS}/agoric-deploy/SKILL.md`],
   },
@@ -443,17 +450,6 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     fix: 'Keep data out of remotables. Expose it through a method (`getPrice: () => price`) or return a copyRecord.',
     refs: [
       'examples/offer-up/src/offer-up.contract.js#L170-L172',
-      `${SKILLS}/agoric-hardened-js/SKILL.md`,
-    ],
-  },
-  {
-    code: 'PATTERN_MISMATCH',
-    match: regex(String.raw` - Must (be|have|not|fail|match)`),
-    cause:
-      'A value did not match the `@endo/patterns` shape passed to `mustMatch`, an interface guard, `customTermsShape` or a store `valueShape`. The label before the first colon says which check failed.',
-    fix: 'Read the path in the message (for example `offerArgs: chainName: number 42 - Must be a string`) and fix the value or the pattern.',
-    refs: [
-      'examples/send-anywhere/src/send-anywhere.flows.js#L79',
       `${SKILLS}/agoric-hardened-js/SKILL.md`,
     ],
   },
@@ -595,7 +591,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'GETCHAIN_AT_START',
     match: silent,
     cause:
-      "Unverified. `orch.getChain('agoric')` (or another chain lookup) was awaited during contract start rather than inside a flow. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.",
+      "Unverified. A chain lookup (`orch.getChain('agoric')`) ran in an orchestrated flow that contract start awaited, instead of in a flow run later by an offer. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.",
     fix: 'Look chains up inside the flow that needs them, and pass per-network values such as the pay denom as terms.',
     refs: [
       'examples/send-anywhere/src/send-anywhere.flows.js#L43-L45',
@@ -614,4 +610,141 @@ export const catalogue: readonly CatalogueEntry[] = harden([
       `${SKILLS}/agoric-orchestration/SKILL.md`,
     ],
   },
+
+  // --- devnet sharp edges carried over as entries (see also notCarriedOver) -
+  {
+    code: 'VSTORAGE_PATH_SEGMENT_INVALID',
+    match: literal('Path segment names must consist of'),
+    cause:
+      'A vstorage node name contains a character other than ASCII alphanumerics, underscore and dash (a dot, for example), or is empty or over 100 characters. `makeChildNode` throws. On devnet this was seen as silent (sharp edge 8), because the publish ran inside a vow nothing watched, so the rejection was never observed.',
+    fix: 'Build node names from `[a-zA-Z0-9_-]`, 1 to 100 characters (`escrow-1`, not `escrow.1`), and watch the vow that publishes so a failure is seen.',
+    refs: [
+      `${U23}:packages/internal/src/lib-chainStorage.js#L108-L111`,
+      `${U23}:packages/internal/src/lib-chainStorage.js#L204`,
+      'sharp-edge:8',
+      `${SKILLS}/agoric-orchestration/SKILL.md`,
+    ],
+  },
+  {
+    code: 'PUBLISH_READ_AFTER_AWAIT',
+    match: silent,
+    cause:
+      'Unverified design rule from devnet (sharp edge 2): data a flow read from durable records after an `await` came back as empty objects or stale values, so what it published was wrong.',
+    fix: 'Read and serialise everything the flow will publish synchronously, before its first `await`.',
+    refs: ['sharp-edge:2', `${SKILLS}/agoric-orchestration/SKILL.md`],
+  },
+  {
+    code: 'FLOW_STATE_RACE',
+    match: silent,
+    cause:
+      'Unverified design rule from devnet (sharp edge 5): flows yield at every `await`, so two activations can read the same record status and both act on it.',
+    fix: 'Re-read the record immediately before each `store.set` and throw if its status changed since the flow read it.',
+    refs: ['sharp-edge:5', `${SKILLS}/agoric-orchestration/SKILL.md`],
+  },
+  {
+    code: 'SPLIT_PAYOUT_PARTIAL_FAILURE',
+    match: silent,
+    cause:
+      'Unverified design rule from devnet (sharp edge 13): a flow that pays two parties and fails between the payments can pay the first party again when it is retried.',
+    fix: 'Pay the first party, record a terminal state, then pay the second inside try/catch with a pending flag, so a retry cannot repeat the first payment.',
+    refs: ['sharp-edge:13', `${SKILLS}/agoric-orchestration/SKILL.md`],
+  },
+  {
+    code: 'REDEPLOY_ID_COLLISION',
+    match: silent,
+    cause:
+      'Unverified devnet observation (sharp edge 10): a fresh instance restarts its counters, so records published as `…-1` overwrite the previous deployment\'s vstorage nodes.',
+    fix: 'Carry an id prefix as a term (`v2-1`) and treat the terms on chain as the truth; the repository can carry a different prefix from the deployed instance.',
+    refs: ['sharp-edge:10', `${SKILLS}/agoric-durable-state/SKILL.md`],
+  },
+  {
+    code: 'DEVNET_TIMER_WAKEUP_MISSING',
+    match: silent,
+    cause:
+      'Unverified devnet observation (sharp edge 22): timer wakeups did not fire on the shared devnet. An infrastructure problem, not a contract bug.',
+    fix: 'Check timer behaviour on a local chain before debugging contract timer logic against devnet.',
+    refs: ['sharp-edge:22', `${SKILLS}/agoric-deploy/SKILL.md`],
+  },
+
+  // --- generic entries: last, so every specific entry above wins -----------
+  {
+    code: 'PATTERN_MISMATCH',
+    match: regex(String.raw` - Must (be|have|not|fail|match)`),
+    cause:
+      'A value did not match the `@endo/patterns` shape passed to `mustMatch`, an interface guard, `customTermsShape` or a store `valueShape`. The label before the first colon says which check failed.',
+    fix: 'Read the path in the message (for example `offerArgs: chainName: number 42 - Must be a string`) and fix the value or the pattern.',
+    refs: [
+      'examples/send-anywhere/src/send-anywhere.flows.js#L79',
+      `${SKILLS}/agoric-hardened-js/SKILL.md`,
+    ],
+  },
 ]);
+
+/**
+ * The devnet sharp edges (docs/context/agoric-devnet-sharp-edges.md) that are
+ * not catalogue entries, each with the reason. Together with the entries whose
+ * refs name `sharp-edge:<n>`, every one of the 22 is accounted for.
+ */
+export const notCarriedOver: readonly {
+  readonly sharpEdge: number;
+  readonly reason: string;
+  readonly refs: readonly string[];
+}[] = harden([
+  {
+    sharpEdge: 3,
+    reason:
+      'Returning `JSON.stringify(result)` from a flow was a FiDeal-specific smart-wallet workaround, not a rule; upstream returns a hardened continuing offer from a flow.',
+    refs: [`${U23}:packages/orchestration/src/examples/basic-flows.flows.js#L34`],
+  },
+  {
+    sharpEdge: 4,
+    reason:
+      'Keeping state in the invitation handler rather than the flow is a FiDeal architecture choice, not a failure mode; where durable state belongs is in agoric-durable-state.',
+    refs: [`${SKILLS}/agoric-durable-state/SKILL.md`],
+  },
+  {
+    sharpEdge: 6,
+    reason: 'Harden everything that crosses a boundary: already covered by PASS_STYLE_NOT_FROZEN and the pack rules.',
+    refs: ['catalogue:PASS_STYLE_NOT_FROZEN'],
+  },
+  {
+    sharpEdge: 11,
+    reason:
+      'Wakeup handlers using `async wake()` with `E()` were an accepted risk in Servandum, and the note itself asks whether seatless flows now cover the case; not checked at u23a.',
+    refs: [],
+  },
+  {
+    sharpEdge: 12,
+    reason: 'Authorising by a self-reported `offerArgs` address is the standard pattern, recorded as a review note, not a failure.',
+    refs: [],
+  },
+  {
+    sharpEdge: 20,
+    reason: 'Lockfiles going stale after a package rename is generic package-manager behaviour, not specific to Agoric.',
+    refs: [],
+  },
+  {
+    sharpEdge: 21,
+    reason:
+      'A case-sensitive constant misuse in an untested wakeup path is an ordinary coding bug caught by review, not an Agoric failure mode.',
+    refs: [],
+  },
+]);
+
+const matches = (entry: CatalogueEntry, message: string) => {
+  switch (entry.match.kind) {
+    case 'literal':
+      return message.includes(entry.match.text);
+    case 'regex':
+      return new RegExp(entry.match.source).test(message);
+    default:
+      return false;
+  }
+};
+
+/**
+ * The catalogue entry for an error message: the first entry, in catalogue
+ * order, whose match accepts it. Silent entries never match a message.
+ */
+export const findCatalogueEntry = (message: string): CatalogueEntry | undefined =>
+  catalogue.find(entry => matches(entry, message));

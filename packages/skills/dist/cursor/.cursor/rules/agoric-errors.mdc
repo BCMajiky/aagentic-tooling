@@ -6,9 +6,9 @@ alwaysApply: false
 
 # Agoric error catalogue
 
-Every known failure, grouped by topic. Within a topic the **silent** ones come first: no error, a hang, or a success code with nothing done. Check those when nothing is visibly wrong; for the rest, search for a distinctive part of the message.
+Every known failure, grouped by topic. Within a topic the **silent** ones come first: no error, a hang, or a success code with nothing done. Check those when nothing is visibly wrong; for the rest, search for a distinctive part of the message. When a message matches more than one entry, the more specific entry applies: PATTERN_MISMATCH is the fallback for any pattern failure without its own entry.
 
-Rendered from `packages/core/src/hints.ts` in aagentic-tooling, the catalogue the `aat` CLI reads: 44 entries. Cause and fix for each are in the topic's reference file.
+Rendered from `packages/core/src/hints.ts` in aagentic-tooling, the catalogue the `aat` CLI reads: 50 entries. Cause and fix for each are in the topic's reference file.
 
 ## Hardened JavaScript
 
@@ -16,8 +16,8 @@ Full entries: `agoric-errors/references/hardened-js.md`
 
 - **PASS_STYLE_NOT_FROZEN**: contains `Cannot pass non-frozen objects like`
 - **FAR_NON_METHOD**: contains `cannot serialize Remotables with non-methods like`
-- **PATTERN_MISMATCH**: matches ` - Must (be|have|not|fail|match)`
 - **SES_TAMED_DATE_RANDOM**: matches `secure mode Calling %SharedDate%\.now\(\) throws|secure mode %SharedMath%\.random\(\) throws`
+- **PATTERN_MISMATCH**: matches ` - Must (be|have|not|fail|match)`
 
 ## Zoe contracts
 
@@ -41,6 +41,7 @@ Full entries: `agoric-errors/references/durable-state.md`
 - **MAKEONCE_MISSING**: silent
 - **DURABLE_KIND_SUBSET**: silent
 - **EXO_METHOD_ADDED_NO_EFFECT**: silent
+- **REDEPLOY_ID_COLLISION**: silent
 - **DURABLE_STATESHAPE_MISMATCH**: contains `durable Kind stateShape mismatch`
 - **START_VALUES_NOT_DURABLE**: contains `values from start() must be durable`
 - **DURABLE_VALUE_NOT_DURABLE**: contains `value is not durable`
@@ -54,7 +55,11 @@ Full entries: `agoric-errors/references/orchestration.md`
 - **FLOW_REFUND_MISSING**: silent
 - **GETCHAIN_AT_START**: silent
 - **HOST_RETURNS_PROMISE**: silent
+- **PUBLISH_READ_AFTER_AWAIT**: silent
+- **FLOW_STATE_RACE**: silent
+- **SPLIT_PAYOUT_PARTIAL_FAILURE**: silent
 - **E_IN_FLOW**: contains `guest eventual applyMethod not yet supported: `
+- **VSTORAGE_PATH_SEGMENT_INVALID**: contains `Path segment names must consist of`
 
 ## Testing
 
@@ -78,6 +83,7 @@ Full entries: `agoric-errors/references/deploy.md`
 - **WALLET_SPEND_WITHOUT_ALLOW_SPEND**: silent
 - **BOARD_ID_HARDCODED**: silent
 - **PAY_DENOM_HARDCODED**: silent
+- **DEVNET_TIMER_WAKEUP_MISSING**: silent
 - **ENDO_MULTIPLE_SES**: contains `TypeError: Cannot redefine property: sliceToImmutable`
 - **YARN_PNP_DEFAULT**: matches `EROFS: read-only filesystem, mkdir '/node_modules/bundles'|Your application tried to access @endo/\S+, but it isn't declared in your dependencies`
 - **BUNDLE_UNDECLARED_DEP**: matches `Cannot find external module "[^"]+" in package`
@@ -88,3 +94,15 @@ Full entries: `agoric-errors/references/deploy.md`
 Full entries: `agoric-errors/references/other.md`
 
 - **SES_HARNESS_ENDOWMENTS**: silent
+
+## Not carried over
+
+Devnet sharp edges (from the Servandum contract work) that are not entries above, and why. Every other sharp edge is an entry.
+
+- **Sharp edge 3.** Returning `JSON.stringify(result)` from a flow was a FiDeal-specific smart-wallet workaround, not a rule; upstream returns a hardened continuing offer from a flow. See [`agoric-sdk@cc25a29:packages/orchestration/src/examples/basic-flows.flows.js#L34`](https://github.com/Agoric/agoric-sdk/blob/agoric-upgrade-23a/packages/orchestration/src/examples/basic-flows.flows.js#L34).
+- **Sharp edge 4.** Keeping state in the invitation handler rather than the flow is a FiDeal architecture choice, not a failure mode; where durable state belongs is in agoric-durable-state. See skill `agoric-durable-state`.
+- **Sharp edge 6.** Harden everything that crosses a boundary: already covered by PASS_STYLE_NOT_FROZEN and the pack rules. See `PASS_STYLE_NOT_FROZEN`.
+- **Sharp edge 11.** Wakeup handlers using `async wake()` with `E()` were an accepted risk in Servandum, and the note itself asks whether seatless flows now cover the case; not checked at u23a.
+- **Sharp edge 12.** Authorising by a self-reported `offerArgs` address is the standard pattern, recorded as a review note, not a failure.
+- **Sharp edge 20.** Lockfiles going stale after a package rename is generic package-manager behaviour, not specific to Agoric.
+- **Sharp edge 21.** A case-sensitive constant misuse in an untested wakeup path is an ordinary coding bug caught by review, not an Agoric failure mode.

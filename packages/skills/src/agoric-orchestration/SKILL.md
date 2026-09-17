@@ -27,8 +27,12 @@ terms or chain info, not from lookups at start.
 **Correct:** `examples/send-anywhere/src/send-anywhere.contract.js#L73-L122` `examples/send-anywhere/src/send-anywhere.flows.js#L43-L45`
 
 ```js wrong=GETCHAIN_AT_START
-const contract = async (zcf, privateArgs, zone, { orchestrate }) => {
-  const agoric = await orch.getChain('agoric'); // during start
+const contract = async (zcf, privateArgs, zone, { orchestrate, vowTools }) => {
+  const lookUpAgoric = orchestrate('lookUpAgoric', {}, async orch => {
+    const agoric = await orch.getChain('agoric');
+    return agoric.getChainInfo();
+  });
+  const agoricInfo = await vowTools.when(lookUpAgoric()); // awaited during start
 ```
 
 **Produces:** silent. Unverified: reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.
