@@ -30,6 +30,7 @@
     "agents:write": "node scripts/agents-md.mjs",
     "agents:check": "node scripts/agents-md.mjs --check",
     "docs:build": "node scripts/docs-build.mjs",
+    "baseline:workspace": "node scripts/baseline-workspace.mjs",
     "skills:build": "yarn build && node packages/skills/scripts/build.mjs",
     "skills:check": "yarn build && node packages/skills/scripts/build.mjs --check"
   },

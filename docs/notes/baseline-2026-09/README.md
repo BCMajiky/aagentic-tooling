@@ -319,6 +319,13 @@ No `.yarnrc.yml`, ava config, `CLAUDE.md`, `AGENTS.md` or skills. The
 workspaces are outside the repo. Codex's run went looking for `AGENTS.md` in the
 parent directory and found none.
 
+*Added 2026-09-17 (Release 1 day 5):* these four workspaces were made by a
+one-off command that was not committed. `yarn baseline:workspace <name>`
+(`scripts/baseline-workspace.mjs`) now reproduces the recipe above; its
+`package.json` for `task1-claude` is byte-identical to that workspace's setup
+commit. `--with-pack` adds the rendered Claude Code pack in `.claude/skills/`,
+which is how `baseline/dryrun-claude/` was made.
+
 ### Agents and flags
 
 | | Claude Code | Codex |
