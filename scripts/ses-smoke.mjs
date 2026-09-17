@@ -4,7 +4,9 @@
 /**
  * The Hardened JS smoke job (plan §1.6).
  *
- * For every contract under `examples/`, bundle it with `@endo/bundle-source`
+ *   node scripts/ses-smoke.mjs [--json] [contract-entry.js ...]
+ *
+ * For every contract under `examples/` (or each entry file given), bundle it with `@endo/bundle-source`
  * exactly as `agoric run` would, then evaluate the bundle under `lockdown()`
  * and check that it exports a callable `start`.
  *
@@ -28,7 +30,7 @@ import bundleSource from '@endo/bundle-source';
 import { importBundle } from '@endo/import-bundle';
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -36,8 +38,19 @@ const examplesDir = join(repoRoot, 'examples');
 
 const json = process.argv.includes('--json');
 
+// Contract entry files named on the command line replace discovery, so the
+// same checks can run against a contract outside `examples/` (the Release 1
+// baseline workspaces). Imports resolve from the entry file's own location.
+const entryArgs = process.argv
+  .slice(2)
+  .filter(arg => !arg.startsWith('--'))
+  .map(arg => resolve(arg));
+
 /** Discover every example package with a `main` that looks like a contract. */
 const findExamples = () => {
+  if (entryArgs.length > 0) {
+    return entryArgs.map(entry => ({ name: entry, dir: dirname(entry), entry }));
+  }
   const found = [];
   for (const name of readdirSync(examplesDir).sort()) {
     const dir = join(examplesDir, name);
