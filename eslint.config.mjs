@@ -18,6 +18,9 @@ export default tseslint.config(
       // linting them here would invite "improving" them, which the brief
       // explicitly forbids.
       'examples/**',
+      // docs/notes/ holds records of runs, including code exactly as it was
+      // run in workspaces outside this tree. Records are not source.
+      'docs/notes/**',
     ],
   },
 
