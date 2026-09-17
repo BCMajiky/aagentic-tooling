@@ -264,6 +264,15 @@ None of these block us. Numbered so a reply can be terse.
     copy the templates without that check, and a contract that cannot bundle
     then passes its tests. Bundling from the file path costs a few seconds per
     test file.
+11. *(Added 2026-09-17.)* Should a skill pack **teach durable-by-default** for
+    Zoe contracts? The dapp-offer-up template is not durable: `start` returns
+    `Far` facets over closure state, with no `meta.upgradability` and no zone,
+    so an upgrade abandons its facets and its proceeds. Agents copy that shape;
+    in our baseline and dry run every Zoe contract written did. We now tell
+    them to use `zone.exo` with an `M.interface` guard for any contract that
+    will be deployed and kept, and to treat the template's `Far` facets as not
+    the idiom to copy. If Agoric intends the template to stay non-durable for
+    teaching, we would like to say that alongside it.
 
 **Review status:** the Stage 0 manifest reviews referred to above were done by
 the project session against the `agoric-upgrade-23a` source: correctness pass,
