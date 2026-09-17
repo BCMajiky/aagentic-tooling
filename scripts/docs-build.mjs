@@ -32,13 +32,26 @@ const PAGES = [
   { src: 'CONTRIBUTING.md', out: 'contributing.html', title: 'Contributing' },
   { src: 'docs/PINS.md', out: 'pins.html', title: 'Pins' },
   { src: 'SECURITY.md', out: 'security.html', title: 'Security' },
+  // The rendered skill pack (packages/skills, `yarn skills:build`). Listed one
+  // by one like everything else: a new skill is a new line here.
+  { src: 'docs/skills/index.md', out: 'skills/index.html', title: 'Skill pack' },
+  { src: 'docs/skills/agoric-hardened-js.md', out: 'skills/agoric-hardened-js.html', title: 'Skill: hardened JS' },
+  { src: 'docs/skills/agoric-zoe-contract.md', out: 'skills/agoric-zoe-contract.html', title: 'Skill: Zoe contract' },
+  { src: 'docs/skills/agoric-durable-state.md', out: 'skills/agoric-durable-state.html', title: 'Skill: durable state' },
+  { src: 'docs/skills/agoric-orchestration.md', out: 'skills/agoric-orchestration.html', title: 'Skill: orchestration' },
+  { src: 'docs/skills/agoric-testing.md', out: 'skills/agoric-testing.html', title: 'Skill: testing' },
+  { src: 'docs/skills/agoric-deploy.md', out: 'skills/agoric-deploy.html', title: 'Skill: deploy' },
+  { src: 'docs/skills/agoric-errors.md', out: 'skills/agoric-errors.html', title: 'Skill: errors' },
 ];
 
 const escape = text =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+const dirOf = path => path.split('/').slice(0, -1).join('/');
+const baseOf = path => path.split('/').at(-1);
+
 /** Rewrite in-repo links so they work between built pages. */
-const rewriteLinks = (html, depth) => {
+const rewriteLinks = (html, depth, current) => {
   const up = '../'.repeat(depth);
   let out = html;
   for (const page of PAGES) {
@@ -46,6 +59,11 @@ const rewriteLinks = (html, depth) => {
     // Links as written in the markdown, relative to the source file.
     for (const form of [page.src, `/${page.src}`, `../../${page.src}`, `../${page.src}`]) {
       out = out.split(`href="${form}"`).join(`href="${target}"`);
+    }
+    // A bare file name between pages in the same source directory, as the
+    // rendered docs/skills/index.md writes them.
+    if (dirOf(page.src) === dirOf(current.src) && dirOf(page.out) === dirOf(current.out)) {
+      out = out.split(`href="${baseOf(page.src)}"`).join(`href="${baseOf(page.out)}"`);
     }
   }
   return out;
@@ -119,7 +137,7 @@ mkdirSync(outDir, { recursive: true });
 for (const page of PAGES) {
   const markdown = readFileSync(join(repoRoot, page.src), 'utf8');
   const depth = page.out.split('/').length - 1;
-  const body = rewriteLinks(marked.parse(markdown, { async: false }), depth);
+  const body = rewriteLinks(marked.parse(markdown, { async: false }), depth, page);
   const target = join(outDir, page.out);
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, shell({ title: page.title, body, depth }));
