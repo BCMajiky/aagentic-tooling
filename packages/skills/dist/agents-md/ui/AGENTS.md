@@ -1,6 +1,9 @@
 # ui/
 
-The dapp front end. It reads the chain through vstorage and makes offers through the user's smart wallet; it does not import contract code. In `dapp-offer-up` that is `makeAgoricChainStorageWatcher` from `@agoric/rpc` and `makeAgoricWalletConnection` from `@agoric/web-components`. This pack does not pin UI package versions.
+The dapp front end. It reads the chain through vstorage and makes offers through the user's smart wallet; it does not import contract code. In `dapp-offer-up` that is `makeAgoricChainStorageWatcher` from `@agoric/rpc` and `makeAgoricWalletConnection` from `@agoric/web-components`.
+
+This pack pins no UI packages in v0.1. The agoric-upgrade-23 pin covers the SDK packages only, and dapp-offer-up's UI dependencies are u16-era (`@agoric/notifier` ^0.7.0-u16.1, `@agoric/store` ^0.9.3-u16.0 at 4ea27c5).
+Pinning UI packages is a Release 2 item, once there is a UI task to check versions against.
 
 Here in particular:
 

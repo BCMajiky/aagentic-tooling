@@ -42,6 +42,11 @@ failed. A GitHub transfer preserves history, issues and stars.
 - [ ] Update `repository.url` in the root `package.json`.
 - [ ] Update the clone URL in `README.md` if one has been added by then.
 - [ ] Re-point any Actions badge.
+- [ ] Re-render the skill pack (`yarn skills:build`) and check its links and
+      install instructions. Rendered skills link to files in this repository
+      by its current remote, and the day 5 install instructions (`aat skills
+      install`, the dogfood symlinks) name it too; all of that changes when
+      the repo transfers. (Added 2026-09-17.)
 
 ## 3. Turn on branch protection
 
