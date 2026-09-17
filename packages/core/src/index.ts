@@ -6,7 +6,8 @@ export type { ExitCodeValue } from './exit-codes.js';
 export { ErrorCode, exitCodeByError } from './codes.js';
 export type { ErrorCodeValue } from './codes.js';
 
-export { hints } from './hints.js';
+export { catalogue, hints } from './hints.js';
+export type { CatalogueEntry, CatalogueMatch } from './hints.js';
 
 export { AatError, asAatError, isAatError } from './errors.js';
 

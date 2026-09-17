@@ -19,6 +19,14 @@ Agoric SDK — https://github.com/Agoric/agoric-sdk
   (tag agoric-upgrade-23a, 2026-07-27).
   Used for: examples/send-anywhere (contract and flows), orchestration exo
   interface names, Zoe type guard vocabulary, and test-harness conventions.
+  Text lifted word for word into the skill pack, at commit a2a3de9:
+    AGENTS.md, "Capability Security & POLA" (lines 44-55), in
+      packages/skills/src/agoric-zoe-contract/SKILL.md
+    AGENTS.md, "Async-Flow Model Notes" (lines 62-68), in
+      packages/skills/src/agoric-orchestration/SKILL.md
+    .github/copilot-instructions.md, "Always return vows rather than promises
+      in orchestration code" (line 26), in
+      packages/skills/src/agoric-orchestration/SKILL.md
 
 Agoric dapp-offer-up — https://github.com/Agoric/dapp-offer-up
   Copyright 2023-2025 Agoric Systems Operating Company.

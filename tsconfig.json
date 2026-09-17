@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/schemas" },
+    { "path": "packages/skills" },
     { "path": "packages/cli" }
   ]
 }

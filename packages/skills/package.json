@@ -1,0 +1,50 @@
+{
+  "name": "@dcfoundation/aat-skills",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "description": "The Agoric skill pack: skill sources, the snippet corpus, and the checks that keep them honest.",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist/src",
+    "src/*/SKILL.md",
+    "src/*/references"
+  ],
+  "engines": {
+    "node": "^22.11 || ^24.14"
+  },
+  "dependencies": {
+    "gpt-tokenizer": "4.0.0"
+  },
+  "devDependencies": {
+    "@dcfoundation/aat-core": "workspace:^",
+    "@endo/init": "1.1.12",
+    "@endo/ses-ava": "1.3.2",
+    "ava": "6.4.1"
+  },
+  "scripts": {
+    "test": "ava"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.test.ts"
+    ],
+    "require": [
+      "@endo/init/debug.js"
+    ],
+    "typescript": {
+      "rewritePaths": {
+        "src/": "dist/src/",
+        "test/": "dist/test/"
+      },
+      "compile": false
+    },
+    "timeout": "2m"
+  }
+}
