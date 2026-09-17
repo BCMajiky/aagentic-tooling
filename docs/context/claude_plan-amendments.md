@@ -50,3 +50,14 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 
 **Lesson for Release 6.** The send-anywhere gap is not an authoring slip: two of the three paths are written by @agoric/orchestration on the contract's behalf, gated on an option to withOrchestration. A generator that reads only the contract body will reproduce the same omission. It has to follow the start-helper wrapper.
 
+## 2026-09-17, Release 1 decisions
+
+**§2.2 delivery formats, decided.** One SKILL.md source per skill renders to `.claude/skills/` (Claude Code), `.agents/skills/` plus `agents/openai.yaml` (Codex), `.cursor/rules/*.mdc`, `.github/copilot-instructions.md` and the docs site. Seven skills: `agoric-hardened-js`, `agoric-zoe-contract`, `agoric-durable-state`, `agoric-orchestration`, `agoric-testing`, `agoric-deploy`, `agoric-errors`. Pack `AGENTS.md` budget is 2,000 tokens hard (o200k_base via `gpt-tokenizer`), replacing the 8k figure, because Codex now loads skills on demand.
+
+**§2.3 snippet sources.** `examples/` at u23 plus `basic-flows`, `auto-stake-it`, `unbond` from the u23a clone. dapp-orchestration-basics excluded. Three sections of `agoric-sdk/AGENTS.md` at a2a3de9 lifted with attribution.
+
+**§2.4 harness.** In-process on the published test tools (`setUpZoeForTest`, `setupOrchestrationTest`, `ibc-mocks`) in `packages/evals`. `multichain-testing` (Starship, Kubernetes) is not a v0.2 dependency; recorded as v0.3 candidate. Runner uses `claude -p` and `codex exec --json`.
+
+**§2.6 week 1 baseline.** Plan tasks 1 and 4, prompts fixed in `RELEASE1-BRIEF.md` D1, run in workspaces outside the repo.
+
+**§2.5 and §2.7 review gate.** Kris's review is replaced, until Agoric engages, by a correctness pass from the project session against u23a, recorded as "correctness pass, Agoric review pending". Applies retroactively to the Stage 0 manifest reviews.
