@@ -44,9 +44,10 @@ u23a the helper is `@deprecated use the zcf builtin instead`
 
 **`CONTRACT_NOT_UPGRADABLE`**, medium. `start` returns `Far` facets that close
 over heap state (`itemMint`, `proceedsSeat`). There is no `prepare`, no zone, no
-exo and no `meta.upgradability`, so the contract cannot be upgraded
+exo and no `meta.upgradability`, so ~~the contract cannot be upgraded
 (`zoe/src/contractFacet/zcfZygote.js:481` requires
-`meta.upgradability === 'canUpgrade'`). Accumulated proceeds survive only as
+`meta.upgradability === 'canUpgrade'`)~~ an upgrade abandons its facets and
+closure state (correction 3 below). Accumulated proceeds survive only as
 long as this incarnation does. The reference contract, Offer Up, has the same
 shape; the finding stands because the durable-state skill exists to teach
 otherwise.
@@ -264,6 +265,19 @@ Recorded forward. The struck text above is what was first published.
      to once both 0.4.4 (for bundle-source) and 0.6.2 are in the tree, because
      the loader resolves from the working directory, not from the orchestration
      package.
+3. **`CONTRACT_NOT_UPGRADABLE` rationale** (found 2026-09-17 while writing the
+   durable-state skill, after the two corrections above). It said the contract
+   "cannot be upgraded" because `zcfZygote.js:481` requires
+   `meta.upgradability === 'canUpgrade'`. That check only runs when `meta.upgradability`
+   is set (`if (meta.upgradability)` at line 480), so a contract with no `meta`
+   is not refused. What actually happens: without `canUpgrade`, start() values
+   are not required to be durable (`zcfZygote.js:300-302`, 458-461); non-durable
+   facets are not saved to baggage (463-467); and on upgrade "non-durable
+   exported objects are abandoned" (`SwingSet/docs/vat-upgrade.md:15`), so
+   clients' facet references break and closure state (`itemMint`,
+   `proceedsSeat`) is gone. The code, severity and fix (`meta = { upgradability:
+   'canUpgrade' }`, durable zone, exos; `zoe/src/contracts/valueVow.contract.js`)
+   do not change.
 
 ## How the runs were set up
 
