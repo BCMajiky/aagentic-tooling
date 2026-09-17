@@ -17,10 +17,12 @@ export {
 } from './skill-source.js';
 export type { Idiom, Lift, SkillFrontmatter, WrongSnippet } from './skill-source.js';
 
-/** The skills that exist so far. Day 3 adds agoric-testing and agoric-deploy. */
+/** The skills that exist so far. agoric-errors is rendered from the catalogue on day 4. */
 export const SKILL_NAMES = harden([
   'agoric-hardened-js',
   'agoric-zoe-contract',
   'agoric-durable-state',
   'agoric-orchestration',
+  'agoric-testing',
+  'agoric-deploy',
 ] as const);

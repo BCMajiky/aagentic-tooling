@@ -164,7 +164,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       'More than one copy of `ses` is installed because `@endo/*` versions drifted from the SDK tree, so two lockdown shims run.',
     fix: 'Pin the whole `@endo/*` tree and `ses` through `resolutions`, copied from the u23 lockfile (`docs/PINS.md`). One line from `find node_modules -type d -path "*node_modules/ses"` means it is fixed.',
-    refs: ['docs/PINS.md', `${SKILLS}/agoric-hardened-js/SKILL.md`],
+    refs: ['docs/PINS.md', `${SKILLS}/agoric-deploy/SKILL.md`],
   },
   {
     code: 'SES_HARNESS_ENDOWMENTS',
@@ -223,7 +223,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       '`bundleAndInstall(moduleNamespace)` with an imported module instead of a path goes through `bundleTestExports`: the contract is never bundled or evaluated in a compartment, so a contract that cannot bundle still passes.',
     fix: 'Pass a file path: `bundleAndInstall(new URL("../src/x.contract.js", import.meta.url).pathname)`, or bundle with `@endo/bundle-source` and `E(zoe).install(bundle)`.',
-    refs: [`${U23}:packages/zoe/tools/setup-zoe.js#L69-L84`, BASELINE],
+    refs: [`${U23}:packages/zoe/tools/setup-zoe.js#L69-L84`, BASELINE, `${SKILLS}/agoric-testing/SKILL.md`],
   },
   {
     code: 'TEST_IMPORT_WORKAROUND',
@@ -231,7 +231,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       'Test modules loaded through top-level `await import()` after the test-environment import, a workaround for ENDO_ERRORS_BEFORE_SES that is unnecessary once the environment import is first and the workspace uses the node-modules linker.',
     fix: 'Import `@agoric/zoe/tools/prepare-test-env-ava.js` first, then use ordinary static imports.',
-    refs: ['catalogue:ENDO_ERRORS_BEFORE_SES', BASELINE],
+    refs: ['catalogue:ENDO_ERRORS_BEFORE_SES', BASELINE, `${SKILLS}/agoric-testing/SKILL.md`],
   },
   {
     code: 'TEST_TOOLS_REIMPLEMENTED',
@@ -239,7 +239,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       'The orchestration test tools (`setupOrchestrationTest`, network fakes, IBC mocks) were hand-ported into the project instead of imported, because they ship as TypeScript. The port drifts from upstream on every SDK bump.',
     fix: 'Import them from `@agoric/orchestration/tools/*.ts` with the `ts-blank-space` loader (see ORCH_TEST_TOOLS_TS).',
-    refs: ['catalogue:ORCH_TEST_TOOLS_TS', BASELINE],
+    refs: ['catalogue:ORCH_TEST_TOOLS_TS', BASELINE, `${SKILLS}/agoric-testing/SKILL.md`],
   },
   {
     code: 'TEST_HAND_MOCKED_ORCHESTRATOR',
@@ -248,6 +248,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
       'Tests drive the flow through a hand-built orchestrator with `Far` fakes, bypassing `withOrchestration`, ChainHub, the real account exos and the IBC mocks. Everything passes under conditions no chain provides. The Servandum suites are the same mistake.',
     fix: 'Start the real contract with `setupOrchestrationTest` from `@agoric/orchestration/tools/contract-tests.ts` and drive acknowledgements and timeouts with its `transmitVTransferEvent`.',
     refs: [
+      `${SKILLS}/agoric-testing/SKILL.md`,
       `${U23}:packages/orchestration/tools/contract-tests.ts`,
       'docs/context/agoric-devnet-sharp-edges.md',
       BASELINE,
@@ -283,7 +284,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       "A test file uses ava's own `test` (`import test from 'ava'`) with the SES environment loaded through ava's `require`. Lockdown runs, but the test function is not wrapped by `@endo/ses-ava`, so SES error reporting is lost.",
     fix: "Import `test` from `@agoric/zoe/tools/prepare-test-env-ava.js`, which is `wrapTest` from `@endo/ses-ava`.",
-    refs: [`${U23}:packages/SwingSet/tools/prepare-test-env-ava.js`, BASELINE],
+    refs: [`${U23}:packages/SwingSet/tools/prepare-test-env-ava.js`, BASELINE, `${SKILLS}/agoric-testing/SKILL.md`],
   },
 
   // --- errors hit during the baseline runs ---------------------------------
@@ -295,7 +296,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       "Yarn 4 with no `.yarnrc.yml` installs with Plug'n'Play. The Zoe test tools write bundles to a real `node_modules` path and SES tooling resolves real files, so both fail.",
     fix: 'Add `nodeLinker: node-modules` to `.yarnrc.yml` and run `yarn install` again.',
-    refs: ['.yarnrc.yml#L1-L3', `${SKILLS}/agoric-hardened-js/SKILL.md`, BASELINE],
+    refs: ['.yarnrc.yml#L1-L3', `${SKILLS}/agoric-deploy/SKILL.md`, BASELINE],
   },
   {
     code: 'ENDO_ERRORS_BEFORE_SES',
@@ -305,7 +306,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       'A module that uses `@endo/errors` was evaluated before lockdown installed `assert`.',
     fix: 'Make the SES environment the first import (in tests, `@agoric/zoe/tools/prepare-test-env-ava.js`; in scripts, `@endo/init`).',
-    refs: [`${SKILLS}/agoric-hardened-js/SKILL.md`, BASELINE],
+    refs: [`${SKILLS}/agoric-testing/SKILL.md`, BASELINE],
   },
   {
     code: 'VATDATA_UNAVAILABLE',
@@ -313,7 +314,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     cause:
       'Zoe or durable-state code ran under plain lockdown without the SwingSet test environment, which provides `VatData`.',
     fix: 'Import `test` from `@agoric/zoe/tools/prepare-test-env-ava.js` rather than setting up `@endo/init` yourself.',
-    refs: [`${U23}:packages/SwingSet/tools/prepare-test-env-ava.js`, BASELINE],
+    refs: [`${U23}:packages/SwingSet/tools/prepare-test-env-ava.js`, BASELINE, `${SKILLS}/agoric-testing/SKILL.md`],
   },
   {
     code: 'OFFER_SAFETY_VIOLATION',
@@ -335,7 +336,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     fix: 'Declare every package the contract imports (typically `@endo/patterns`, `@endo/errors`, `@endo/far`) in `dependencies`, at the versions in `resolutions`.',
     refs: [
       'examples/send-anywhere/package.json',
-      `${SKILLS}/agoric-hardened-js/SKILL.md`,
+      `${SKILLS}/agoric-deploy/SKILL.md`,
       BASELINE,
     ],
   },
@@ -359,13 +360,71 @@ export const catalogue: readonly CatalogueEntry[] = harden([
       "`@agoric/orchestration/tools/*.ts` ship as TypeScript. Node refuses to strip types under `node_modules`, and the package lists `ts-blank-space` only as a devDependency, so consumers do not get the loader.",
     fix: "Add `ts-blank-space` (0.6.2, matching the package's `^0.6.2`) as a devDependency and run ava with `nodeArguments: ['--loader=ts-blank-space/register', '--no-warnings']`. Verified with 0.6.2 on Node 22 and 24 by `packages/skills/snippets/test/loader.test.js`.",
     refs: [
+      `${SKILLS}/agoric-testing/SKILL.md`,
       `${U23}:packages/orchestration/package.json#L95-L98`,
-      `${SKILLS}/agoric-hardened-js/SKILL.md`,
       BASELINE,
     ],
   },
 
+  // --- sharp edges 14 to 19: deploy (docs/context/agoric-devnet-sharp-edges.md)
+  // Codes match the CLI's ErrorCode names where one exists, so Release 2's
+  // chain errors and the catalogue share a key.
+  {
+    code: 'CHAIN_BUNDLE_INSTALL_UNDERGASSED',
+    match: silent,
+    cause:
+      'A bundle install was sent with `--gas auto` or a fixed gas below 100000000. The transaction returns success and installs nothing (sharp edges 14 and 15).',
+    fix: 'Install with `--gas 100000000`, then query the chain for the bundle id before submitting the CoreEval.',
+    refs: ['sharp-edge:14', 'sharp-edge:15', 'docs/context/agoric-deploy-sequence.md#L15-L24', `${SKILLS}/agoric-deploy/SKILL.md`],
+  },
+  {
+    code: 'CHAIN_PAYLOAD_TOO_LARGE',
+    match: literal('413 Payload Too Large'),
+    cause:
+      "Public RPC rejects request bodies over about 1 MB (CometBFT `max_body_bytes`), which an uncompressed bundle exceeds (sharp edge 16). Text as reported on devnet; not reproduced here.",
+    fix: 'Compress the bundle before installing; a contract still over the limit needs the multi-bundle install pattern.',
+    refs: ['sharp-edge:16', 'docs/context/agoric-deploy-sequence.md#L22', `${SKILLS}/agoric-deploy/SKILL.md`],
+  },
+  {
+    code: 'WALLET_SPEND_WITHOUT_ALLOW_SPEND',
+    match: silent,
+    cause:
+      'A wallet action that gives payments was submitted without `--allow-spend`, so it went as `MsgWalletAction`. The transaction returns code 0, the offer is rejected, nothing moves (sharp edge 17).',
+    fix: 'Submit fund-moving offers with `agd tx swingset wallet-action --allow-spend`, as the `agoric` CLI does.',
+    refs: [
+      'sharp-edge:17',
+      `${U23}:packages/agoric-cli/src/commands/wallet.js#L180-L182`,
+      `${SKILLS}/agoric-deploy/SKILL.md`,
+    ],
+  },
+  {
+    code: 'BOARD_ID_HARDCODED',
+    match: silent,
+    cause: 'A client hardcodes a board id or instance handle. Both change on every deploy (sharp edge 18).',
+    fix: 'Look them up in `published.agoricNames` after each deploy.',
+    refs: ['sharp-edge:18', 'docs/context/agoric-deploy-sequence.md#L42-L46', `${SKILLS}/agoric-deploy/SKILL.md`],
+  },
+  {
+    code: 'PAY_DENOM_HARDCODED',
+    match: silent,
+    cause:
+      'Contract or client code hardcodes a pay denom. It differs per network: `ibc/toyusdc` on devnet, the Noble USDC IBC denom on mainnet (sharp edge 19).',
+    fix: 'Pass the denom as a term or in `assetInfo`; take the network value from `aat config show` or `networks.json` and check `published.agoricNames.vbankAsset`.',
+    refs: ['sharp-edge:19', 'packages/core/src/networks.json#L30-L40', `${SKILLS}/agoric-deploy/SKILL.md`],
+  },
+
   // --- wrong snippets in the skill pack ------------------------------------
+  {
+    code: 'CHAINHUB_DENOM_UNREGISTERED',
+    match: literal('ensure it is registered in chainHub'),
+    cause:
+      "An orchestration flow looked up a denom or brand ChainHub does not know. In tests, the usual cause is that `setupOrchestrationTest`'s `commonPrivateArgs` carry no `assetInfo`; on chain, that the contract was started without the asset's `assetInfo`.",
+    fix: 'Pass `assetInfo` built with `assetOn(denom, chainName, brand)` in privateArgs, so `registerChainsAndAssets` registers it; in tests also register the asset in the fake bank and `vbankAsset`.',
+    refs: [
+      'packages/skills/snippets/test/support.js#L39-L74',
+      `${SKILLS}/agoric-testing/SKILL.md`,
+    ],
+  },
   {
     code: 'PASS_STYLE_NOT_FROZEN',
     match: literal('Cannot pass non-frozen objects like'),

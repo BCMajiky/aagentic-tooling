@@ -81,6 +81,9 @@ test('regex and literal matches accept the error text they were written from', t
       '"fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}',
     ORCH_TEST_TOOLS_TS:
       'Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules',
+    CHAINHUB_DENOM_UNREGISTERED:
+      'no denom detail for: "uist" on "agoric". ensure it is registered in chainHub.',
+    CHAIN_PAYLOAD_TOO_LARGE: 'Error: 413 Payload Too Large',
     PASS_STYLE_NOT_FROZEN: 'Cannot pass non-frozen objects like {"a":1}. Use harden()',
     FAR_NON_METHOD:
       'cannot serialize Remotables with non-methods like "value" in {"get":"[Function get]","value":1}',
