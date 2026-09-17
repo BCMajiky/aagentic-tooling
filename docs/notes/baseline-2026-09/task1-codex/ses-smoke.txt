@@ -1,0 +1,15 @@
+/Users/bc/Desktop/Agoric-L1/baseline/task1-codex/src/fixedPriceSale.js
+  bundleId  b1-ee6cc3dba0966d3b02b30ce3a79c23d44234c137bf6505b89d220b947381196bd079f7d11b4fe7c17a6ea7f6c8332e36421b666d61b023de12d24aedc143e966
+  format    endoZipBase64, 1205544 bytes
+  ok        bundles
+  ok        exports start
+  ok        start is hardened
+
+SES taming
+  ok        Math.random is unavailable or throws in a compartment (secure mode %SharedMath%.random() throws)
+  ok        Date.now is tamed in a compartment (secure mode Calling %SharedDate%.now() throws)
+  ok        process is unavailable in a compartment (typeof is undefined)
+  ok        require is unavailable in a compartment (typeof is undefined)
+  ok        globalThis.fetch is unavailable in a compartment (typeof is undefined)
+
+SES smoke passed.

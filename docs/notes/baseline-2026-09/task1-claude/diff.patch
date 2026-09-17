@@ -1,0 +1,265 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..402d5a0
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,2 @@
++node_modules/
++.yarn/
+diff --git a/.yarnrc.yml b/.yarnrc.yml
+new file mode 100644
+index 0000000..3186f3f
+--- /dev/null
++++ b/.yarnrc.yml
+@@ -0,0 +1 @@
++nodeLinker: node-modules
+diff --git a/package.json b/package.json
+index 2ff480b..536b4bd 100644
+--- a/package.json
++++ b/package.json
+@@ -1,7 +1,11 @@
+ {
+   "name": "baseline-task1-claude",
+   "private": true,
++  "type": "module",
+   "packageManager": "yarn@4.17.1",
++  "scripts": {
++    "test": "ava"
++  },
+   "dependencies": {
+     "@agoric/deploy-script-support": "0.12.0-u23.1",
+     "@agoric/ertp": "0.18.0-u23.1",
+@@ -9,7 +13,10 @@
+     "@agoric/orchestration": "0.3.0-u23.1",
+     "@agoric/time": "0.5.0-u23.0",
+     "@agoric/vat-data": "0.7.0-u23.1",
+-    "@agoric/zoe": "0.28.0-u23.1"
++    "@agoric/zoe": "0.28.0-u23.1",
++    "@endo/errors": "1.2.13",
++    "@endo/far": "1.1.14",
++    "@endo/patterns": "1.7.0"
+   },
+   "devDependencies": {
+     "@endo/bundle-source": "4.1.2",
+@@ -50,5 +57,11 @@
+     "@endo/where": "1.0.11",
+     "@endo/zip": "1.0.11",
+     "ses": "1.14.0"
++  },
++  "ava": {
++    "files": [
++      "test/**/*.test.js"
++    ],
++    "timeout": "10m"
+   }
+ }
+diff --git a/src/fixed-price-sale.contract.js b/src/fixed-price-sale.contract.js
+new file mode 100644
+index 0000000..0572612
+--- /dev/null
++++ b/src/fixed-price-sale.contract.js
+@@ -0,0 +1,104 @@
++/**
++ * @file A Zoe contract that sells one kind of item at a fixed price.
++ *
++ * Terms:
++ *   - `price`: Amount charged per item. Its brand must be the brand of the
++ *     `Price` issuer supplied in the issuerKeywordRecord at startInstance.
++ *   - `itemName` (optional): allegedName for the minted item brand.
++ *
++ * A buyer makes an offer with `give: { Price }` and `want: { Item }`. The
++ * contract mints the wanted items for the buyer if `Price` covers
++ * `price * Item.value`; otherwise the offer is refused and fully refunded.
++ * Any overpayment is returned to the buyer. Proceeds accumulate in the
++ * contract and the creator can withdraw them.
++ */
++import { AmountMath, AmountShape, AssetKind } from '@agoric/ertp';
++import { atomicRearrange } from '@agoric/zoe/src/contractSupport/index.js';
++import { Fail, q } from '@endo/errors';
++import { Far } from '@endo/far';
++import { M } from '@endo/patterns';
++
++/**
++ * @import {Amount} from '@agoric/ertp';
++ * @import {ZCF} from '@agoric/zoe';
++ */
++
++/**
++ * @typedef {{
++ *   price: Amount<'nat'>;
++ *   itemName?: string;
++ * }} SaleTerms
++ */
++
++/** @param {ZCF<SaleTerms>} zcf */
++export const start = async zcf => {
++  const { price, itemName = 'Item', brands } = zcf.getTerms();
++  AmountMath.coerce(brands.Price, price);
++
++  const itemMint = await zcf.makeZCFMint('Item', AssetKind.NAT);
++  const { brand: itemBrand, issuer: itemIssuer } = itemMint.getIssuerRecord();
++
++  const { zcfSeat: proceedsSeat } = zcf.makeEmptySeatKit();
++
++  const buyProposalShape = M.splitRecord({
++    give: { Price: AmountShape },
++    want: { Item: { brand: itemBrand, value: M.nat() } },
++  });
++
++  /** @type {OfferHandler} */
++  const buyHandler = buyerSeat => {
++    const { give, want } = buyerSeat.getProposal();
++    const count = want.Item.value;
++    count > 0n || Fail`must want at least one ${q(itemName)}`;
++
++    const totalPrice = AmountMath.make(price.brand, price.value * count);
++    if (!AmountMath.isGTE(give.Price, totalPrice)) {
++      const reason = Error(
++        `insufficient payment: ${q(give.Price)} is less than ${q(totalPrice)}`,
++      );
++      buyerSeat.fail(reason);
++      throw reason;
++    }
++
++    itemMint.mintGains(harden({ Item: want.Item }), buyerSeat);
++    atomicRearrange(
++      zcf,
++      harden([[buyerSeat, proceedsSeat, { Price: totalPrice }]]),
++    );
++    buyerSeat.exit();
++    return `bought ${count} ${itemName}`;
++  };
++
++  /** @type {OfferHandler} */
++  const withdrawHandler = creatorSeat => {
++    const proceeds = proceedsSeat.getCurrentAllocation().Price;
++    if (proceeds && !AmountMath.isEmpty(proceeds)) {
++      atomicRearrange(
++        zcf,
++        harden([[proceedsSeat, creatorSeat, { Price: proceeds }]]),
++      );
++    }
++    creatorSeat.exit();
++    return 'proceeds withdrawn';
++  };
++
++  const publicFacet = Far('FixedPriceSale publicFacet', {
++    makeBuyInvitation: () =>
++      zcf.makeInvitation(buyHandler, 'buy', undefined, buyProposalShape),
++    getPrice: () => price,
++    getItemIssuer: () => itemIssuer,
++  });
++
++  const creatorFacet = Far('FixedPriceSale creatorFacet', {
++    makeWithdrawInvitation: () =>
++      zcf.makeInvitation(
++        withdrawHandler,
++        'withdraw proceeds',
++        undefined,
++        M.splitRecord({ give: {} }),
++      ),
++  });
++
++  return harden({ publicFacet, creatorFacet });
++};
++harden(start);
+diff --git a/test/fixed-price-sale.test.js b/test/fixed-price-sale.test.js
+new file mode 100644
+index 0000000..a1aacab
+--- /dev/null
++++ b/test/fixed-price-sale.test.js
+@@ -0,0 +1,94 @@
++import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
++
++import { AmountMath, makeIssuerKit } from '@agoric/ertp';
++import { setUpZoeForTest } from '@agoric/zoe/tools/setup-zoe.js';
++import { E } from '@endo/far';
++
++const contractPath = new URL(
++  '../src/fixed-price-sale.contract.js',
++  import.meta.url,
++).pathname;
++
++test.before(async t => {
++  const { zoe, bundleAndInstall } = await setUpZoeForTest();
++  const installation = await bundleAndInstall(contractPath);
++
++  const money = makeIssuerKit('IST');
++  const price = AmountMath.make(money.brand, 5n);
++
++  const { publicFacet, creatorFacet } = await E(zoe).startInstance(
++    installation,
++    { Price: money.issuer },
++    { price, itemName: 'Widget' },
++  );
++  const itemIssuer = await E(publicFacet).getItemIssuer();
++  const itemBrand = await E(itemIssuer).getBrand();
++
++  t.context = { zoe, money, price, publicFacet, creatorFacet, itemIssuer, itemBrand };
++});
++
++test.serial('buyer pays the price and receives the item', async t => {
++  const { zoe, money, price, publicFacet, creatorFacet, itemIssuer, itemBrand } =
++    /** @type {any} */ (t.context);
++
++  t.deepEqual(await E(publicFacet).getPrice(), price);
++
++  const proposal = harden({
++    give: { Price: price },
++    want: { Item: AmountMath.make(itemBrand, 1n) },
++  });
++  const seat = await E(zoe).offer(
++    E(publicFacet).makeBuyInvitation(),
++    proposal,
++    { Price: money.mint.mintPayment(price) },
++  );
++
++  t.is(await E(seat).getOfferResult(), 'bought 1 Widget');
++
++  const itemPayout = await E(seat).getPayout('Item');
++  t.deepEqual(
++    await E(itemIssuer).getAmountOf(itemPayout),
++    AmountMath.make(itemBrand, 1n),
++  );
++  const change = await E(seat).getPayout('Price');
++  t.deepEqual(
++    await E(money.issuer).getAmountOf(change),
++    AmountMath.makeEmpty(money.brand),
++  );
++
++  // The seller can collect the proceeds.
++  const withdrawSeat = await E(zoe).offer(
++    E(creatorFacet).makeWithdrawInvitation(),
++  );
++  await E(withdrawSeat).getOfferResult();
++  const proceeds = await E(withdrawSeat).getPayout('Price');
++  t.deepEqual(await E(money.issuer).getAmountOf(proceeds), price);
++});
++
++test.serial('underpayment is refused and refunded', async t => {
++  const { zoe, money, publicFacet, itemIssuer, itemBrand } =
++    /** @type {any} */ (t.context);
++
++  const tooLittle = AmountMath.make(money.brand, 4n);
++  const proposal = harden({
++    give: { Price: tooLittle },
++    want: { Item: AmountMath.make(itemBrand, 1n) },
++  });
++  const seat = await E(zoe).offer(
++    E(publicFacet).makeBuyInvitation(),
++    proposal,
++    { Price: money.mint.mintPayment(tooLittle) },
++  );
++
++  await t.throwsAsync(() => E(seat).getOfferResult(), {
++    message: /insufficient payment/,
++  });
++
++  const refund = await E(seat).getPayout('Price');
++  t.deepEqual(await E(money.issuer).getAmountOf(refund), tooLittle);
++  const itemPayout = await E(seat).getPayout('Item');
++  t.deepEqual(
++    await E(itemIssuer).getAmountOf(itemPayout),
++    AmountMath.makeEmpty(itemBrand),
++  );
++});

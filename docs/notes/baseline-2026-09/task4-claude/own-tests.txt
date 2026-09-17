@@ -1,0 +1,640 @@
+
+[2m[bundleTool][registry] loaded 2 bundle(s) in 19.22229199999998ms [22m
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined { address: 'faucet', denom: 'uist' }
+  ✔ proposal must give exactly one asset and want nothing
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined { address: 'faucet', denom: 'uist' }
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined { address: 'faucet', denom: 'uist' }
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined { address: 'faucet', denom: 'uist' }
+----- FakeBridge,12  toBridge VBANK_GRAB undefined { sender: 'faucet', denom: 'uist', amount: '100' }
+----- FakeBridge,12  toBridge VBANK_GRAB undefined { sender: 'faucet', denom: 'uist', amount: '10' }
+----- FakeBridge,12  toBridge VBANK_GRAB undefined { sender: 'faucet', denom: 'uist', amount: '100' }
+----- FakeBridge,12  toBridge VBANK_GRAB undefined { sender: 'faucet', denom: 'uist', amount: '42' }
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '1',
+  updated: [ { address: 'faucet', denom: 'uist', amount: '99999999999' } ]
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '1',
+  updated: [ { address: 'faucet', denom: 'uist', amount: '99999999999' } ]
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '1',
+  updated: [ { address: 'faucet', denom: 'uist', amount: '99999999999' } ]
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '1',
+  updated: [ { address: 'faucet', denom: 'uist', amount: '99999999999' } ]
+}
+----- Orchestrator,5  making an Orchestrator
+----- SendToOsmosis,9  sendToOsmosis {
+  brand: Object [Alleged: IST brand guest wrapper] {
+    __getInterfaceGuard__: [Function: In "__getInterfaceGuard__" method of (IST brand)],
+    __getMethodNames__: [Function: __getMethodNames__],
+    getAllegedName: [Function: In "getAllegedName" method of (IST brand)],
+    getAmountShape: [Function: In "getAmountShape" method of (IST brand)],
+    getDisplayInfo: [Function: In "getDisplayInfo" method of (IST brand)],
+    isMyIssuer: [Function: In "isMyIssuer" method of (IST brand)]
+  },
+  value: 100n
+}
+----- Orchestrator,5  making an Orchestrator
+----- SendToOsmosis,9  sendToOsmosis {
+  brand: Object [Alleged: IST brand guest wrapper] {
+    __getInterfaceGuard__: [Function: In "__getInterfaceGuard__" method of (IST brand)],
+    __getMethodNames__: [Function: __getMethodNames__],
+    getAllegedName: [Function: In "getAllegedName" method of (IST brand)],
+    getAmountShape: [Function: In "getAmountShape" method of (IST brand)],
+    getDisplayInfo: [Function: In "getDisplayInfo" method of (IST brand)],
+    isMyIssuer: [Function: In "isMyIssuer" method of (IST brand)]
+  },
+  value: 10n
+}
+----- Orchestrator,5  making an Orchestrator
+----- SendToOsmosis,9  sendToOsmosis {
+  brand: Object [Alleged: IST brand guest wrapper] {
+    __getInterfaceGuard__: [Function: In "__getInterfaceGuard__" method of (IST brand)],
+    __getMethodNames__: [Function: __getMethodNames__],
+    getAllegedName: [Function: In "getAllegedName" method of (IST brand)],
+    getAmountShape: [Function: In "getAmountShape" method of (IST brand)],
+    getDisplayInfo: [Function: In "getDisplayInfo" method of (IST brand)],
+    isMyIssuer: [Function: In "isMyIssuer" method of (IST brand)]
+  },
+  value: 100n
+}
+----- Orchestrator,5  making an Orchestrator
+----- SendToOsmosis,9  sendToOsmosis {
+  brand: Object [Alleged: IST brand guest wrapper] {
+    __getInterfaceGuard__: [Function: In "__getInterfaceGuard__" method of (IST brand)],
+    __getMethodNames__: [Function: __getMethodNames__],
+    getAllegedName: [Function: In "getAllegedName" method of (IST brand)],
+    getAmountShape: [Function: In "getAmountShape" method of (IST brand)],
+    getDisplayInfo: [Function: In "getDisplayInfo" method of (IST brand)],
+    isMyIssuer: [Function: In "isMyIssuer" method of (IST brand)]
+  },
+  value: 42n
+}
+----- RemoteChainFacade,6  making a RemoteChainFacade
+----- RemoteChainFacade,6  making a RemoteChainFacade
+----- RemoteChainFacade,6  making a RemoteChainFacade
+----- RemoteChainFacade,6  making a RemoteChainFacade
+----- FakeBridge,12  toBridge VLOCALCHAIN_ALLOCATE_ADDRESS undefined {}
+----- FakeBridge,12  toBridge VLOCALCHAIN_ALLOCATE_ADDRESS undefined {}
+----- FakeBridge,12  toBridge VLOCALCHAIN_ALLOCATE_ADDRESS undefined {}
+----- FakeBridge,12  toBridge VLOCALCHAIN_ALLOCATE_ADDRESS undefined {}
+----- FakeBridge,12  toBridge BRIDGE_TARGET_REGISTER { target: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht' }
+----- FakeBridge,12  toBridge BRIDGE_TARGET_REGISTER { target: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht' }
+----- FakeBridge,12  toBridge BRIDGE_TARGET_REGISTER { target: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht' }
+----- FakeBridge,12  toBridge BRIDGE_TARGET_REGISTER { target: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht' }
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icqcontroller-1',
+  channelID: 'channel-0',
+  counterparty: { port_id: 'icqhost', channel_id: 'channel-0' },
+  counterpartyVersion: 'icq-1',
+  connectionHops: [ 'connection-1' ],
+  order: 'UNORDERED',
+  version: 'icq-1'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icacontroller-1',
+  channelID: 'channel-1',
+  counterparty: { port_id: 'icahost', channel_id: 'channel-1' },
+  counterpartyVersion: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}',
+  connectionHops: [ 'connection-1' ],
+  order: 'ORDERED',
+  version: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"","encoding":"proto3","txType":"sdk_multi_msg"}'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icqcontroller-1',
+  channelID: 'channel-0',
+  counterparty: { port_id: 'icqhost', channel_id: 'channel-0' },
+  counterpartyVersion: 'icq-1',
+  connectionHops: [ 'connection-1' ],
+  order: 'UNORDERED',
+  version: 'icq-1'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icacontroller-1',
+  channelID: 'channel-1',
+  counterparty: { port_id: 'icahost', channel_id: 'channel-1' },
+  counterpartyVersion: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}',
+  connectionHops: [ 'connection-1' ],
+  order: 'ORDERED',
+  version: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"","encoding":"proto3","txType":"sdk_multi_msg"}'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icqcontroller-1',
+  channelID: 'channel-0',
+  counterparty: { port_id: 'icqhost', channel_id: 'channel-0' },
+  counterpartyVersion: 'icq-1',
+  connectionHops: [ 'connection-1' ],
+  order: 'UNORDERED',
+  version: 'icq-1'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icacontroller-1',
+  channelID: 'channel-1',
+  counterparty: { port_id: 'icahost', channel_id: 'channel-1' },
+  counterpartyVersion: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}',
+  connectionHops: [ 'connection-1' ],
+  order: 'ORDERED',
+  version: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"","encoding":"proto3","txType":"sdk_multi_msg"}'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icqcontroller-1',
+  channelID: 'channel-0',
+  counterparty: { port_id: 'icqhost', channel_id: 'channel-0' },
+  counterpartyVersion: 'icq-1',
+  connectionHops: [ 'connection-1' ],
+  order: 'UNORDERED',
+  version: 'icq-1'
+}
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icacontroller-1',
+  channelID: 'channel-1',
+  counterparty: { port_id: 'icahost', channel_id: 'channel-1' },
+  counterpartyVersion: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}',
+  connectionHops: [ 'connection-1' ],
+  order: 'ORDERED',
+  version: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"","encoding":"proto3","txType":"sdk_multi_msg"}'
+}
+----- Orchestration:ICQConnection,3  ICQ Channel Opened for /ibc-port/icqcontroller-1/unordered/icq-1/ibc-channel/channel-0 at /ibc-hop/connection-1/ibc-port/icqhost/unordered/icq-1/ibc-channel/channel-0
+----- IcaAccountKit,2  ICA Channel Opened for /ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1 at /ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1
+----- Orchestration:ICQConnection,3  ICQ Channel Opened for /ibc-port/icqcontroller-1/unordered/icq-1/ibc-channel/channel-0 at /ibc-hop/connection-1/ibc-port/icqhost/unordered/icq-1/ibc-channel/channel-0
+----- IcaAccountKit,2  ICA Channel Opened for /ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1 at /ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1
+----- Orchestration:ICQConnection,3  ICQ Channel Opened for /ibc-port/icqcontroller-1/unordered/icq-1/ibc-channel/channel-0 at /ibc-hop/connection-1/ibc-port/icqhost/unordered/icq-1/ibc-channel/channel-0
+----- IcaAccountKit,2  ICA Channel Opened for /ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1 at /ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1
+----- Orchestration:ICQConnection,3  ICQ Channel Opened for /ibc-port/icqcontroller-1/unordered/icq-1/ibc-channel/channel-0 at /ibc-hop/connection-1/ibc-port/icqhost/unordered/icq-1/ibc-channel/channel-0
+----- IcaAccountKit,2  ICA Channel Opened for /ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1 at /ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1
+----- CosmosOrchAccount,1  cosmos orch acct init {
+  chainAddress: { chainId: 'osmosis-1', encoding: 'bech32', value: 'osmo1test' },
+  localAddress: '/ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1',
+  remoteAddress: '/ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1'
+}
+----- CosmosOrchAccount,1  cosmos orch acct init {
+  chainAddress: { chainId: 'osmosis-1', encoding: 'bech32', value: 'osmo1test' },
+  localAddress: '/ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1',
+  remoteAddress: '/ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1'
+}
+----- CosmosOrchAccount,1  cosmos orch acct init {
+  chainAddress: { chainId: 'osmosis-1', encoding: 'bech32', value: 'osmo1test' },
+  localAddress: '/ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1',
+  remoteAddress: '/ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1'
+}
+----- CosmosOrchAccount,1  cosmos orch acct init {
+  chainAddress: { chainId: 'osmosis-1', encoding: 'bech32', value: 'osmo1test' },
+  localAddress: '/ibc-port/icacontroller-1/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1',
+  remoteAddress: '/ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-1'
+}
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist'
+}
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist'
+}
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist'
+}
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist'
+}
+----- FakeBridge,12  toBridge VBANK_GIVE undefined {
+  recipient: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist',
+  amount: '100'
+}
+----- FakeBridge,12  toBridge VBANK_GIVE undefined {
+  recipient: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist',
+  amount: '10'
+}
+----- FakeBridge,12  toBridge VBANK_GIVE undefined {
+  recipient: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist',
+  amount: '100'
+}
+----- FakeBridge,12  toBridge VBANK_GIVE undefined {
+  recipient: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist',
+  amount: '42'
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '2',
+  updated: [
+    {
+      address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      denom: 'uist',
+      amount: '100'
+    }
+  ]
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '2',
+  updated: [
+    {
+      address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      denom: 'uist',
+      amount: '10'
+    }
+  ]
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '2',
+  updated: [
+    {
+      address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      denom: 'uist',
+      amount: '100'
+    }
+  ]
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '2',
+  updated: [
+    {
+      address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      denom: 'uist',
+      amount: '42'
+    }
+  ]
+}
+----- LocalOrchAccount,4  Transferring funds over IBC
+----- LocalOrchAccount,4  got transfer route {
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { amount: '100', denom: 'uist' },
+  receiver: 'osmo1test'
+}
+----- LocalOrchAccount,4  Transferring funds over IBC
+----- LocalOrchAccount,4  got transfer route {
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { amount: '10', denom: 'uist' },
+  receiver: 'osmo1test'
+}
+----- LocalOrchAccount,4  Transferring funds over IBC
+----- LocalOrchAccount,4  got transfer route {
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { amount: '100', denom: 'uist' },
+  receiver: 'osmo1test'
+}
+----- LocalOrchAccount,4  Transferring funds over IBC
+----- LocalOrchAccount,4  got transfer route {
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { amount: '42', denom: 'uist' },
+  receiver: 'osmo1test'
+}
+Skipping message 0 of type /ibc.applications.transfer.v1.MsgTransfer as it is not a MsgSend
+Skipping message 0 of type /ibc.applications.transfer.v1.MsgTransfer as it is not a MsgSend
+Skipping message 0 of type /ibc.applications.transfer.v1.MsgTransfer as it is not a MsgSend
+Skipping message 0 of type /ibc.applications.transfer.v1.MsgTransfer as it is not a MsgSend
+----- FakeBridge,12  toBridge VLOCALCHAIN_EXECUTE_TX undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  messages: [
+    {
+      '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+      sourcePort: 'transfer',
+      sourceChannel: 'channel-1',
+      token: [Object],
+      sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      receiver: 'osmo1test',
+      timeoutHeight: {},
+      timeoutTimestamp: 300000000000n
+    }
+  ]
+}
+----- FakeBridge,12  toBridge VLOCALCHAIN_EXECUTE_TX undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  messages: [
+    {
+      '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+      sourcePort: 'transfer',
+      sourceChannel: 'channel-1',
+      token: [Object],
+      sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      receiver: 'osmo1test',
+      timeoutHeight: {},
+      timeoutTimestamp: 300000000000n
+    }
+  ]
+}
+----- FakeBridge,12  toBridge VLOCALCHAIN_EXECUTE_TX undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  messages: [
+    {
+      '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+      sourcePort: 'transfer',
+      sourceChannel: 'channel-1',
+      token: [Object],
+      sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      receiver: 'osmo1test',
+      timeoutHeight: {},
+      timeoutTimestamp: 300000000000n
+    }
+  ]
+}
+----- FakeBridge,12  toBridge VLOCALCHAIN_EXECUTE_TX undefined {
+  address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  messages: [
+    {
+      '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+      sourcePort: 'transfer',
+      sourceChannel: 'channel-1',
+      token: [Object],
+      sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      receiver: 'osmo1test',
+      timeoutHeight: {},
+      timeoutTimestamp: 300000000000n
+    }
+  ]
+}
+----- IBCP,3  sequence 1 {
+  '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { denom: 'uist', amount: '100' },
+  sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  receiver: 'osmo1test',
+  timeoutHeight: {},
+  timeoutTimestamp: 300000000000n
+}
+----- IBCP,3  sequence 1 {
+  '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { denom: 'uist', amount: '10' },
+  sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  receiver: 'osmo1test',
+  timeoutHeight: {},
+  timeoutTimestamp: 300000000000n
+}
+----- IBCP,3  sequence 1 {
+  '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { denom: 'uist', amount: '100' },
+  sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  receiver: 'osmo1test',
+  timeoutHeight: {},
+  timeoutTimestamp: 300000000000n
+}
+----- IBCP,3  sequence 1 {
+  '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { denom: 'uist', amount: '42' },
+  sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  receiver: 'osmo1test',
+  timeoutHeight: {},
+  timeoutTimestamp: 300000000000n
+}
+----- PacketTools,2  watchPacketPattern onFulfilled makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- PacketTools,2  No match yet. Save the pattern for later.
+----- PacketTools,2  watchPacketPattern onFulfilled makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- PacketTools,2  No match yet. Save the pattern for later.
+----- PacketTools,2  watchPacketPattern onFulfilled makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- PacketTools,2  No match yet. Save the pattern for later.
+----- PacketTools,2  watchPacketPattern onFulfilled makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- PacketTools,2  No match yet. Save the pattern for later.
+----- PacketTools,2  Trying 1 current patterns and 0 pending patterns against {acknowledgement:"eyJyZXN1bHQiOiJBUT09In0=",blockHeight:0,blockTime:0,event:"acknowledgementPacket",packet:{data:"eyJhbW91bnQiOiIxMDAiLCJkZW5vbSI6InVpc3QiLCJzZW5kZXIiOiJhZ29yaWMxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFwN3pxaHQiLCJyZWNlaXZlciI6Im9zbW8xdGVzdCJ9",destination_channel:"channel-0",destination_port:"transfer",sequence:1n,source_channel:"channel-1",source_port:"transfer"},relayer:"agoric123",target:"agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht",type:"VTRANSFER_IBC_EVENT"}
+----- PacketTools,2  Matched pattern: makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- SendToOsmosis,9  transferred 100n uist to osmo1test
+----- PacketTools,2  Trying 1 current patterns and 0 pending patterns against {acknowledgement:"eyJyZXN1bHQiOiJBUT09In0=",blockHeight:0,blockTime:0,event:"acknowledgementPacket",packet:{data:"eyJhbW91bnQiOiIxMCIsImRlbm9tIjoidWlzdCIsInNlbmRlciI6ImFnb3JpYzFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXA3enFodCIsInJlY2VpdmVyIjoib3NtbzF0ZXN0In0=",destination_channel:"channel-0",destination_port:"transfer",sequence:1n,source_channel:"channel-1",source_port:"transfer"},relayer:"agoric123",target:"agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht",type:"VTRANSFER_IBC_EVENT"}
+----- PacketTools,2  Matched pattern: makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- SendToOsmosis,9  transferred 10n uist to osmo1test
+----- PacketTools,2  Trying 1 current patterns and 0 pending patterns against {acknowledgement:"eyJlcnJvciI6Imluc3VmZmljaWVudCBmdW5kcyJ9",blockHeight:0,blockTime:0,event:"acknowledgementPacket",packet:{data:"eyJhbW91bnQiOiIxMDAiLCJkZW5vbSI6InVpc3QiLCJzZW5kZXIiOiJhZ29yaWMxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFwN3pxaHQiLCJyZWNlaXZlciI6Im9zbW8xdGVzdCJ9",destination_channel:"channel-0",destination_port:"transfer",sequence:1n,source_channel:"channel-1",source_port:"transfer"},relayer:"agoric123",target:"agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht",type:"VTRANSFER_IBC_EVENT"}
+----- PacketTools,2  Matched pattern: makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- SendToOsmosis,9  transfer failed; returning funds to offerer (Error#1)
+Error#1: ICS20-1 transfer error "insufficient funds"
+  at eval (async-flow/src/convert.js:122:9)
+  at innerConvert (async-flow/src/convert.js:55:16)
+  at convertRecur (async-flow/src/convert.js:25:14)
+  at convert (async-flow/src/convert.js:74:5)
+  at Object.doReject (async-flow/src/replay-membrane.js:107:25)
+  at interpretOne (async-flow/src/replay-membrane.js:635:26)
+  at eval (async-flow/src/replay-membrane.js:590:13)
+
+Error#1 ERROR_NOTE: from host error (Error#2)
+Nested error under Error#1
+  Error#2: ICS20-1 transfer error insufficient funds
+    at Object.onFulfilled (orchestration/src/exos/ibc-packet.js:182:38)
+    at settle (vow/src/watch.js:49:22)
+  
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80001
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80002
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80003
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80004
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80005
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80006
+  Error#2 ERROR_NOTE: Sent as error:fakeLiveSlots#80007
+----- FakeBridge,12  toBridge VBANK_GRAB undefined {
+  sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist',
+  amount: '100'
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '3',
+  updated: [
+    {
+      address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      denom: 'uist',
+      amount: '0'
+    }
+  ]
+}
+----- ZoeTools,8  withdrawToSeat depositResponse Deposit and reallocation successful.
+----- PacketTools,2  Trying 1 current patterns and 0 pending patterns against {blockHeight:0,blockTime:0,event:"timeoutPacket",packet:{data:"eyJhbW91bnQiOiI0MiIsImRlbm9tIjoidWlzdCIsInNlbmRlciI6ImFnb3JpYzFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXA3enFodCIsInJlY2VpdmVyIjoib3NtbzF0ZXN0In0=",destination_channel:"channel-0",destination_port:"transfer",sequence:1n,source_channel:"channel-1",source_port:"transfer"},target:"agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht",type:"VTRANSFER_IBC_EVENT"}
+----- PacketTools,2  Matched pattern: makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[1n,1,"1"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- SendToOsmosis,9  transfer failed; returning funds to offerer (Error#3)
+Error#3: transfer operation received timeout packet
+  at eval (async-flow/src/convert.js:122:9)
+  at innerConvert (async-flow/src/convert.js:55:16)
+  at convertRecur (async-flow/src/convert.js:25:14)
+  at convert (async-flow/src/convert.js:74:5)
+  at Object.doReject (async-flow/src/replay-membrane.js:107:25)
+  at interpretOne (async-flow/src/replay-membrane.js:635:26)
+  at eval (async-flow/src/replay-membrane.js:590:13)
+
+Error#3 ERROR_NOTE: from host error (Error#4)
+Nested error under Error#3
+  Error#4: transfer operation received timeout packet
+    at Object.onFulfilled (orchestration/src/exos/ibc-packet.js:252:23)
+    at settle (vow/src/watch.js:49:22)
+  
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80016
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80017
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80018
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80019
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80020
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80021
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80022
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80023
+  Error#4 ERROR_NOTE: Sent as error:fakeLiveSlots#80024
+----- FakeBridge,12  toBridge VBANK_GRAB undefined {
+  sender: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+  denom: 'uist',
+  amount: '42'
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '3',
+  updated: [
+    {
+      address: 'agoric1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7zqht',
+      denom: 'uist',
+      amount: '0'
+    }
+  ]
+}
+----- ZoeTools,8  withdrawToSeat depositResponse Deposit and reallocation successful.
+  ✔ transfers the offered amount to a new osmosis account (661ms)
+  ✔ funds return to the offerer when the transfer is rejected (722ms)
+  ✔ funds return to the offerer when the transfer times out (722ms)
+----- FakeBridge,12  toBridge VBANK_GRAB undefined { sender: 'faucet', denom: 'uist', amount: '20' }
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '3',
+  updated: [ { address: 'faucet', denom: 'uist', amount: '99999999999' } ]
+}
+----- Orchestrator,5  making an Orchestrator
+----- SendToOsmosis,9  sendToOsmosis {
+  brand: Object [Alleged: IST brand guest wrapper] {
+    __getInterfaceGuard__: [Function: In "__getInterfaceGuard__" method of (IST brand)],
+    __getMethodNames__: [Function: __getMethodNames__],
+    getAllegedName: [Function: In "getAllegedName" method of (IST brand)],
+    getAmountShape: [Function: In "getAmountShape" method of (IST brand)],
+    getDisplayInfo: [Function: In "getDisplayInfo" method of (IST brand)],
+    isMyIssuer: [Function: In "isMyIssuer" method of (IST brand)]
+  },
+  value: 20n
+}
+----- FakeBridge,12  toBridge VLOCALCHAIN_ALLOCATE_ADDRESS undefined {}
+----- FakeBridge,12  toBridge BRIDGE_TARGET_REGISTER { target: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g' }
+IBC fromBridge {
+  type: 'IBC_EVENT',
+  blockHeight: 99,
+  blockTime: 1711571357,
+  event: 'channelOpenAck',
+  portID: 'icacontroller-2',
+  channelID: 'channel-2',
+  counterparty: { port_id: 'icahost', channel_id: 'channel-2' },
+  counterpartyVersion: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test1","encoding":"proto3","txType":"sdk_multi_msg"}',
+  connectionHops: [ 'connection-1' ],
+  order: 'ORDERED',
+  version: '{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"","encoding":"proto3","txType":"sdk_multi_msg"}'
+}
+----- IcaAccountKit,2  ICA Channel Opened for /ibc-port/icacontroller-2/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test1","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-2 at /ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test1","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-2
+----- CosmosOrchAccount,1  cosmos orch acct init {
+  chainAddress: { chainId: 'osmosis-1', encoding: 'bech32', value: 'osmo1test1' },
+  localAddress: '/ibc-port/icacontroller-2/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test1","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-2',
+  remoteAddress: '/ibc-hop/connection-1/ibc-port/icahost/ordered/{"version":"ics27-1","controllerConnectionId":"connection-1","hostConnectionId":"connection-1649","address":"osmo1test1","encoding":"proto3","txType":"sdk_multi_msg"}/ibc-channel/channel-2'
+}
+----- FakeBridge,12  toBridge VBANK_GET_BALANCE undefined {
+  address: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g',
+  denom: 'uist'
+}
+----- FakeBridge,12  toBridge VBANK_GIVE undefined {
+  recipient: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g',
+  denom: 'uist',
+  amount: '20'
+}
+----- FakeBridge,12  fromBridge {
+  type: 'VBANK_BALANCE_UPDATE',
+  nonce: '4',
+  updated: [
+    {
+      address: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g',
+      denom: 'uist',
+      amount: '20'
+    }
+  ]
+}
+----- LocalOrchAccount,4  Transferring funds over IBC
+----- LocalOrchAccount,4  got transfer route {
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { amount: '20', denom: 'uist' },
+  receiver: 'osmo1test1'
+}
+Skipping message 0 of type /ibc.applications.transfer.v1.MsgTransfer as it is not a MsgSend
+----- FakeBridge,12  toBridge VLOCALCHAIN_EXECUTE_TX undefined {
+  address: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g',
+  messages: [
+    {
+      '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+      sourcePort: 'transfer',
+      sourceChannel: 'channel-1',
+      token: [Object],
+      sender: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g',
+      receiver: 'osmo1test1',
+      timeoutHeight: {},
+      timeoutTimestamp: 300000000000n
+    }
+  ]
+}
+----- IBCP,3  sequence 2 {
+  '@type': '/ibc.applications.transfer.v1.MsgTransfer',
+  sourcePort: 'transfer',
+  sourceChannel: 'channel-1',
+  token: { denom: 'uist', amount: '20' },
+  sender: 'agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g',
+  receiver: 'osmo1test1',
+  timeoutHeight: {},
+  timeoutTimestamp: 300000000000n
+}
+----- PacketTools,2  watchPacketPattern onFulfilled makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[2n,2,"2"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[2n,2,"2"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- PacketTools,2  No match yet. Save the pattern for later.
+----- PacketTools,2  Trying 1 current patterns and 0 pending patterns against {acknowledgement:"eyJyZXN1bHQiOiJBUT09In0=",blockHeight:0,blockTime:0,event:"acknowledgementPacket",packet:{data:"eyJhbW91bnQiOiIyMCIsImRlbm9tIjoidWlzdCIsInNlbmRlciI6ImFnb3JpYzFxeXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcWMwOXowZyIsInJlY2VpdmVyIjoib3NtbzF0ZXN0MSJ9",destination_channel:"channel-0",destination_port:"transfer",sequence:2n,source_channel:"channel-1",source_port:"transfer"},relayer:"agoric123",target:"agoric1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc09z0g",type:"VTRANSFER_IBC_EVENT"}
+----- PacketTools,2  Matched pattern: makeTagged("match:or",[makeTagged("match:splitRecord",[{acknowledgement:makeTagged("match:string",[]),event:"acknowledgementPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[2n,2,"2"]),source_channel:"channel-1",source_port:"transfer"}])}]),makeTagged("match:splitRecord",[{event:"timeoutPacket",packet:makeTagged("match:splitRecord",[{sequence:makeTagged("match:or",[2n,2,"2"]),source_channel:"channel-1",source_port:"transfer"}])}])])
+----- SendToOsmosis,9  transferred 20n uist to osmo1test1
+  ✔ each offer gets its own osmosis account (778ms)
+  ─
+
+  5 tests passed
+exit=0

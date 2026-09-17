@@ -1,0 +1,15 @@
+/Users/bc/Desktop/Agoric-L1/baseline/task4-claude/src/send-to-osmosis.contract.js
+  bundleId  b1-e8c02861372aa932fe02f282ba71204c77261d5d1e6ef5be98ec343cd7e3bdf5ee47f962040e1606f14c0f5a2da0d3102fadbc6bf436d9aab9d5ebdf2381341c
+  format    endoZipBase64, 3165936 bytes
+  ok        bundles
+  ok        exports start
+  ok        start is hardened
+
+SES taming
+  ok        Math.random is unavailable or throws in a compartment (secure mode %SharedMath%.random() throws)
+  ok        Date.now is tamed in a compartment (secure mode Calling %SharedDate%.now() throws)
+  ok        process is unavailable in a compartment (typeof is undefined)
+  ok        require is unavailable in a compartment (typeof is undefined)
+  ok        globalThis.fetch is unavailable in a compartment (typeof is undefined)
+
+SES smoke passed.

@@ -1,0 +1,9 @@
+ A .gitignore
+ A .yarnrc.yml
+ A README.md
+ M package.json
+ A src/osmosis.contract.js
+ A src/osmosis.flows.js
+ A test/osmosis.test.js
+ A test/support/contract.js
+ A yarn.lock

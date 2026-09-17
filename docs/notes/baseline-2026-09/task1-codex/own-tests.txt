@@ -1,0 +1,20 @@
+
+[2m[bundleTool][registry] loaded 2 bundle(s) in 17.399333000000013ms [22m
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#2)
+  ✔ buyer purchases an item for the fixed price (326ms)
+  ✔ underpayment is refused and refunded (296ms)
+Temporary logging of sent error (Error#1)
+Error#1: offered Price is less than the fixed price
+  at buy (file:///Users/bc/Desktop/Agoric-L1/baseline/task1-codex/src/fixedPriceSale.js:41:13)
+  at eval (pass-style/src/make-far.js:224:36)
+
+Error#1 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Error#1 ERROR_NOTE: Sent as error:fakeLiveSlots#80001
+Error#1 ERROR_NOTE: Sent as error:fakeLiveSlots#80002
+RemoteError(error:captp:far-zoeTest#20001)#2: offered Price is less than the fixed price
+Error: offered Price is less than the fixed price
+
+  ─
+
+  2 tests passed
+exit=0

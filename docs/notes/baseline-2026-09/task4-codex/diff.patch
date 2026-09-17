@@ -1,0 +1,437 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..9fca6de
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,3 @@
++node_modules/
++.yarn/
++.pnp.*
+diff --git a/.yarnrc.yml b/.yarnrc.yml
+new file mode 100644
+index 0000000..af0e972
+--- /dev/null
++++ b/.yarnrc.yml
+@@ -0,0 +1,2 @@
++nodeLinker: node-modules
++enableGlobalCache: false
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..713a8b4
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,71 @@
++# Fund an Osmosis account
++
++`src/osmosis.contract.js` exports the Zoe `start` function, wrapped with the
++pinned Orchestration SDK's `withOrchestration`. The public facet has one method:
++`makeOsmosisInvitation()`.
++
++Each offer creates an Osmosis orchestration account and a separate Agoric staging
++account. It deposits the offered funds into the staging account, then awaits the
++IBC transfer to the new Osmosis address. The successful flow returns the funded
++account capability. On a rejected transfer (including an acknowledged timeout),
++it withdraws the full amount back to the original Zoe seat before failing it.
++The offerer receives the refund as their `Funds` payout.
++
++## Run
++
++```sh
++yarn install
++yarn test
++```
++
++Dependency versions and resolutions from the original `package.json` are
++unchanged. `@endo/patterns` is declared directly using the existing `1.7.0`
++resolution so the contract can be bundled. `yarn.lock` pins the resolved tree.
++The Agoric packages specify Node `^20.9 || ^22.11`; tests were also run with the
++workspace's Node 24.
++
++## Start and offer
++
++Install/bundle `src/osmosis.contract.js`. Start the instance with an issuer under
++`Funds`, and the standard orchestration private arguments:
++
++- `agoricNames`, `localchain`, `orchestrationService`, `timerService`, `marshaller`.
++- Optionally `chainInfo` and `assetInfo` to register deployment-specific chains,
++  IBC connections, and assets using the SDK's `registerChainsAndAssets` helper.
++  Otherwise chain and connection information must be available via `agoricNames`.
++
++The offered brand must be registered in Agoric's `vbankAsset` name hub. The
++Agoric–Osmosis connection must support ICA creation and IBC token transfers.
++No mainnet chain IDs or connection IDs are hardcoded.
++
++```js
++const invitation = await E(publicFacet).makeOsmosisInvitation();
++const seat = await E(zoe).offer(
++  invitation,
++  harden({ give: { Funds: amount }, exit: { waived: null } }),
++  harden({ Funds: payment }),
++);
++// Orchestration returns a Vow. Use the SDK's VowTools.when to await settlement.
++const account = await vowTools.when(await E(seat).getOfferResult());
++const address = await E(account).getAddress();
++```
++
++On failure, the result Vow rejects; retrieve `E(seat).getPayout('Funds')` for the
++refund. The exact proposal shape accepts only `Funds`, an empty `want`, and a
++waived exit rule. Waiving exit keeps the seat available for refunds while the
++IBC operation is pending.
++
++## Tests and scope
++
++AVA tests exercise real Zoe offers, ERTP payments, SDK transfer helpers, Vows,
++and the async-flow membrane. Fake chain accounts allow deterministic success,
++IBC rejection, timeout, account creation failure, unknown-brand rejection, and
++local-deposit failure. A delayed withdrawal test verifies that the seat stays
++open until the refund completes. Tests also check the production start wrapper
++and bundle the production contract with the installed dependencies.
++
++The tests do not contact live chains or simulate vat upgrades. Refunds rely on
++the IBC implementation returning failed-transfer funds to the staging account
++and on local withdrawal/deposit services working. If refund withdrawal itself
++fails, the flow rejects and leaves the seat open rather than declaring a refund
++complete; operational recovery is outside this single-invitation contract.
+diff --git a/package.json b/package.json
+index 7b5b5a6..20f20e2 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,19 @@
+ {
+   "name": "baseline-task4-codex",
+   "private": true,
++  "type": "module",
++  "scripts": {
++    "test": "ava"
++  },
++  "ava": {
++    "files": [
++      "test/**/*.test.js"
++    ],
++    "require": [
++      "@agoric/zoe/tools/prepare-test-env-ava.js"
++    ],
++    "timeout": "2m"
++  },
+   "packageManager": "yarn@4.17.1",
+   "dependencies": {
+     "@agoric/deploy-script-support": "0.12.0-u23.1",
+@@ -9,7 +22,8 @@
+     "@agoric/orchestration": "0.3.0-u23.1",
+     "@agoric/time": "0.5.0-u23.0",
+     "@agoric/vat-data": "0.7.0-u23.1",
+-    "@agoric/zoe": "0.28.0-u23.1"
++    "@agoric/zoe": "0.28.0-u23.1",
++    "@endo/patterns": "1.7.0"
+   },
+   "devDependencies": {
+     "@endo/bundle-source": "4.1.2",
+diff --git a/src/osmosis.contract.js b/src/osmosis.contract.js
+new file mode 100644
+index 0000000..580a12e
+--- /dev/null
++++ b/src/osmosis.contract.js
+@@ -0,0 +1,38 @@
++import { M } from '@endo/patterns';
++import { InvitationShape } from '@agoric/zoe/src/typeGuards.js';
++import { AnyNatAmountShape } from '@agoric/orchestration/src/typeGuards.js';
++import { withOrchestration } from '@agoric/orchestration/src/utils/start-helper.js';
++import { registerChainsAndAssets } from '@agoric/orchestration/src/utils/chain-hub-helper.js';
++import { fundOsmosis } from './osmosis.flows.js';
++
++export const contract = async (zcf, privateArgs, zone, tools) => {
++  const { orchestrate, chainHub, zoeTools } = tools;
++  registerChainsAndAssets(
++    chainHub,
++    zcf.getTerms().brands,
++    privateArgs.chainInfo,
++    privateArgs.assetInfo,
++  );
++  const handler = orchestrate('fundOsmosis', { zoeTools }, fundOsmosis);
++  const publicFacet = zone.exo(
++    'Osmosis public facet',
++    M.interface('Osmosis public facet', {
++      makeOsmosisInvitation: M.callWhen().returns(InvitationShape),
++    }),
++    {
++      makeOsmosisInvitation() {
++        return zcf.makeInvitation(handler, 'fund Osmosis account', undefined, {
++          give: { Funds: AnyNatAmountShape },
++          want: {},
++          // Prevent the offerer from exiting while funds are outside Zoe.
++          exit: { waived: null },
++        });
++      },
++    },
++  );
++  return harden({ publicFacet });
++};
++harden(contract);
++
++export const start = withOrchestration(contract);
++harden(start);
+diff --git a/src/osmosis.flows.js b/src/osmosis.flows.js
+new file mode 100644
+index 0000000..8d552a1
+--- /dev/null
++++ b/src/osmosis.flows.js
+@@ -0,0 +1,42 @@
++/**
++ * Guest flow: calls to orchestration accounts and Zoe tools are translated
++ * through the async-flow membrane, so awaiting a Vow waits for settlement.
++ */
++export const fundOsmosis = async (orch, { zoeTools }, seat) => {
++  const { give } = seat.getProposal();
++  const { Funds: amount } = give;
++
++  let localAccount;
++  let deposited = false;
++  try {
++    const agoric = await orch.getChain('agoric');
++    const assets = await agoric.getVBankAssetInfo();
++    const asset = assets.find(({ brand }) => brand === amount.brand);
++    assert(asset, 'Offered brand is not registered in vbank');
++
++    const osmosis = await orch.getChain('osmosis');
++    const destination = await osmosis.makeAccount();
++    const address = await destination.getAddress();
++    // Use a separate staging account for each offer.
++    localAccount = await agoric.makeAccount();
++
++    // localTransfer restores the seat itself if depositing fails.
++    await zoeTools.localTransfer(seat, localAccount, give);
++    deposited = true;
++    await localAccount.transfer(address, {
++      denom: asset.denom,
++      value: amount.value,
++    });
++    seat.exit();
++    // Return control of the funded account to the offerer.
++    return destination;
++  } catch (error) {
++    // Do not exit/fail the seat before the refund has been reallocated to it.
++    if (deposited) {
++      await zoeTools.withdrawToSeat(localAccount, seat, give);
++    }
++    seat.fail(error);
++    throw error;
++  }
++};
++harden(fundOsmosis);
+diff --git a/test/osmosis.test.js b/test/osmosis.test.js
+new file mode 100644
+index 0000000..b3ba84c
+--- /dev/null
++++ b/test/osmosis.test.js
+@@ -0,0 +1,164 @@
++import test from 'ava';
++import bundleSource from '@endo/bundle-source';
++import { fileURLToPath } from 'node:url';
++import * as productionContract from '../src/osmosis.contract.js';
++import { E, Far } from '@endo/far';
++import { makePromiseKit } from '@endo/promise-kit';
++import { AmountMath, makeIssuerKit } from '@agoric/ertp';
++import { makeHeapZone } from '@agoric/zone';
++import { prepareVowTools } from '@agoric/vow';
++import { setUpZoeForTest } from '@agoric/zoe/tools/setup-zoe.js';
++import { eventLoopIteration } from '@agoric/internal/src/testing-utils.js';
++import * as testContract from './support/contract.js';
++
++const setup = async (t, { failCreation = false, failDeposit = false, unknownBrand = false, delayRefund = false } = {}) => {
++  const { zoe, bundleAndInstall } = await setUpZoeForTest();
++  const installation = await bundleAndInstall(testContract);
++  const { issuer, mint, brand } = makeIssuerKit('Funds');
++  const amount = AmountMath.make(brand, 123n);
++  const localPurse = issuer.makeEmptyPurse();
++  const remotePurse = issuer.makeEmptyPurse();
++  const transfer = makePromiseKit();
++  const started = makePromiseKit();
++  const refundStarted = makePromiseKit();
++  const refundGate = makePromiseKit();
++  const { asVow, when } = prepareVowTools(makeHeapZone());
++  const address = harden({ chainId: 'osmosis-1', encoding: 'bech32', value: 'osmo1test' });
++  let created = 0;
++  const destination = Far('Osmosis account', { getAddress: () => address });
++  const localAccount = Far('Local account', {
++    deposit: payment => {
++      if (failDeposit) throw Error('deposit failed');
++      return localPurse.deposit(payment);
++    },
++    withdraw: async amt => {
++      refundStarted.resolve();
++      if (delayRefund) await refundGate.promise;
++      return localPurse.withdraw(amt);
++    },
++    transfer: (to, amt) => asVow(async () => {
++      t.deepEqual(to, address);
++      t.deepEqual(amt, { denom: 'ufunds', value: 123n });
++      started.resolve();
++      await transfer.promise;
++      remotePurse.deposit(localPurse.withdraw(amount));
++    }),
++  });
++  const agoric = Far('Agoric chain', {
++    getVBankAssetInfo: () => asVow(() => unknownBrand ? [] : harden([{ brand, denom: 'ufunds' }])),
++    makeAccount: () => asVow(() => localAccount),
++  });
++  const osmosis = Far('Osmosis chain', {
++    makeAccount: () => asVow(() => {
++      created += 1;
++      if (failCreation) throw Error('account creation failed');
++      return destination;
++    }),
++  });
++  const orch = Far('Orchestrator', {
++    getChain: name => {
++      t.true(['agoric', 'osmosis'].includes(name));
++      return asVow(() => name === 'agoric' ? agoric : osmosis);
++    },
++  });
++  const { publicFacet } = await E(zoe).startInstance(installation, { Funds: issuer }, {}, {
++    orch, timerService: Far('timer', {}), orchestrationService: Far('service', {}),
++  });
++  const offer = async (proposal = harden({ give: { Funds: amount }, exit: { waived: null } })) => {
++    const invitation = await E(publicFacet).makeOsmosisInvitation();
++    return E(zoe).offer(invitation, proposal, { Funds: mint.mintPayment(amount) });
++  };
++  return { offer, when, amount, issuer, publicFacet, transfer, started,
++    localPurse, remotePurse, address, refundStarted, refundGate, created: () => created };
++};
++
++const payoutAmount = async (s, seat) => E(s.issuer).getAmountOf(await E(seat).getPayout('Funds'));
++
++test('funds the new Osmosis account only after transfer acknowledgement', async t => {
++  const s = await setup(t);
++  const seat = await s.offer();
++  const result = s.when(await E(seat).getOfferResult());
++  await s.started.promise;
++  t.false(await E(seat).hasExited());
++  t.deepEqual(s.localPurse.getCurrentAmount(), s.amount);
++  await t.throwsAsync(E(seat).tryExit(), { message: /onDemand/ });
++  s.transfer.resolve();
++  const account = await result;
++  t.deepEqual(await s.when(E(account).getAddress()), s.address);
++  t.is(s.created(), 1);
++  t.deepEqual(s.remotePurse.getCurrentAmount(), s.amount);
++  t.is((await payoutAmount(s, seat)).value, 0n);
++  t.is(s.localPurse.getCurrentAmount().value, 0n);
++});
++
++for (const reason of ['IBC acknowledgement error', 'IBC timeout']) {
++  test(`refunds the full ERTP payment on ${reason}`, async t => {
++    const s = await setup(t);
++    const seat = await s.offer();
++    const rejected = t.throwsAsync(s.when(await E(seat).getOfferResult()), { message: reason });
++    await s.started.promise;
++    t.false(await E(seat).hasExited());
++    s.transfer.reject(Error(reason));
++    await rejected;
++    t.deepEqual(await payoutAmount(s, seat), s.amount);
++    t.is(s.localPurse.getCurrentAmount().value, 0n);
++    t.is(s.remotePurse.getCurrentAmount().value, 0n);
++  });
++}
++
++for (const [option, message] of [
++  ['failCreation', 'account creation failed'],
++  ['failDeposit', /One or more deposits failed/],
++  ['unknownBrand', 'Offered brand is not registered in vbank'],
++]) {
++  test(`refunds when ${option}`, async t => {
++    const s = await setup(t, { [option]: true });
++    const seat = await s.offer();
++    await t.throwsAsync(s.when(await E(seat).getOfferResult()), { message });
++    await eventLoopIteration();
++    t.true(await E(seat).hasExited());
++    t.deepEqual(await payoutAmount(s, seat), s.amount);
++    t.is(s.localPurse.getCurrentAmount().value, 0n);
++  });
++}
++
++test('rejects an on-demand exit proposal before moving funds', async t => {
++  const s = await setup(t);
++  await t.throwsAsync(s.offer(harden({ give: { Funds: s.amount } })), { message: /waived|exit|onDemand/ });
++  t.is(s.created(), 0);
++});
++
++
++test('keeps the seat open until the refund reaches Zoe', async t => {
++  const s = await setup(t, { delayRefund: true });
++  const seat = await s.offer();
++  const rejected = t.throwsAsync(s.when(await E(seat).getOfferResult()), { message: 'transfer rejected' });
++  await s.started.promise;
++  s.transfer.reject(Error('transfer rejected'));
++  await s.refundStarted.promise;
++  t.false(await E(seat).hasExited());
++  t.deepEqual(s.localPurse.getCurrentAmount(), s.amount);
++  s.refundGate.resolve();
++  await rejected;
++  t.deepEqual(await payoutAmount(s, seat), s.amount);
++});
++
++test('production start creates its single invitation using withOrchestration', async t => {
++  const { zoe, bundleAndInstall } = await setUpZoeForTest();
++  const installation = await bundleAndInstall(productionContract);
++  const { publicFacet } = await E(zoe).startInstance(installation, {}, {}, {
++    agoricNames: Far('names', {}),
++    localchain: Far('localchain', {}),
++    orchestrationService: Far('service', {}),
++    timerService: Far('timer', {}),
++    marshaller: Far('marshaller', {}),
++  });
++  const invitation = await E(publicFacet).makeOsmosisInvitation();
++  const details = await E(zoe).getInvitationDetails(invitation);
++  t.is(details.description, 'fund Osmosis account');
++});
++
++test('production contract bundles with the pinned dependencies', async t => {
++  const bundle = await bundleSource(fileURLToPath(new URL('../src/osmosis.contract.js', import.meta.url)));
++  t.is(bundle.moduleFormat, 'endoZipBase64');
++});
+diff --git a/test/support/contract.js b/test/support/contract.js
+new file mode 100644
+index 0000000..f6c796f
+--- /dev/null
++++ b/test/support/contract.js
+@@ -0,0 +1,41 @@
++import { E, Far } from '@endo/far';
++import { makeHeapZone } from '@agoric/zone';
++import { prepareVowTools } from '@agoric/vow';
++import { prepareAsyncFlowTools } from '@agoric/async-flow';
++import { makeOrchestrationFacade } from '@agoric/orchestration/src/facade.js';
++import { makeZoeTools } from '@agoric/orchestration/src/utils/zoe-tools.js';
++import { contract } from '../../src/osmosis.contract.js';
++
++// Real Zoe, transfer helpers, and async-flow membrane; only chains are faked.
++export const start = async (zcf, { orch, timerService, orchestrationService }) => {
++  const zone = makeHeapZone();
++  const vowTools = prepareVowTools(zone.subZone('vows'));
++  const asyncFlowTools = prepareAsyncFlowTools(zone.subZone('flows'), { vowTools });
++  const { asVow, when } = vowTools;
++  const accountAdapter = (remote, local) => Far('Account adapter', {
++    getAddress: () => asVow(() => E(remote).getAddress()),
++    ...(local ? {
++      deposit: payment => asVow(() => E(remote).deposit(payment)),
++      withdraw: amount => asVow(() => E(remote).withdraw(amount)),
++      transfer: (address, amount) => asVow(() => when(E(remote).transfer(address, amount))),
++    } : {}),
++  });
++  const hostOrch = Far('Host orchestrator', {
++    getChain: name => asVow(async () => {
++      const chain = await when(E(orch).getChain(name));
++      return Far('Chain adapter', {
++        getVBankAssetInfo: () => asVow(() => when(E(chain).getVBankAssetInfo())),
++        makeAccount: () => asVow(async () => accountAdapter(
++          await when(E(chain).makeAccount()), name === 'agoric',
++        )),
++      });
++    }),
++  });
++  const { orchestrate } = makeOrchestrationFacade({
++    zone: zone.subZone('facade'), zcf, timerService, orchestrationService,
++    makeOrchestrator: () => hostOrch, vowTools, asyncFlowTools,
++  });
++  return contract(zcf, {}, zone.subZone('contract'), {
++    orchestrate, zoeTools: makeZoeTools(zcf, vowTools),
++  });
++};

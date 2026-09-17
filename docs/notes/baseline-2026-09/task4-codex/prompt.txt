@@ -1,0 +1,1 @@
+Write an Agoric orchestration contract with one invitation. The offer handler runs an orchestration flow that creates an account on the osmosis chain and transfers the offered amount to it. If the transfer fails the funds return to the offerer. Include ava tests. Use the package versions already in package.json.

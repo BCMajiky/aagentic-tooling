@@ -1,0 +1,9 @@
+ A .gitignore
+ A .yarnrc.yml
+ M package.json
+ A src/send-to-osmosis.contract.js
+ A src/send-to-osmosis.flows.js
+ A test/send-to-osmosis.test.js
+ A test/tools/network-fakes.js
+ A test/tools/setup.js
+ A yarn.lock

@@ -1,0 +1,5 @@
+Implemented the [contract](/Users/bc/Desktop/Agoric-L1/baseline/task4-codex/src/osmosis.contract.js) with one invitation, Osmosis account creation, transfer, and refunds before seat closure.
+
+Added usage documentation and AVA tests using real Zoe/ERTP with mocked chains.
+
+`yarn test`: **10 tests passed**, including production bundling. Existing package versions preserved.

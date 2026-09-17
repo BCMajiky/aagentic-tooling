@@ -1,0 +1,14 @@
+[node 24.19.0, ava 6.4.1 + ses-ava via prepare-test-env-ava, --loader=ts-blank-space/register]
+  ✔ setupOrchestrationTest runs from a workspace outside the SDK monorepo
+  1 test passed
+[node 22.23.2, same, --loader=ts-blank-space/register]
+  ✔ setupOrchestrationTest runs from a workspace outside the SDK monorepo
+  1 test passed
+[node 24.19.0, no loader]
+  Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules, for "file:///Users/bc/Desktop/Agoric-L1/baseline/task4-claude/node_modules/@agoric/orchestration/tools/contract-tests.ts"
+  Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules, for "file:///Users/bc/Desktop/Agoric-L1/baseline/task4-claude/node_modules/@agoric/orchestration/tools/contract-tests.ts"
+  ✘ d4-loader-check/contract-tests-import.test.js exited with a non-zero exit code: 1
+[node 22.23.2, no loader]
+  Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules, for "file:///Users/bc/Desktop/Agoric-L1/baseline/task4-claude/node_modules/@agoric/orchestration/tools/contract-tests.ts"
+  Error [ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING]: Stripping types is currently unsupported for files under node_modules, for "file:///Users/bc/Desktop/Agoric-L1/baseline/task4-claude/node_modules/@agoric/orchestration/tools/contract-tests.ts"
+  ✘ d4-loader-check/contract-tests-import.test.js exited with a non-zero exit code: 1

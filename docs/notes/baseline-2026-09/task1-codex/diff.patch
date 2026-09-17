@@ -1,0 +1,214 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..402d5a0
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,2 @@
++node_modules/
++.yarn/
+diff --git a/.yarnrc.yml b/.yarnrc.yml
+new file mode 100644
+index 0000000..3186f3f
+--- /dev/null
++++ b/.yarnrc.yml
+@@ -0,0 +1 @@
++nodeLinker: node-modules
+diff --git a/package.json b/package.json
+index a72420a..dc34206 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,10 @@
+ {
+   "name": "baseline-task1-codex",
+   "private": true,
++  "type": "module",
++  "scripts": {
++    "test": "ava"
++  },
+   "packageManager": "yarn@4.17.1",
+   "dependencies": {
+     "@agoric/deploy-script-support": "0.12.0-u23.1",
+@@ -9,7 +13,8 @@
+     "@agoric/orchestration": "0.3.0-u23.1",
+     "@agoric/time": "0.5.0-u23.0",
+     "@agoric/vat-data": "0.7.0-u23.1",
+-    "@agoric/zoe": "0.28.0-u23.1"
++    "@agoric/zoe": "0.28.0-u23.1",
++    "@endo/far": "1.1.14"
+   },
+   "devDependencies": {
+     "@endo/bundle-source": "4.1.2",
+@@ -50,5 +55,11 @@
+     "@endo/where": "1.0.11",
+     "@endo/zip": "1.0.11",
+     "ses": "1.14.0"
++  },
++  "ava": {
++    "files": [
++      "test/**/*.test.js"
++    ],
++    "timeout": "2m"
+   }
+ }
+diff --git a/src/fixedPriceSale.js b/src/fixedPriceSale.js
+new file mode 100644
+index 0000000..6ccf703
+--- /dev/null
++++ b/src/fixedPriceSale.js
+@@ -0,0 +1,79 @@
++import { AmountMath } from '@agoric/ertp';
++import { Far } from '@endo/far';
++
++/**
++ * Sell one unit of a contract-minted item for a fixed price with each offer.
++ *
++ * The instance must be started with a `Price` issuer and these terms:
++ * `{ priceBrand, priceAmount }`. Buyers give `Price` and want `Item`.
++ *
++ * @param {ZCF} zcf
++ */
++export const start = async zcf => {
++  const { priceBrand, priceAmount, brands } = zcf.getTerms();
++
++  // Coercion validates that priceAmount is a well-formed amount of priceBrand.
++  AmountMath.coerce(priceBrand, priceAmount);
++  if (brands.Price !== priceBrand) {
++    throw Error('priceBrand must be the brand registered under Price');
++  }
++  if (AmountMath.isEmpty(priceAmount)) {
++    throw Error('priceAmount must be greater than zero');
++  }
++
++  const itemMint = await zcf.makeZCFMint('Item');
++  const { brand: itemBrand, issuer: itemIssuer } = itemMint.getIssuerRecord();
++  const itemAmount = AmountMath.make(itemBrand, 1n);
++  const { zcfSeat: proceedsSeat } = zcf.makeEmptySeatKit();
++
++  const buy = buyerSeat => {
++    const proposal = buyerSeat.getProposal();
++    const offeredPrice = proposal.give?.Price;
++    const wantedItem = proposal.want?.Item;
++
++    if (!offeredPrice || !wantedItem) {
++      throw Error('buyer must give Price and want Item');
++    }
++    if (!AmountMath.isEqual(wantedItem, itemAmount)) {
++      throw Error('buyer must want exactly one Item');
++    }
++    if (!AmountMath.isGTE(offeredPrice, priceAmount)) {
++      throw Error('offered Price is less than the fixed price');
++    }
++
++    // Charge only the fixed price. Any excess remains for Zoe to refund.
++    itemMint.mintGains(harden({ Item: itemAmount }), buyerSeat);
++    zcf.atomicRearrange(
++      harden([[buyerSeat, proceedsSeat, { Price: priceAmount }]]),
++    );
++    buyerSeat.exit();
++    return 'purchase complete';
++  };
++
++  const collectProceeds = collectorSeat => {
++    const proceeds = proceedsSeat.getAmountAllocated('Price', priceBrand);
++    if (!AmountMath.isEmpty(proceeds)) {
++      zcf.atomicRearrange(
++        harden([[proceedsSeat, collectorSeat, { Price: proceeds }]]),
++      );
++    }
++    collectorSeat.exit();
++    return 'proceeds collected';
++  };
++
++  const publicFacet = Far('FixedPriceSale public facet', {
++    makeBuyInvitation: () => zcf.makeInvitation(buy, 'buy item'),
++    getItemIssuer: () => itemIssuer,
++    getItemAmount: () => itemAmount,
++    getPrice: () => priceAmount,
++  });
++
++  const creatorFacet = Far('FixedPriceSale creator facet', {
++    makeCollectProceedsInvitation: () =>
++      zcf.makeInvitation(collectProceeds, 'collect proceeds'),
++  });
++
++  return harden({ publicFacet, creatorFacet });
++};
++
++harden(start);
+diff --git a/test/fixedPriceSale.test.js b/test/fixedPriceSale.test.js
+new file mode 100644
+index 0000000..d4c2e5c
+--- /dev/null
++++ b/test/fixedPriceSale.test.js
+@@ -0,0 +1,71 @@
++import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
++
++// Load Agoric modules after SES has installed its globals.
++const { AmountMath, makeIssuerKit } = await import('@agoric/ertp');
++const { setUpZoeForTest } = await import('@agoric/zoe/tools/setup-zoe.js');
++const { E } = await import('@endo/far');
++const contract = await import('../src/fixedPriceSale.js');
++
++const startSale = async () => {
++  const { zoe, bundleAndInstall } = await setUpZoeForTest();
++  const installation = await bundleAndInstall(contract);
++  const money = makeIssuerKit('Money');
++  const priceAmount = AmountMath.make(money.brand, 10n);
++  const started = await E(zoe).startInstance(
++    installation,
++    harden({ Price: money.issuer }),
++    harden({ priceBrand: money.brand, priceAmount }),
++  );
++
++  return { zoe, money, priceAmount, ...started };
++};
++
++test('buyer purchases an item for the fixed price', async t => {
++  const { zoe, money, priceAmount, publicFacet } = await startSale();
++  const itemIssuer = await E(publicFacet).getItemIssuer();
++  const itemAmount = await E(publicFacet).getItemAmount();
++  const invitation = await E(publicFacet).makeBuyInvitation();
++  const pricePayment = money.mint.mintPayment(priceAmount);
++
++  const seat = await E(zoe).offer(
++    invitation,
++    harden({
++      give: { Price: priceAmount },
++      want: { Item: itemAmount },
++    }),
++    harden({ Price: pricePayment }),
++  );
++
++  t.is(await E(seat).getOfferResult(), 'purchase complete');
++  const itemPayout = await E(seat).getPayout('Item');
++  t.deepEqual(await E(itemIssuer).getAmountOf(itemPayout), itemAmount);
++});
++
++test('underpayment is refused and refunded', async t => {
++  const { zoe, money, publicFacet } = await startSale();
++  const itemIssuer = await E(publicFacet).getItemIssuer();
++  const itemAmount = await E(publicFacet).getItemAmount();
++  const underpayment = AmountMath.make(money.brand, 9n);
++  const invitation = await E(publicFacet).makeBuyInvitation();
++  const payment = money.mint.mintPayment(underpayment);
++
++  const seat = await E(zoe).offer(
++    invitation,
++    harden({
++      give: { Price: underpayment },
++      want: { Item: itemAmount },
++    }),
++    harden({ Price: payment }),
++  );
++
++  await t.throwsAsync(E(seat).getOfferResult(), {
++    message: /less than the fixed price/,
++  });
++  const refund = await E(seat).getPayout('Price');
++  t.deepEqual(await E(money.issuer).getAmountOf(refund), underpayment);
++  const itemPayout = await E(seat).getPayout('Item');
++  t.true(
++    AmountMath.isEmpty(await E(itemIssuer).getAmountOf(itemPayout)),
++    'a refused offer must not receive an item',
++  );
++});

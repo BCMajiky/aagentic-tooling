@@ -1,0 +1,6 @@
+ A .gitignore
+ A .yarnrc.yml
+ M package.json
+ A src/fixed-price-sale.contract.js
+ A test/fixed-price-sale.test.js
+ A yarn.lock

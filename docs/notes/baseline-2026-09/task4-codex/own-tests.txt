@@ -1,0 +1,191 @@
+
+[2m[bundleTool][registry] loaded 2 bundle(s) in 34.17191700000001ms [22m
+  ✔ production start creates its single invitation using withOrchestration (1.1s)
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#4)
+  ✔ rejects an on-demand exit proposal before moving funds (1.2s)
+  ✔ funds the new Osmosis account only after transfer acknowledgement (1.5s)
+  ✔ refunds the full ERTP payment on IBC acknowledgement error (1.5s)
+  ✔ refunds the full ERTP payment on IBC timeout (1.4s)
+  ✔ keeps the seat open until the refund reaches Zoe (1.4s)
+Temporary logging of sent error (Error#1)
+Error#1: "fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}
+Error: "fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}
+
+Error#1 ERROR_NOTE: Caused by (Error#2)
+Error#1 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#1
+  Error#2: exit: {"onDemand":null} - Must be: {"waived":null}
+    at Array.every (<anonymous>)
+  
+  Error#2 ERROR_NOTE: Caused by (Error#3)
+  Nested error under Error#2
+    Error#3: { onDemand: null } - Must be: { waived: null }
+      at Array.every (<anonymous>)
+    
+Temporary logging of sent error (Error#5)
+Error#5: Offered brand is not registered in vbank
+Error: Offered brand is not registered in vbank
+
+Error#5 ERROR_NOTE: from guest error (Error#6)
+Error#5 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#5
+  Error#6: Offered brand is not registered in vbank
+    at fundOsmosis (file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/src/osmosis.flows.js:15:5)
+  
+Temporary logging of sent error (Error#8)
+Error#8: account creation failed
+  at file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/test/osmosis.test.js:54:31
+  at Alleged: Osmosis chain.makeAccount (file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/test/osmosis.test.js:52:24)
+
+Error#8 ERROR_NOTE: Sent as error:captp:near-zoeTest#20001
+Temporary logging of sent error (Error#10)
+Error#10: account creation failed
+Error: account creation failed
+
+Error#10 ERROR_NOTE: from guest error (Error#11)
+Error#10 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#10
+  Error#11: account creation failed
+  Error: account creation failed
+  
+  Error#11 ERROR_NOTE: from host error (RemoteError(error:captp:near-zoeTest#20001)#9)
+  Nested error under Error#11
+Temporary logging of sent error (Error#13)
+Error#13: deposit failed
+  at Alleged: Local account.deposit (file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/test/osmosis.test.js:31:30)
+
+Error#13 ERROR_NOTE: Sent as error:captp:near-zoeTest#20001
+Temporary logging of sent error (Error#15)
+Error#15: transfer rejected
+  at file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/test/osmosis.test.js:137:21
+
+Error#15 ERROR_NOTE: Sent as error:captp:near-zoeTest#20001
+Temporary logging of sent error (Error#17)
+Error#17: IBC acknowledgement error
+  at file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/test/osmosis.test.js:101:23
+
+Error#17 ERROR_NOTE: Sent as error:captp:near-zoeTest#20001
+Temporary logging of sent error (Error#19)
+Error#19: IBC timeout
+  at file:///Users/bc/Desktop/Agoric-L1/baseline/task4-codex/test/osmosis.test.js:101:23
+
+Error#19 ERROR_NOTE: Sent as error:captp:near-zoeTest#20001
+Temporary logging of sent error (Error#21)
+Error#21: Only seats with the exit rule "onDemand" can exit at will
+  at Object.exit (zoe/src/contractFacet/exit.js:58:15)
+
+Error#21 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+----- ZoeTools,8  localTransfer depositResponse Deposit and reallocation successful.
+Temporary logging of sent error (Error#23)
+Error#23: One or more deposits failed ["[Error: deposit failed]"]
+Error: One or more deposits failed ["[Error: deposit failed]"]
+
+Error#23 ERROR_NOTE: from guest error (Error#24)
+Error#23 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#23
+  Error#24: One or more deposits failed ["[Error: deposit failed]"]
+  Error: One or more deposits failed ["[Error: deposit failed]"]
+  
+  Error#24 ERROR_NOTE: from host error (Error#25)
+  Nested error under Error#24
+    Error#25: One or more deposits failed ["[Error: deposit failed]"]
+    Error: One or more deposits failed ["[Error: deposit failed]"]
+    
+----- ZoeTools,8  withdrawToSeat depositResponse Deposit and reallocation successful.
+----- ZoeTools,8  withdrawToSeat depositResponse Deposit and reallocation successful.
+----- ZoeTools,8  withdrawToSeat depositResponse Deposit and reallocation successful.
+Temporary logging of sent error (Error#27)
+Error#27: IBC acknowledgement error
+Error: IBC acknowledgement error
+
+Error#27 ERROR_NOTE: from guest error (Error#28)
+Error#27 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#27
+  Error#28: IBC acknowledgement error
+  Error: IBC acknowledgement error
+  
+  Error#28 ERROR_NOTE: from host error (RemoteError(error:captp:near-zoeTest#20001)#18)
+  Nested error under Error#28
+Temporary logging of sent error (Error#30)
+Error#30: IBC timeout
+Error: IBC timeout
+
+Error#30 ERROR_NOTE: from guest error (Error#31)
+Error#30 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#30
+  Error#31: IBC timeout
+  Error: IBC timeout
+  
+  Error#31 ERROR_NOTE: from host error (RemoteError(error:captp:near-zoeTest#20001)#20)
+  Nested error under Error#31
+Temporary logging of sent error (Error#33)
+Error#33: transfer rejected
+Error: transfer rejected
+
+Error#33 ERROR_NOTE: from guest error (Error#34)
+Error#33 ERROR_NOTE: Sent as error:captp:far-zoeTest#20001
+Nested error under Error#33
+  Error#34: transfer rejected
+  Error: transfer rejected
+  
+  Error#34 ERROR_NOTE: from host error (RemoteError(error:captp:near-zoeTest#20001)#16)
+  Nested error under Error#34
+RemoteError(error:captp:far-zoeTest#20001)#4: "fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}
+Error: "fund Osmosis account" proposal: exit: {"onDemand":null} - Must be: {"waived":null}
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#7)
+RemoteError(error:captp:far-zoeTest#20001)#7: Offered brand is not registered in vbank
+Error: Offered brand is not registered in vbank
+
+CapTP far-zoeTest exception: (RemoteError(error:captp:near-zoeTest#20001)#9)
+RemoteError(error:captp:near-zoeTest#20001)#9: account creation failed
+Error: account creation failed
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#12)
+RemoteError(error:captp:far-zoeTest#20001)#12: account creation failed
+Error: account creation failed
+
+CapTP far-zoeTest exception: (RemoteError(error:captp:near-zoeTest#20001)#14)
+RemoteError(error:captp:near-zoeTest#20001)#14: deposit failed
+Error: deposit failed
+
+CapTP far-zoeTest exception: (RemoteError(error:captp:near-zoeTest#20001)#16)
+RemoteError(error:captp:near-zoeTest#20001)#16: transfer rejected
+Error: transfer rejected
+
+CapTP far-zoeTest exception: (RemoteError(error:captp:near-zoeTest#20001)#18)
+RemoteError(error:captp:near-zoeTest#20001)#18: IBC acknowledgement error
+Error: IBC acknowledgement error
+
+CapTP far-zoeTest exception: (RemoteError(error:captp:near-zoeTest#20001)#20)
+RemoteError(error:captp:near-zoeTest#20001)#20: IBC timeout
+Error: IBC timeout
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#22)
+RemoteError(error:captp:far-zoeTest#20001)#22: Only seats with the exit rule "onDemand" can exit at will
+Error: Only seats with the exit rule "onDemand" can exit at will
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#26)
+RemoteError(error:captp:far-zoeTest#20001)#26: One or more deposits failed ["[Error: deposit failed]"]
+Error: One or more deposits failed ["[Error: deposit failed]"]
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#29)
+RemoteError(error:captp:far-zoeTest#20001)#29: IBC acknowledgement error
+Error: IBC acknowledgement error
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#32)
+RemoteError(error:captp:far-zoeTest#20001)#32: IBC timeout
+Error: IBC timeout
+
+CapTP near-zoeTest exception: (RemoteError(error:captp:far-zoeTest#20001)#35)
+RemoteError(error:captp:far-zoeTest#20001)#35: transfer rejected
+Error: transfer rejected
+
+  ✔ refunds when unknownBrand (1.4s)
+  ✔ refunds when failCreation (1.4s)
+  ✔ refunds when failDeposit (1.4s)
+  ✔ production contract bundles with the pinned dependencies (6.6s)
+  ─
+
+  10 tests passed
+exit=0

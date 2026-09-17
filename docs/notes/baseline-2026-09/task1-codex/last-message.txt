@@ -1,0 +1,28 @@
+Implemented a Zoe fixed price sale contract.
+
+### Added
+
+- [Contract](/Users/bc/Desktop/Agoric-L1/baseline/task1-codex/src/fixedPriceSale.js)
+  - Price brand and amount supplied as contract terms.
+  - Buyers give `Price` and request one `Item`.
+  - Underpayments are rejected and refunded.
+  - Creator can collect accumulated proceeds.
+
+- [AVA tests](/Users/bc/Desktop/Agoric-L1/baseline/task1-codex/test/fixedPriceSale.test.js)
+  - Successful purchase.
+  - Refused underpayment, including payment refund and no item payout.
+
+- Test configuration and Yarn lockfile.
+- Yarn `node-modules` linker configuration required by Agoric’s bundle test tooling.
+
+Validation:
+
+```text
+2 tests passed
+```
+
+Run with:
+
+```sh
+yarn test
+```

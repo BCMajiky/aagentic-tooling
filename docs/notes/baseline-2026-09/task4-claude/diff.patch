@@ -1,0 +1,755 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..402d5a0
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,2 @@
++node_modules/
++.yarn/
+diff --git a/.yarnrc.yml b/.yarnrc.yml
+new file mode 100644
+index 0000000..3186f3f
+--- /dev/null
++++ b/.yarnrc.yml
+@@ -0,0 +1 @@
++nodeLinker: node-modules
+diff --git a/package.json b/package.json
+index ca4b236..6d07d90 100644
+--- a/package.json
++++ b/package.json
+@@ -1,7 +1,11 @@
+ {
+   "name": "baseline-task4-claude",
+   "private": true,
++  "type": "module",
+   "packageManager": "yarn@4.17.1",
++  "scripts": {
++    "test": "ava"
++  },
+   "dependencies": {
+     "@agoric/deploy-script-support": "0.12.0-u23.1",
+     "@agoric/ertp": "0.18.0-u23.1",
+@@ -9,13 +13,26 @@
+     "@agoric/orchestration": "0.3.0-u23.1",
+     "@agoric/time": "0.5.0-u23.0",
+     "@agoric/vat-data": "0.7.0-u23.1",
+-    "@agoric/zoe": "0.28.0-u23.1"
++    "@agoric/zoe": "0.28.0-u23.1",
++    "@endo/errors": "1.2.13",
++    "@endo/far": "1.1.14",
++    "@endo/patterns": "1.7.0"
+   },
+   "devDependencies": {
++    "@agoric/network": "0.3.0-u23.1",
++    "@agoric/vats": "0.17.0-u23.1",
++    "@agoric/vow": "0.3.0-u23.1",
++    "@agoric/zone": "0.4.0-u23.1",
+     "@endo/bundle-source": "4.1.2",
+     "@endo/ses-ava": "1.3.2",
+     "ava": "6.4.1"
+   },
++  "ava": {
++    "files": [
++      "test/**/*.test.js"
++    ],
++    "timeout": "10m"
++  },
+   "resolutions": {
+     "@endo/base64": "1.0.12",
+     "@endo/bundle-source": "4.1.2",
+diff --git a/src/send-to-osmosis.contract.js b/src/send-to-osmosis.contract.js
+new file mode 100644
+index 0000000..49cee13
+--- /dev/null
++++ b/src/send-to-osmosis.contract.js
+@@ -0,0 +1,81 @@
++import { AnyNatAmountShape } from '@agoric/orchestration/src/typeGuards.js';
++import { registerChainsAndAssets } from '@agoric/orchestration/src/utils/chain-hub-helper.js';
++import { withOrchestration } from '@agoric/orchestration/src/utils/start-helper.js';
++import { InvitationShape } from '@agoric/zoe/src/typeGuards.js';
++import { M } from '@endo/patterns';
++import * as flows from './send-to-osmosis.flows.js';
++
++/**
++ * @import {Remote} from '@agoric/vow';
++ * @import {Zone} from '@agoric/zone';
++ * @import {ZCF} from '@agoric/zoe';
++ * @import {Marshaller, StorageNode} from '@agoric/internal/src/lib-chainStorage.js';
++ * @import {CosmosChainInfo, Denom, DenomDetail} from '@agoric/orchestration';
++ * @import {OrchestrationPowers, OrchestrationTools} from '@agoric/orchestration/src/utils/start-helper.js';
++ */
++
++/** exactly one keyword, with a nat amount */
++export const SingleNatAmountRecord = M.and(
++  M.recordOf(M.string(), AnyNatAmountShape, { numPropertiesLimit: 1 }),
++  M.not(harden({})),
++);
++harden(SingleNatAmountRecord);
++
++export const SendProposalShape = M.splitRecord({
++  give: SingleNatAmountRecord,
++  want: {},
++});
++harden(SendProposalShape);
++
++/**
++ * Offers give a single asset; the flow creates an osmosis account and
++ * transfers the asset to it, returning the funds to the offerer on failure.
++ *
++ * @param {ZCF} zcf
++ * @param {OrchestrationPowers & {
++ *   marshaller: Remote<Marshaller>;
++ *   storageNode: Remote<StorageNode>;
++ *   chainInfo?: Record<string, CosmosChainInfo>;
++ *   assetInfo?: [Denom, DenomDetail & { brandKey?: string }][];
++ * }} privateArgs
++ * @param {Zone} zone
++ * @param {OrchestrationTools} tools
++ */
++export const contract = async (
++  zcf,
++  privateArgs,
++  zone,
++  { chainHub, orchestrateAll, zoeTools },
++) => {
++  registerChainsAndAssets(
++    chainHub,
++    zcf.getTerms().brands,
++    privateArgs.chainInfo,
++    privateArgs.assetInfo,
++  );
++
++  const { sendToOsmosis } = orchestrateAll(flows, { chainHub, zoeTools });
++
++  const publicFacet = zone.exo(
++    'SendToOsmosis PF',
++    M.interface('SendToOsmosis PF', {
++      makeSendInvitation: M.callWhen().returns(InvitationShape),
++    }),
++    {
++      makeSendInvitation() {
++        return zcf.makeInvitation(
++          sendToOsmosis,
++          'sendToOsmosis',
++          undefined,
++          SendProposalShape,
++        );
++      },
++    },
++  );
++
++  return { publicFacet };
++};
++harden(contract);
++
++export const start = withOrchestration(contract, { publishAccountInfo: true });
++harden(start);
+diff --git a/src/send-to-osmosis.flows.js b/src/send-to-osmosis.flows.js
+new file mode 100644
+index 0000000..dc9aa00
+--- /dev/null
++++ b/src/send-to-osmosis.flows.js
+@@ -0,0 +1,81 @@
++import { makeTracer } from '@agoric/internal';
++import { Fail, makeError, q } from '@endo/errors';
++
++/**
++ * @import {GuestInterface} from '@agoric/async-flow';
++ * @import {ZCFSeat} from '@agoric/zoe';
++ * @import {ChainHub, OrchestrationFlow, Orchestrator} from '@agoric/orchestration';
++ * @import {ZoeTools} from '@agoric/orchestration/src/utils/zoe-tools.js';
++ */
++
++const trace = makeTracer('SendToOsmosis');
++const { entries } = Object;
++
++/**
++ * Create an account on osmosis and IBC-transfer the offered amount to it.
++ *
++ * The funds move seat -> contract-local agoric account -> osmosis account. If
++ * anything fails after the funds leave the seat, they are withdrawn back to
++ * the seat and the seat fails, which pays them out to the offerer.
++ *
++ * On success, the offer result is a continuing offer for the new osmosis
++ * account so the offerer can control the transferred funds.
++ *
++ * @satisfies {OrchestrationFlow}
++ * @param {Orchestrator} orch
++ * @param {object} ctx
++ * @param {GuestInterface<ChainHub>} ctx.chainHub
++ * @param {GuestInterface<ZoeTools>} ctx.zoeTools
++ * @param {ZCFSeat} seat
++ */
++export const sendToOsmosis = async (
++  orch,
++  { chainHub, zoeTools: { localTransfer, withdrawToSeat } },
++  seat,
++) => {
++  // the proposal shape ensures `give` holds exactly one nat amount
++  const { give } = seat.getProposal();
++  const [[_kw, amt]] = entries(give);
++  trace('sendToOsmosis', amt);
++
++  let osmoAccount;
++  let localAccount;
++  let denom;
++  try {
++    denom =
++      chainHub.getDenom(amt.brand) ||
++      Fail`${amt.brand} is not registered in ChainHub`;
++    const agoric = await orch.getChain('agoric');
++    const osmosis = await orch.getChain('osmosis');
++    localAccount = await agoric.makeAccount();
++    osmoAccount = await osmosis.makeAccount();
++  } catch (e) {
++    // nothing has left the seat yet; failing it returns the funds
++    seat.fail(e);
++    throw e;
++  }
++
++  // on failure, localTransfer rolls the deposit back to the seat itself
++  try {
++    await localTransfer(seat, localAccount, give);
++  } catch (e) {
++    seat.fail(e);
++    throw e;
++  }
++
++  const osmoAddress = osmoAccount.getAddress();
++  try {
++    await localAccount.transfer(osmoAddress, { denom, value: amt.value });
++  } catch (e) {
++    trace('transfer failed; returning funds to offerer', e);
++    await withdrawToSeat(localAccount, seat, give);
++    const err = makeError(`IBC transfer to osmosis failed: ${q(e)}`);
++    seat.fail(err);
++    throw err;
++  }
++
++  seat.exit();
++  trace('transferred', amt.value, denom, 'to', osmoAddress.value);
++  return osmoAccount.asContinuingOffer();
++};
++harden(sendToOsmosis);
+diff --git a/test/send-to-osmosis.test.js b/test/send-to-osmosis.test.js
+new file mode 100644
+index 0000000..5c5e0c3
+--- /dev/null
++++ b/test/send-to-osmosis.test.js
+@@ -0,0 +1,160 @@
++import { test as anyTest } from '@agoric/zoe/tools/prepare-test-env-ava.js';
++
++import { AmountMath } from '@agoric/ertp';
++import { eventLoopIteration } from '@agoric/internal/src/testing-utils.js';
++import { makeZoeKitForTest } from '@agoric/zoe/tools/setup-zoe.js';
++import bundleSource from '@endo/bundle-source';
++import { heapVowE as VE } from '@agoric/vow/vat.js';
++import { E } from '@endo/far';
++import { createRequire } from 'node:module';
++import { setupOrchestrationTest } from './tools/setup.js';
++
++/**
++ * @import {TestFn} from 'ava';
++ * @import {start} from '../src/send-to-osmosis.contract.js';
++ */
++
++const nodeRequire = createRequire(import.meta.url);
++const contractPath = nodeRequire.resolve('../src/send-to-osmosis.contract.js');
++
++/** @type {Promise<any>} bundle once for all tests */
++const bundleP = bundleSource(contractPath);
++
++const makeTestContext = async t => {
++  const env = await setupOrchestrationTest(t.log);
++  // ICA addresses reported by the fake IBC bridge
++  await E(env.ibcBridge).setAddressPrefix('osmo');
++
++  const { zoeService: zoe } = makeZoeKitForTest();
++  /** @type {Installation<typeof start>} */
++  const installation = await E(zoe).install(await bundleP);
++  const { instance, publicFacet } = await E(zoe).startInstance(
++    installation,
++    { IST: env.ist.issuer },
++    {},
++    env.commonPrivateArgs,
++  );
++  return { ...env, zoe, instance, publicFacet };
++};
++
++/** @type {TestFn<Awaited<ReturnType<typeof makeTestContext>>>} */
++const test = anyTest;
++
++test.beforeEach(async t => {
++  t.context = await makeTestContext(t);
++});
++
++/**
++ * Make a send offer and wait for the flow to emit its MsgTransfer.
++ *
++ * @param {any} t
++ * @param {bigint} value
++ */
++const offerAndAwaitTransfer = async (t, value) => {
++  const { zoe, publicFacet, ist, utils } = t.context;
++  const before = utils.outgoingTransfers().length;
++  const give = { Send: AmountMath.make(ist.brand, value) };
++  const userSeat = E(zoe).offer(
++    E(publicFacet).makeSendInvitation(),
++    { give },
++    { Send: await utils.pourPayment(give.Send) },
++  );
++  for (let i = 0; i < 100 && utils.outgoingTransfers().length === before; i += 1) {
++    await eventLoopIteration();
++  }
++  const transfers = utils.outgoingTransfers();
++  t.is(transfers.length, before + 1, 'flow sent exactly one MsgTransfer');
++  return { userSeat, transfer: transfers.at(-1) };
++};
++
++const payoutValue = async (t, userSeat) => {
++  const { ist } = t.context;
++  const payment = await E(userSeat).getPayout('Send');
++  const amount = await E(ist.issuer).getAmountOf(payment);
++  return amount.value;
++};
++
++test('transfers the offered amount to a new osmosis account', async t => {
++  const { utils } = t.context;
++  const { userSeat, transfer } = await offerAndAwaitTransfer(t, 100n);
++
++  const { message } = transfer;
++  t.like(message, {
++    token: { denom: 'uist', amount: '100' },
++    sourcePort: 'transfer',
++  });
++  t.regex(message.receiver, /^osmo1/, 'receiver is an osmosis address');
++  t.regex(message.sourceChannel, /^channel-\d+$/);
++
++  await utils.transmitVTransferEvent('acknowledgementPacket', -1);
++
++  const result = await VE(userSeat).getOfferResult();
++  t.truthy(result.invitationMakers, 'offerer can control the osmosis account');
++  t.is(
++    result.publicSubscribers.account.storagePath.split('.').at(-1),
++    message.receiver,
++    'continuing offer controls the account that received the funds',
++  );
++  t.is(await payoutValue(t, userSeat), 0n, 'funds left the seat');
++  t.true(await E(userSeat).hasExited());
++});
++
++test('each offer gets its own osmosis account', async t => {
++  const { utils } = t.context;
++  const first = await offerAndAwaitTransfer(t, 10n);
++  await utils.transmitVTransferEvent('acknowledgementPacket', -1);
++  await VE(first.userSeat).getOfferResult();
++
++  const second = await offerAndAwaitTransfer(t, 20n);
++  await utils.transmitVTransferEvent('acknowledgementPacket', -1);
++  await VE(second.userSeat).getOfferResult();
++
++  t.not(first.transfer.message.receiver, second.transfer.message.receiver);
++  t.is(second.transfer.message.token.amount, '20');
++});
++
++test('funds return to the offerer when the transfer is rejected', async t => {
++  const { utils } = t.context;
++  const { userSeat } = await offerAndAwaitTransfer(t, 100n);
++
++  await utils.transmitVTransferEvent(
++    'acknowledgementPacket',
++    -1,
++    'insufficient funds',
++  );
++
++  await t.throwsAsync(VE(userSeat).getOfferResult(), {
++    message: /IBC transfer to osmosis failed.*insufficient funds/,
++  });
++  t.is(await payoutValue(t, userSeat), 100n, 'full amount refunded');
++});
++
++test('funds return to the offerer when the transfer times out', async t => {
++  const { utils } = t.context;
++  const { userSeat } = await offerAndAwaitTransfer(t, 42n);
++
++  await utils.transmitVTransferEvent('timeoutPacket', -1);
++
++  await t.throwsAsync(VE(userSeat).getOfferResult(), {
++    message: /IBC transfer to osmosis failed/,
++  });
++  t.is(await payoutValue(t, userSeat), 42n, 'full amount refunded');
++});
++
++test('proposal must give exactly one asset and want nothing', async t => {
++  const { zoe, publicFacet, ist, utils } = t.context;
++  const amt = AmountMath.make(ist.brand, 5n);
++
++  await t.throwsAsync(
++    E(zoe).offer(E(publicFacet).makeSendInvitation(), {
++      give: { Send: amt },
++      want: { Back: amt },
++    }),
++    { message: /proposal: want: .* - Must be: {}/ },
++  );
++  await t.throwsAsync(
++    E(zoe).offer(E(publicFacet).makeSendInvitation(), { give: {} }),
++    { message: /give: {} - Must fail negated pattern/ },
++  );
++  t.is(utils.outgoingTransfers().length, 0);
++});
+diff --git a/test/tools/network-fakes.js b/test/tools/network-fakes.js
+new file mode 100644
+index 0000000..775e60e
+--- /dev/null
++++ b/test/tools/network-fakes.js
+@@ -0,0 +1,149 @@
++/**
++ * @file JS port of the parts of `@agoric/orchestration/tools/network-fakes.ts`
++ *   needed here. The published tools are TypeScript, which Node will not
++ *   type-strip inside node_modules.
++ */
++import { BridgeId } from '@agoric/internal';
++import {
++  prepareNetworkPowers,
++  preparePortAllocator,
++  prepareRouterProtocol,
++} from '@agoric/network';
++import {
++  prepareCallbacks as prepareIBCCallbacks,
++  prepareIBCProtocol,
++} from '@agoric/vats/src/ibc.js';
++import { E } from '@endo/far';
++
++/**
++ * Fake dibc bridge: acks every channel open (reporting a mock remote address
++ * for ICAs) and acks every packet with an error, since this contract sends no
++ * ICA/ICQ packets.
++ *
++ * @param {import('@agoric/zone').Zone} zone
++ */
++const makeFakeIBCBridge = zone => {
++  let bridgeHandler;
++  let channelCount = 0;
++  let icaAccountCount = 0;
++  let sequence = 0n;
++  let bech32Prefix = 'cosmos';
++  /** @type {Record<string, number>} */
++  const remoteChannelMap = {};
++  const addressMap = new Map();
++
++  const withAddress = (version, address) => {
++    try {
++      return JSON.stringify({ ...JSON.parse(version), address });
++    } catch {
++      return version;
++    }
++  };
++
++  return zone.exo('Fake IBC Bridge Manager', undefined, {
++    getBridgeId: () => BridgeId.DIBC,
++    toBridge: async obj => {
++      if (obj.type !== 'IBC_METHOD') return undefined;
++      switch (obj.method) {
++        case 'startChannelOpenInit': {
++          const [connectionId] = obj.hops;
++          const counterpartyCount = remoteChannelMap[connectionId] || 0;
++          const addressKey = `${obj.packet.source_port}:${connectionId}`;
++          if (!addressMap.has(addressKey)) {
++            addressMap.set(
++              addressKey,
++              `${bech32Prefix}1test${icaAccountCount || ''}`,
++            );
++          }
++          const ackEvent = {
++            type: 'IBC_EVENT',
++            blockHeight: 99,
++            blockTime: 1711571357,
++            event: 'channelOpenAck',
++            portID: obj.packet.source_port,
++            channelID: `channel-${channelCount}`,
++            counterparty: {
++              port_id: obj.packet.destination_port,
++              channel_id: `channel-${counterpartyCount}`,
++            },
++            counterpartyVersion: withAddress(
++              obj.version,
++              addressMap.get(addressKey),
++            ),
++            connectionHops: obj.hops,
++            order: obj.order,
++            version: obj.version,
++          };
++          channelCount += 1;
++          if (obj.packet.source_port.includes('icacontroller')) {
++            icaAccountCount += 1;
++          }
++          remoteChannelMap[connectionId] = counterpartyCount + 1;
++          bridgeHandler?.fromBridge(ackEvent);
++          return undefined;
++        }
++        case 'sendPacket': {
++          const packet = {
++            ...obj.packet,
++            sequence: String(sequence),
++            timeout_timestamp: '1712183910866313000',
++          };
++          sequence += 1n;
++          bridgeHandler?.fromBridge({
++            type: 'IBC_EVENT',
++            blockHeight: 289,
++            blockTime: 1712180320,
++            event: 'acknowledgementPacket',
++            packet,
++            relayer: 'agoric1relayer',
++            acknowledgement: btoa(
++              JSON.stringify({ error: 'no mock ack configured' }),
++            ),
++          });
++          return packet;
++        }
++        default:
++          return undefined;
++      }
++    },
++    fromBridge: async obj => {
++      if (!bridgeHandler) throw Error('no handler!');
++      return bridgeHandler.fromBridge(obj);
++    },
++    initHandler: handler => {
++      if (bridgeHandler) throw Error('already init');
++      bridgeHandler = handler;
++    },
++    setHandler: handler => {
++      if (!bridgeHandler) throw Error('must init first');
++      bridgeHandler = handler;
++    },
++    setAddressPrefix: prefix => {
++      bech32Prefix = prefix;
++    },
++  });
++};
++
++/**
++ * @param {import('@agoric/zone').Zone} zone
++ * @param {{ vowTools: import('@agoric/vow').VowTools }} powers
++ */
++export const setupFakeNetwork = async (zone, { vowTools }) => {
++  const powers = prepareNetworkPowers(zone, vowTools);
++  const protocol = prepareRouterProtocol(zone, powers)();
++  const portAllocator = preparePortAllocator(zone, powers)({ protocol });
++  const ibcBridge = makeFakeIBCBridge(zone);
++
++  const callbacks = prepareIBCCallbacks(zone)(ibcBridge);
++  const { protocolHandler, bridgeHandler } = prepareIBCProtocol(
++    zone,
++    vowTools,
++  )(callbacks);
++  await E(ibcBridge).initHandler(bridgeHandler);
++  await protocol.registerProtocolHandler(
++    ['/ibc-port', '/ibc-hop'],
++    protocolHandler,
++  );
++
++  return { portAllocator, ibcBridge };
++};
+diff --git a/test/tools/setup.js b/test/tools/setup.js
+new file mode 100644
+index 0000000..d74d31f
+--- /dev/null
++++ b/test/tools/setup.js
+@@ -0,0 +1,195 @@
++/**
++ * @file Orchestration test environment, a trimmed JS port of
++ *   `@agoric/orchestration/tools/contract-tests.ts` (see network-fakes.js for
++ *   why it is ported).
++ */
++import { makeIssuerKit } from '@agoric/ertp';
++import { VTRANSFER_IBC_EVENT } from '@agoric/internal/src/action-types.js';
++import { makeFakeStorageKit } from '@agoric/internal/src/storage-test-utils.js';
++import { eventLoopIteration } from '@agoric/internal/src/testing-utils.js';
++import { withChainCapabilities } from '@agoric/orchestration';
++import { registerKnownChains } from '@agoric/orchestration/src/chain-info.js';
++import { prepareCosmosInterchainService } from '@agoric/orchestration/src/exos/cosmos-interchain-service.js';
++import fetchedChainInfo from '@agoric/orchestration/src/fetched-chain-info.js';
++import { makeTestAddress } from '@agoric/orchestration/tools/make-test-address.js';
++import { makeNameHubKit } from '@agoric/vats';
++import { prepareBridgeTargetModule } from '@agoric/vats/src/bridge-target.js';
++import { prepareLocalChainTools } from '@agoric/vats/src/localchain.js';
++import { prepareTransferTools } from '@agoric/vats/src/transfer.js';
++import { makeFakeBankManagerKit } from '@agoric/vats/tools/bank-utils.js';
++import { makeFakeBoard } from '@agoric/vats/tools/board-utils.js';
++import {
++  makeFakeLocalchainBridge,
++  makeFakeTransferBridge,
++} from '@agoric/vats/tools/fake-bridge.js';
++import { prepareSwingsetVowTools } from '@agoric/vow/vat.js';
++import { buildZoeManualTimer } from '@agoric/zoe/tools/manualTimer.js';
++import { makeHeapZone } from '@agoric/zone';
++import { E } from '@endo/far';
++import { setupFakeNetwork } from './network-fakes.js';
++
++export const ROOT_STORAGE_PATH = 'orchtest';
++
++/** @param {(...args: unknown[]) => void} log */
++export const setupOrchestrationTest = async log => {
++  const rootZone = makeHeapZone();
++  const vowTools = prepareSwingsetVowTools(rootZone.subZone('vows'));
++
++  const { nameHub: agoricNames, nameAdmin: agoricNamesAdmin } =
++    makeNameHubKit();
++
++  const { bankManager, pourPayment } = await makeFakeBankManagerKit();
++  const ist = makeIssuerKit('IST');
++  await E(bankManager).addAsset('uist', 'IST', 'Inter Stable Token', ist);
++
++  // vtransfer bridge, so tests can inject IBC acks for outgoing transfers
++  const transferBridge = makeFakeTransferBridge(rootZone);
++  const { makeBridgeTargetKit } = prepareBridgeTargetModule(
++    rootZone.subZone('bridge'),
++  );
++  const { makeTransferMiddlewareKit } = prepareTransferTools(
++    rootZone.subZone('transfer'),
++    vowTools,
++  );
++  const { finisher, interceptorFactory, transferMiddleware } =
++    makeTransferMiddlewareKit();
++  const bridgeTargetKit = makeBridgeTargetKit(
++    transferBridge,
++    VTRANSFER_IBC_EVENT,
++    interceptorFactory,
++  );
++  finisher.useRegistry(bridgeTargetKit.targetRegistry);
++  await E(transferBridge).initHandler(bridgeTargetKit.bridgeHandler);
++
++  /** @type {{ obj: any; result: any }[]} */
++  const localBridgeLog = [];
++  const localchainBridge = makeFakeLocalchainBridge(
++    rootZone,
++    (obj, result) => localBridgeLog.push({ obj, result }),
++    makeTestAddress,
++  );
++  const powersForTransfer = rootZone.weakMapStore('powersForTransfer');
++  const localchain = prepareLocalChainTools(rootZone.subZone('localchain'), {
++    ...vowTools,
++    powersForTransfer,
++  })({ bankManager, system: localchainBridge, transfer: transferMiddleware });
++  powersForTransfer.init(
++    transferMiddleware,
++    harden({ transferBridgeManager: transferBridge }),
++  );
++
++  const { portAllocator, ibcBridge } = await setupFakeNetwork(
++    rootZone.subZone('network'),
++    { vowTools },
++  );
++  const cosmosInterchainService = prepareCosmosInterchainService(
++    rootZone.subZone('orchestration'),
++    vowTools,
++  )({ portAllocator });
++
++  await registerKnownChains(agoricNamesAdmin, () => {});
++
++  const storage = makeFakeStorageKit(ROOT_STORAGE_PATH, { sequence: true });
++  const timer = buildZoeManualTimer(log);
++  const marshaller = makeFakeBoard().getPublishingMarshaller();
++
++  /** Outgoing MsgTransfers sent through the localchain bridge */
++  const outgoingTransfers = () =>
++    localBridgeLog.flatMap(({ obj, result }) =>
++      obj.type === 'VLOCALCHAIN_EXECUTE_TX' && Array.isArray(result)
++        ? obj.messages.flatMap((message, i) =>
++            message['@type'] === '/ibc.applications.transfer.v1.MsgTransfer'
++              ? [{ message, sequence: BigInt(result[i].sequence) }]
++              : [],
++          )
++        : [],
++    );
++
++  /**
++   * Simulate the IBC outcome of an outgoing transfer.
++   *
++   * @param {'acknowledgementPacket' | 'timeoutPacket'} event
++   * @param {number} index into outgoingTransfers(); negative counts from end
++   * @param {string} [acknowledgementError]
++   */
++  const transmitVTransferEvent = async (
++    event,
++    index,
++    acknowledgementError,
++  ) => {
++    await eventLoopIteration();
++    const found = outgoingTransfers().at(index);
++    if (!found) throw Error(`no outgoing transfer at index ${index}`);
++    const { message: msg, sequence } = found;
++    const packet = {
++      data: btoa(
++        JSON.stringify({
++          amount: msg.token.amount,
++          denom: msg.token.denom,
++          sender: msg.sender,
++          receiver: msg.receiver,
++          memo: msg.memo,
++        }),
++      ),
++      destination_channel: 'channel-0',
++      source_channel: msg.sourceChannel,
++      destination_port: 'transfer',
++      source_port: 'transfer',
++      sequence,
++    };
++    const base = {
++      type: VTRANSFER_IBC_EVENT,
++      blockHeight: 0,
++      blockTime: 0,
++      event,
++      target: msg.sender,
++      packet,
++    };
++    await E(transferBridge).fromBridge(
++      event === 'timeoutPacket'
++        ? base
++        : {
++            ...base,
++            relayer: 'agoric123',
++            acknowledgement: btoa(
++              JSON.stringify(
++                acknowledgementError
++                  ? { error: acknowledgementError }
++                  : { result: 'AQ==' },
++              ),
++            ),
++          },
++    );
++    await eventLoopIteration();
++  };
++
++  const { agoric, osmosis } = withChainCapabilities(fetchedChainInfo);
++
++  return {
++    ist,
++    bankManager,
++    ibcBridge,
++    storage,
++    commonPrivateArgs: {
++      agoricNames,
++      localchain,
++      orchestrationService: cosmosInterchainService,
++      storageNode: storage.rootNode,
++      marshaller,
++      timerService: timer,
++      chainInfo: harden({ agoric, osmosis }),
++      assetInfo: harden([
++        [
++          'uist',
++          {
++            baseDenom: 'uist',
++            baseName: 'agoric',
++            chainName: 'agoric',
++            brandKey: 'IST',
++          },
++        ],
++      ]),
++    },
++    utils: { pourPayment, outgoingTransfers, transmitVTransferEvent },
++  };
++};

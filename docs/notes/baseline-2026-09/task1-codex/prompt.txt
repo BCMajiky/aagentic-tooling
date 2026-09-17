@@ -1,0 +1,1 @@
+Write a Zoe smart contract for Agoric that sells one kind of item for a fixed price. The price brand and amount are contract terms. A buyer offers the price and wants the item. Include ava tests that start the contract and show a successful purchase and a refused underpayment. Use the package versions already in package.json.
