@@ -26,12 +26,20 @@ The same `nodeArguments` in a project outside the SDK let
 `setupOrchestrationTest` import and run under `@endo/ses-ava`
 (`docs/notes/baseline-2026-09/README.md`, D4 loader check).
 
-## Version, not yet verified
+## Version
 
 The orchestration package declares `ts-blank-space ^0.6.2`, but as a
-devDependency, so a consumer does not get it. The version that happened to be
-installed in the baseline check was 0.4.4, hoisted from
-`@endo/bundle-source@4.1.2`. Declare 0.6.2 yourself. The check has not been
-rerun with 0.6.2; it will be when `packages/evals` is created. Also confirm
-which copy the loader resolves to when both versions are installed, because
-`--loader` resolves from the working directory.
+devDependency, so a consumer does not get it. The first check happened to run
+on 0.4.4, hoisted from `@endo/bundle-source@4.1.2`. Declare 0.6.2 yourself.
+Verified with 0.6.2 on Node 22 and 24 on 2026-09-17: the snippet corpus runs
+this way (`packages/skills/snippets/package.json`), and
+`packages/skills/snippets/test/loader.test.js` checks which copy the loader
+resolves to, because `--loader` resolves from the working directory and
+bundle-source keeps its own 0.4.4.
+
+## What the published setup does not do
+
+`setupOrchestrationTest` registers no assets and passes no `assetInfo`, its
+`chainInfo` has no cosmoshub, and local account addresses come from
+`makeTestAddress`. `packages/skills/snippets/test/support.js` shows the
+registration with published calls.

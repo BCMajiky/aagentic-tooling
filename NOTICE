@@ -19,6 +19,10 @@ Agoric SDK — https://github.com/Agoric/agoric-sdk
   (tag agoric-upgrade-23a, 2026-07-27).
   Used for: examples/send-anywhere (contract and flows), orchestration exo
   interface names, Zoe type guard vocabulary, and test-harness conventions.
+  Copied into packages/skills/snippets at commit cc25a29: the basic-flows,
+    send-anywhere (with shared.flows), auto-stake-it and unbond examples from
+    packages/orchestration/src/examples, and the acknowledgement mocks in
+    packages/orchestration/test/examples/unbond.contract.test.ts.
   Text lifted word for word into the skill pack, at commit a2a3de9:
     AGENTS.md, "Capability Security & POLA" (lines 44-55), in
       packages/skills/src/agoric-zoe-contract/SKILL.md
@@ -32,7 +36,7 @@ Agoric dapp-offer-up — https://github.com/Agoric/dapp-offer-up
   Copyright 2023-2025 Agoric Systems Operating Company.
   Licensed under the Apache License, Version 2.0.
   Referenced at commit 4ea27c5 (main, 2025-04-05).
-  Used for: examples/offer-up.
+  Used for: examples/offer-up and packages/skills/snippets/zoe.
 
 Agoric documentation — https://github.com/Agoric/documentation
   Copyright 2019-2026 Agoric Systems Operating Company.

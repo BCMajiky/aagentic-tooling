@@ -265,6 +265,28 @@ Recorded forward. The struck text above is what was first published.
      to once both 0.4.4 (for bundle-source) and 0.6.2 are in the tree, because
      the loader resolves from the working directory, not from the orchestration
      package.
+   - **Rerun 2026-09-17 (Release 1 day 3): passes with 0.6.2.** Run in
+     `packages/skills/snippets` (not `packages/evals`, which does not exist
+     yet), where the snippet tests use the published tools. `ts-blank-space`
+     0.6.2 is a devDependency there; the tree holds 0.6.2 hoisted at the root
+     and 0.4.4 nested under `@endo/bundle-source`. `test/loader.test.js`
+     records that the loader resolves to the root 0.6.2 and that
+     `setupOrchestrationTest` and `ibc-mocks.ts` import and run through it,
+     on Node 22.23.2 and 24.19.0 locally and in CI. The whole corpus (offer-up,
+     basic-flows, send-anywhere, auto-stake-it, unbond) runs on the published
+     tools. The `@ava/typescript` question above does not arise there: those
+     tests are plain JavaScript. It still applies to `packages/evals` if its
+     tests are TypeScript.
+   - What the published `setupOrchestrationTest` leaves to the caller, compared
+     with the SDK's unpublished `commonSetup`: it registers no bank or
+     `vbankAsset` assets and its `commonPrivateArgs` carry no `assetInfo`; its
+     `chainInfo` holds agoric, osmosis, noble, ethereum and solana only (no
+     cosmoshub); and local account addresses come from `makeTestAddress`
+     rather than `agoric1fakeLCAAddress`. `packages/skills/snippets/test/support.js`
+     fills the first two with published calls. The eval harness needs the same.
+   - The SDK's own example tests install with `bundleAndInstall(contractExports)`,
+     the module-namespace form this README calls `TEST_BUNDLE_BYPASS`. The
+     snippet tests bundle from a path instead.
 3. **`CONTRACT_NOT_UPGRADABLE` rationale** (found 2026-09-17 while writing the
    durable-state skill, after the two corrections above). It said the contract
    "cannot be upgraded" because `zcfZygote.js:481` requires

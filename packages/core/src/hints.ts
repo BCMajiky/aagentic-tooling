@@ -357,7 +357,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     match: literal('ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING'),
     cause:
       "`@agoric/orchestration/tools/*.ts` ship as TypeScript. Node refuses to strip types under `node_modules`, and the package lists `ts-blank-space` only as a devDependency, so consumers do not get the loader.",
-    fix: "Add `ts-blank-space` (0.6.2, matching the package's `^0.6.2`) as a devDependency and run ava with `nodeArguments: ['--loader=ts-blank-space/register', '--no-warnings']`. Verified with 0.4.4 only; to be rerun with 0.6.2 when `packages/evals` is created.",
+    fix: "Add `ts-blank-space` (0.6.2, matching the package's `^0.6.2`) as a devDependency and run ava with `nodeArguments: ['--loader=ts-blank-space/register', '--no-warnings']`. Verified with 0.6.2 on Node 22 and 24 by `packages/skills/snippets/test/loader.test.js`.",
     refs: [
       `${U23}:packages/orchestration/package.json#L95-L98`,
       `${SKILLS}/agoric-hardened-js/SKILL.md`,

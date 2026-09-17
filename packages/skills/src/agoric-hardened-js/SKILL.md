@@ -165,8 +165,8 @@ import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
 `@agoric/orchestration/tools/contract-tests.ts` and its siblings ship as
 TypeScript, Node will not strip types under `node_modules`, and the package does
 not install a loader for you. Add `ts-blank-space` as a devDependency and pass
-the loader to ava, as the SDK does. Details and the unverified version pin are
-in `references/orchestration-test-loader.md`.
+the loader to ava, as the SDK does; 0.6.2 is verified on Node 22 and 24.
+Details in `references/orchestration-test-loader.md`.
 
 **Correct:** `agoric-sdk@cc25a29:packages/orchestration/package.json#L95-L98`
 
