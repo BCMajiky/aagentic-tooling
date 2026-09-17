@@ -30,6 +30,8 @@ upgrade-23 and nothing else has been touched:
 | `ZCF` and `OfferHandler` imported from `@agoric/zoe` | They were ambient globals supplied by `exported.js`. This is how the SDK writes them at u23. |
 | `@import {Amount}` from `@agoric/ertp` instead of `@agoric/ertp/src/types.js` | That deep path is `types.ts` now and no longer resolves. Type-check only. |
 
+**Correction, 2026-09-17.** "Hard module-resolution failure at bundle time" is wrong about *when*. With the pinned `@endo/bundle-source` 4.1.2 the bundle builds; the missing module is reported when the bundle is evaluated, as `Cannot find file for internal module "./exported.js" (with candidates …) in package file:///…/node_modules/@agoric/zoe/`. On chain the install succeeds and `startInstance` fails. The change itself stands. See `docs/context/claude_plan-amendments.md`.
+
 Deliberately **not** changed: `atomicRearrange(zcf, ...)` is `@deprecated` at u23
 in favour of the `zcf.atomicRearrange` builtin, but the helper still exists and
 still works. Changing it would be an improvement, which is exactly what is out

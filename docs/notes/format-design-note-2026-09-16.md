@@ -283,6 +283,12 @@ news; none is a complaint.
    of deploying. `dapp-offer-up` is pinned to u16-era versions and has not moved
    in over a year; it may be worth a bump. `@agoric/ertp/src/types.js` has
    likewise become `types.ts`.
+
+   *Correction, 2026-09-17:* not at bundle time. With `@endo/bundle-source`
+   4.1.2 the bundle builds, and the missing module is reported when the bundle
+   is evaluated: `Cannot find file for internal module "./exported.js"`. On a
+   chain that is an install that succeeds followed by a `startInstance` that
+   fails, which is harder to diagnose than we said.
 2. **`M.await` only makes sense in a parameter position**, which the pattern
    vocabulary does not encode. Our format enforces it separately.
 3. **A guard in `cosmos-orchestration-account.js` has a typo**:

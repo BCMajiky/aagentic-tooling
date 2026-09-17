@@ -65,3 +65,7 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 ## 2026-09-17, correction: Stage 0 manifest review status
 
 The Stage 0 manifest reviews recorded on 16 September (day 5 manifest reviews) were done by the project session against the agoric-upgrade-23a source. They are reclassified as "correctness pass, Agoric review pending". The 16 September text stands as written.
+
+## 2026-09-17, correction: where the exported.js failure surfaces
+
+The day 4 entry says a leftover `@agoric/zoe/exported.js` import is a "hard bundle failure". It is not a bundle-time failure. With @endo/bundle-source 4.1.2 (the pinned version), `bundleSource` succeeds; the missing module is reported when the bundle is evaluated (`importBundle`, which is what the SES smoke job and a contract vat do): `Cannot find file for internal module "./exported.js" (with candidates …) in package file:///…/node_modules/@agoric/zoe/`. On chain that means the bundle installs and `startInstance` fails. Reproduced 2026-09-17 in this repo. The conclusion (delete the import) stands. The seed match text in RELEASE1-BRIEF.md (`Cannot find module '@agoric/zoe/exported.js'`) is not the text the pinned toolchain produces; `hints.ts` uses the reproduced text. The day 4 text stands as written; the same claim in `examples/offer-up/README.md`, the header comment of `examples/offer-up/src/offer-up.contract.js` and the design note appendix carries a correction.

@@ -12,6 +12,9 @@
 //      exists anywhere in agoric-sdk at agoric-upgrade-23a, so the import is a
 //      hard module-resolution failure at bundle time. It was what supplied the
 //      ambient ZCF and OfferHandler JSDoc globals, so change 2 replaces them.
+//      Correction 2026-09-17: not at bundle time. bundle-source 4.1.2 builds
+//      the bundle; evaluating it fails with "Cannot find file for internal
+//      module \"./exported.js\"". See docs/context/claude_plan-amendments.md.
 //   2. The ambient types it provided are now imported explicitly from
 //      '@agoric/zoe', which is how the SDK itself writes them at u23.
 //   3. `@import {Amount} from '@agoric/ertp/src/types.js'` becomes
