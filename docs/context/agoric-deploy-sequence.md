@@ -1,5 +1,7 @@
 # Agoric contract deploy sequence (local chain, devnet, emerynet)
 
+> **Superseded in part, 2026-09-17.** The "Redeploy rules" advice to use a fresh exo label when the public facet shape changes is withdrawn; see `claude_plan-amendments.md`, "2026-09-17, correction: sharp edge 9 and the fresh-exo-label rule". The body below is unchanged.
+
 Condensed from the Servandum `DEPLOY.md` (Emerynet, March 2026, still branded PactPay) and `setup-local-chain.sh` (local Docker chain, April 2026), corrected against the gas and verification lessons recorded in `agoric-devnet-sharp-edges.md`. Names and addresses from the originals have been removed. This is the sequence the Stage 0 CLI and the Release 1 "project conventions" section should encode.
 
 ## Prerequisites

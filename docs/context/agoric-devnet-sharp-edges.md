@@ -1,5 +1,7 @@
 # Agoric devnet sharp edges
 
+> **Superseded in part, 2026-09-17.** The explanation under item 1 (why `E()` in a flow never sends) does not match the SDK at agoric-upgrade-23a; see `claude_plan-amendments.md`, "2026-09-17, Release 1 day 2 findings". The fresh-exo-label advice under item 9 is withdrawn; see "2026-09-17, correction: sharp edge 9 and the fresh-exo-label rule". The body below is unchanged.
+
 Consolidated from the Servandum contract build (two orchestration escrow contracts, FiDeal7 and FiDealAI, deployed to agoricdev-25 across sessions 65 to 79, March to August 2026). Sources: `servandum-contracts-ref.md` (frozen 2026-08-26), the Critical Bugs table in the FiDeal master doc, and the "Agoric rules" block from the Claude Code redeploy prompt. FiDeal-specific product detail has been stripped; what remains is what any orchestration contract on the current SDK will hit.
 
 Each item is a candidate entry for the Release 1 common-error catalogue. Where the symptom is silent (no error, nothing happens) that is noted, because those are the ones models cannot self-correct from.

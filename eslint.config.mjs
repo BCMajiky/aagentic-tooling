@@ -25,6 +25,8 @@ export default tseslint.config(
       // docs/notes/ holds records of runs, including code exactly as it was
       // run in workspaces outside this tree. Records are not source.
       'docs/notes/**',
+      // Local experiments, gitignored.
+      '.scratch/**',
     ],
   },
 

@@ -257,6 +257,13 @@ None of these block us. Numbered so a reply can be terse.
    rather than a preflight check, but a manifest that cannot distinguish "pays
    into an account someone controls" from "pays into a hole" seems to be
    missing something a reader needs.
+10. *(Added 2026-09-17.)* Do you want the dapp templates' tests to **bundle the
+    contract from its path**? The SDK's example tests install with
+    `bundleAndInstall(contractExports)`, which skips bundling; that is safe in
+    the SDK because its CI bundles contracts separately. Outside developers
+    copy the templates without that check, and a contract that cannot bundle
+    then passes its tests. Bundling from the file path costs a few seconds per
+    test file.
 
 **Review status:** the Stage 0 manifest reviews referred to above were done by
 the project session against the `agoric-upgrade-23a` source: correctness pass,

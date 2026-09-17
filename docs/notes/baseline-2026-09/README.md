@@ -67,7 +67,7 @@ so the contract is really bundled.
 
 ### Task 1, Codex (`task1-codex/`)
 
-**`TEST_BUNDLE_BYPASS`**, medium. `test/fixedPriceSale.test.js:11` calls
+**`TEST_BUNDLE_BYPASS`**, medium (*reclassified low on 2026-09-17 by the project session: acceptable only where a separate bundle check runs, which the SDK's CI has and a fresh dapp does not; the table above stands as first published*). `test/fixedPriceSale.test.js:11` calls
 `bundleAndInstall(contract)` with the module namespace, not a path. At u23a that
 goes through `bundleTestExports` (`zoe/tools/setup-zoe.js:74-82`): the contract
 is never bundled or evaluated in a compartment during the tests. A contract

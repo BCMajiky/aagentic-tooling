@@ -53,9 +53,10 @@ import { test } from '@agoric/zoe/tools/prepare-test-env-ava.js';
 
 `setUpZoeForTest()` returns `bundleAndInstall`. Give it the contract's file
 path, so the contract is bundled with `@endo/bundle-source` and evaluated in a
-compartment as on chain. Given an imported module namespace it skips both. The
-SDK's own example tests use the module form and rely on separate checks; a
-project with no SES smoke job should not.
+compartment as on chain. Given an imported module namespace it skips both.
+That is acceptable only where a separate bundle check runs: the SDK's own
+example tests use the module form because the SDK's CI bundles contracts
+elsewhere. A fresh dapp has no such check.
 
 **Correct:** `packages/skills/snippets/test/support.js#L21-L25`
 

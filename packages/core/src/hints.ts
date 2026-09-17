@@ -221,8 +221,8 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'TEST_BUNDLE_BYPASS',
     match: silent,
     cause:
-      '`bundleAndInstall(moduleNamespace)` with an imported module instead of a path goes through `bundleTestExports`: the contract is never bundled or evaluated in a compartment, so a contract that cannot bundle still passes.',
-    fix: 'Pass a file path: `bundleAndInstall(new URL("../src/x.contract.js", import.meta.url).pathname)`, or bundle with `@endo/bundle-source` and `E(zoe).install(bundle)`.',
+      '`bundleAndInstall(moduleNamespace)` with an imported module instead of a path goes through `bundleTestExports`: the contract is never bundled or evaluated in a compartment, so a contract that cannot bundle still passes. Severity low. It is acceptable only where a separate bundle check runs, as the SDK\'s CI does; a fresh dapp has no such check.',
+    fix: 'Unless the project has its own bundle check, pass a file path: `bundleAndInstall(new URL("../src/x.contract.js", import.meta.url).pathname)`, or bundle with `@endo/bundle-source` and `E(zoe).install(bundle)`.',
     refs: [`${U23}:packages/zoe/tools/setup-zoe.js#L69-L84`, BASELINE, `${SKILLS}/agoric-testing/SKILL.md`],
   },
   {

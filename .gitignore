@@ -23,3 +23,6 @@ coverage/
 # local config that must never be committed
 .aat.json
 *.local
+
+# scratch files for local experiments; never committed (decided 2026-09-17)
+.scratch/
