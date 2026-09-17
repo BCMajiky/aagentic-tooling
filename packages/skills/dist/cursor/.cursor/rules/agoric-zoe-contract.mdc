@@ -118,6 +118,11 @@ are safe for everyone belong there: making invitations, reading public info.
 Administration goes on `creatorFacet`; per-user control goes to that user
 through a continuing invitation. The POLA section below is upstream's rule.
 
+A contract that will be deployed to a chain and kept makes its facets with
+`zone.exo` and an `M.interface` guard; see `agoric-durable-state`. The `Far`
+facets in `aagentic-tooling/examples/offer-up` are the dapp-offer-up template's shape, not the
+idiom to copy.
+
 **Correct:** [`snippets/orchestration/send-anywhere.contract.js#L62`](agoric-zoe-contract/snippets/orchestration/send-anywhere.contract.js) [`snippets/orchestration/send-anywhere.contract.js#L137`](agoric-zoe-contract/snippets/orchestration/send-anywhere.contract.js)
 
 ```js wrong=PUBLIC_FACET_AUTHORITY

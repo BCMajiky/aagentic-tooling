@@ -28,7 +28,7 @@ Pin the `@endo/*` tree and `ses` 1.14.0 through `resolutions` copied from the SD
 
 - `agoric-hardened-js`: load when writing or reviewing any contract, flow or exo module.
 - `agoric-zoe-contract`: load when designing invitations, proposal shapes, reallocation or facets.
-- `agoric-durable-state`: load when the contract must survive upgrade, or you use zones, exos or stores.
+- `agoric-durable-state`: load when writing any contract's `start` function, or the contract must survive upgrade, or you use zones, exos or stores.
 - `agoric-orchestration`: load when the contract makes chain accounts, sends IBC transfers or has a `*.flows.js` file.
 - `agoric-testing`: load when writing or fixing tests for a contract.
 - `agoric-deploy`: load when bundling, installing, proposing, voting, verifying or sending wallet offers.

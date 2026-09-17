@@ -120,6 +120,11 @@ are safe for everyone belong there: making invitations, reading public info.
 Administration goes on `creatorFacet`; per-user control goes to that user
 through a continuing invitation. The POLA section below is upstream's rule.
 
+A contract that will be deployed to a chain and kept makes its facets with
+`zone.exo` and an `M.interface` guard; see `agoric-durable-state`. The `Far`
+facets in `examples/offer-up` are the dapp-offer-up template's shape, not the
+idiom to copy.
+
 **Correct:** `examples/send-anywhere/src/send-anywhere.contract.js#L66` `examples/send-anywhere/src/send-anywhere.contract.js#L141`
 
 ```js wrong=PUBLIC_FACET_AUTHORITY

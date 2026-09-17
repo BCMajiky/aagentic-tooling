@@ -1,9 +1,9 @@
 ---
 name: agoric-durable-state
-description: "Durable state and upgrade safety for Agoric contracts. Load when a contract must survive upgrade, when using baggage, zones, zone.exo, exoClass, exoClassKit, makeOnce or durable stores, when planning an upgrade, or when an error mentions durable, stateShape or values from start(). Do not load for a throwaway test contract or for offer design alone (agoric-zoe-contract)."
+description: "Durable state and upgrade safety for Agoric contracts. Load when writing any Zoe or orchestration contract's start function (every contract that will be deployed and kept should be durable from its first version), when a contract must survive upgrade, when using baggage, zones, zone.exo, exoClass, exoClassKit, makeOnce or durable stores, when planning an upgrade, or when an error mentions durable, stateShape or values from start(). Do not load for a throwaway test contract or for offer design alone (agoric-zoe-contract)."
 display-name: "Agoric Durable State"
 short-description: "Durable state and upgrade-safe contracts"
-when: "the contract must survive upgrade, or you use zones, exos or stores"
+when: "writing any contract's `start` function, or the contract must survive upgrade, or you use zones, exos or stores"
 ---
 
 # Durable state

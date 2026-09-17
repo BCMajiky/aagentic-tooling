@@ -37,7 +37,9 @@ getPrice() {
 functions. Data goes behind a method or into a copyRecord. A `Far` object is
 not durable and has no interface guard; for facets that must survive upgrade or
 validate arguments use `zone.exo` with `M.interface` (see
-`agoric-durable-state`).
+`agoric-durable-state`). The first ref below is the dapp-offer-up template's
+`Far` public facet: it shows the methods-only shape, not the idiom to copy for
+a contract that will be deployed and kept; the second is.
 
 **Correct:** [`snippets/zoe/offer-up.contract.js#L153-L155`](snippets/zoe/offer-up.contract.js) [`snippets/orchestration/send-anywhere.contract.js#L120-L136`](snippets/orchestration/send-anywhere.contract.js)
 
