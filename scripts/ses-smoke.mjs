@@ -94,30 +94,47 @@ for (const example of findExamples()) {
     result.bundleId = bundleIdOf(bundle);
     result.bundleBytes = JSON.stringify(bundle).length;
 
-    // Evaluate the bundle in a fresh compartment endowed exactly as SwingSet
-    // endows a vat, and no more. Copied from agoric-sdk at cc25a29,
-    // packages/SwingSet/src/kernel/vat-loader/manager-local.js:74-83:
+    // Evaluate the bundle in a fresh compartment endowed as SwingSet endows a
+    // contract vat on chain, and no more. Chain vats run under XSnap, whose
+    // endowments are set in agoric-sdk at cc25a29,
+    // packages/swingset-xsnap-supervisor/lib/supervisor-subprocess-xsnap.js:255-264:
     //
-    //   const workerEndowments = harden({
-    //     ...vatEndowments,
+    //   const workerEndowments = {
     //     console: makeVatConsole(makeLogMaker('vat')),
     //     // See https://github.com/Agoric/agoric-sdk/issues/9515
     //     assert: globalThis.assert,
-    //     TextEncoder, TextDecoder,
-    //     Base64: globalThis.Base64, URL: globalThis.URL,
-    //   });
+    //     // bootstrap provides HandledPromise
+    //     HandledPromise: globalThis.HandledPromise,
+    //     TextEncoder,
+    //     TextDecoder,
+    //     Base64: globalThis.Base64, // Present only in XSnap
+    //   };
     //
-    // Matching it matters in both directions. Endow less and the job fails on
-    // contracts a chain would run: `assert` is a global in a vat, and Offer Up
-    // destructures it. Endow more and the job stops being evidence, because a
-    // contract could reach for something no vat provides and still pass.
+    // packages/SwingSet/src/kernel/vat-loader/manager-local.js:74-83, the
+    // local-worker equivalent, says the same about XSnap in its comments:
+    // `Base64: globalThis.Base64, // Available only on XSnap` and
+    // `URL: globalThis.URL, // Unavailable only on XSnap`. So there is no `URL`
+    // here. Until 2026-09-17 this job endowed `URL` (copied from manager-local),
+    // which a chain vat does not have.
+    //
+    // Node has no `Base64`, so `globalThis.Base64` is undefined in this harness,
+    // exactly as manager-local.js endows it on a non-XSnap worker. A contract
+    // that needs `Base64` would fail here and run on chain; none in this
+    // repository uses it.
+    //
+    // Matching the chain matters in both directions. Endow less and the job
+    // fails on contracts a chain would run: `assert` is a global in a vat, and
+    // Offer Up destructures it. Endow more and the job stops being evidence,
+    // because a contract could reach for something no vat provides and still
+    // pass.
     const namespace = await importBundle(bundle, {
       endowments: {
         console,
         assert: globalThis.assert,
+        HandledPromise: globalThis.HandledPromise,
         TextEncoder,
         TextDecoder,
-        URL: globalThis.URL,
+        Base64: globalThis.Base64,
       },
     });
 

@@ -177,9 +177,13 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'SES_HARNESS_ENDOWMENTS',
     match: silent,
     cause:
-      'A contract fails under a local SES harness but runs on chain, because the harness endowed less than SwingSet gives a vat (for example no `assert`).',
-    fix: 'Endow what SwingSet endows: `console`, `assert`, `TextEncoder`, `TextDecoder` and `URL`, as `scripts/ses-smoke.mjs` does (line 120 for `URL`). The harness is wrong, not the contract. At u23a SwingSet marks `URL` "Unavailable only on XSnap" and `Base64` "Available only on XSnap", and chain vats run under XSnap, so a contract must not rely on `URL`.',
-    refs: ['scripts/ses-smoke.mjs#L114-L122', `${U23}:packages/SwingSet/src/kernel/vat-loader/manager-local.js#L74-L83`],
+      'A contract fails under a local SES harness but runs on chain, or passes the harness and fails on chain, because the harness endows something different from what SwingSet gives a vat under XSnap: less (for example no `assert`) or more (for example `URL`, which chain vats do not have).',
+    fix: 'Endow what a vat gets under XSnap: `console`, `assert`, `HandledPromise`, `TextEncoder`, `TextDecoder` and `Base64`, and nothing else, as `scripts/ses-smoke.mjs` does. Node has no `Base64`, so the harness endows it as undefined. `URL` is not a vat global on chain; a contract must not rely on it.',
+    refs: [
+      'scripts/ses-smoke.mjs#L130-L139',
+      `${U23}:packages/swingset-xsnap-supervisor/lib/supervisor-subprocess-xsnap.js#L255-L264`,
+      `${U23}:packages/SwingSet/src/kernel/vat-loader/manager-local.js#L74-L83`,
+    ],
   },
 
   // --- baseline output defects (docs/notes/baseline-2026-09) ---------------

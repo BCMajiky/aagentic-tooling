@@ -110,3 +110,26 @@ the entry now says a contract must not rely on `URL`. The smoke script itself
 was not changed.
 
 **Commit:** `0b4132c`
+
+## Forward correction, after the skills-v0.1.0 tag
+
+**The Stage 0 SES smoke harness endowed `URL`, which chain vats do not have.**
+Finding 6 above kept `URL` in `SES_HARNESS_ENDOWMENTS` because
+`scripts/ses-smoke.mjs` endowed it. That was the harness copying
+`SwingSet/src/kernel/vat-loader/manager-local.js:74-83`, the local-worker
+manager, whose own comments say `URL` is "Unavailable only on XSnap" and
+`Base64` "Available only on XSnap". Chain vats run under XSnap, whose
+endowments are `console`, `assert`, `HandledPromise`, `TextEncoder`,
+`TextDecoder` and `Base64`
+(`swingset-xsnap-supervisor/lib/supervisor-subprocess-xsnap.js:255-264` at
+cc25a29).
+
+`scripts/ses-smoke.mjs` now endows exactly that set, citing both files.
+`Base64` is undefined in Node, so it is endowed as `globalThis.Base64`, as
+upstream writes it. `HandledPromise` was added because the XSnap supervisor
+grants it. `SES_HARNESS_ENDOWMENTS` is updated to match, and the pack is
+re-rendered. No contract in `examples/` or the snippet corpus references `URL`,
+and the smoke job passes on both examples and all five snippet contracts.
+Tagged content (`skills-v0.1.0` at `23ca743`) carries the old entry text; the
+correction is on `main` after the tag.
+
