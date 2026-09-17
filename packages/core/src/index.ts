@@ -36,3 +36,6 @@ export type {
 
 export { fromError, ok, renderHuman, renderJson, withFindings } from './output.js';
 export type { CommandResult, Finding } from './output.js';
+
+export { checkRef, makeRefIo, parseRef, upstreamFolderByCommit } from './refs.js';
+export type { LineRange, Ref, RefIo } from './refs.js';
