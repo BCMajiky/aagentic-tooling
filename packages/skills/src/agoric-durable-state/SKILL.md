@@ -83,12 +83,13 @@ offers.init(id, Far('Receipt', { getId: () => id }));
 
 **Produces:** `value is not durable: … at slot 0 of …`
 
-### Upgrade by redefining every kind compatibly
+### Upgrade by redefining every kind with the same or more methods
 
-The new code must redefine every durable kind the old code created, with the
-same facets and methods or a superset, and a `stateShape` compatible with the
-recorded one. Add state fields only as optional and migrate lazily. More
-detail and one open conflict in `references/upgrade-rules.md`.
+On upgrade, redefine every durable kind the old code created, under the same
+label, with the same facets and methods or a superset, never a subset. Keep
+the `stateShape` compatible with the recorded one: add state fields only as
+optional and migrate lazily. Do not rename labels to make a change take
+effect. Sources in `references/upgrade-rules.md`.
 
 **Correct:** `agoric-sdk@cc25a29:packages/SwingSet/docs/vat-upgrade.md#L62`
 
@@ -102,18 +103,24 @@ zone.exoClass('Listing', ListingI, init, methods, {
 
 **Produces:** `durable Kind stateShape mismatch (…)`
 
+```js wrong=DURABLE_KIND_SUBSET
+// v1 methods: makeBuyInvitation, getPrice
+// v2:
+zone.exo('Shop PF', ShopI, { makeBuyInvitation() { … } }); // getPrice dropped
+```
+
+**Produces:** silent at upgrade; clients that call `getPrice` on the existing facet fail. Exact error not reproduced.
+
 ## Devnet reports not yet checked against u23a
 
-From `docs/context/agoric-devnet-sharp-edges.md`; entered in the catalogue on
-day 4.
+From `docs/context/agoric-devnet-sharp-edges.md`. Sharp edge 10 is entered in
+the catalogue on day 4.
 
 - **Sharp edge 9, exo interfaces freeze on first creation.** The devnet report
-  says a method added to an exo under the same label does nothing after
-  redeploy, and recommends a fresh label. That conflicts with
-  `vat-upgrade.md` at u23a, which allows a superset of methods on upgrade.
-  Both may be true of different operations (a new instance with the same label
-  versus an upgrade); see `references/upgrade-rules.md`. Until that is settled,
-  do not rely on either.
+  says a method added under the same exo label did nothing after redeploy.
+  It is not a rule: the upgrade rule above is. It stays in the catalogue as an
+  unverified observation (`EXO_METHOD_ADDED_NO_EFFECT`) until the week 2
+  upgrade task tests it.
 - **Sharp edge 10, prefix ids on redeploy.** A fresh instance restarts its
   counters, so vstorage records written as `…-1` overwrite the previous
   deployment's. Carry an id prefix term (`v2-1`) and treat the on-chain terms as

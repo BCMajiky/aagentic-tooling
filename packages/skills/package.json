@@ -14,7 +14,8 @@
   "files": [
     "dist/src",
     "src/*/SKILL.md",
-    "src/*/references"
+    "src/*/references",
+    "src/pack-rules.md"
   ],
   "engines": {
     "node": "^22.11 || ^24.14"

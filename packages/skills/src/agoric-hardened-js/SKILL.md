@@ -76,7 +76,7 @@ orchestration flow (`*.flows.js`) call account and chain methods directly and
 await E(localAccount).transfer(dest, { denom, value });
 ```
 
-**Produces:** `guest eventual applyMethod not yet supported: …`, recorded on the flow; the offerer sees a hang, not an error.
+**Produces:** an offer that never settles; the panic `guest eventual applyMethod not yet supported: …` is in the vat log.
 
 ### Check untrusted input with patterns
 

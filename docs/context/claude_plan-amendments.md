@@ -77,3 +77,9 @@ The day 4 entry says a leftover `@agoric/zoe/exported.js` import is a "hard bund
 **Sharp edge 9, open.** `SwingSet/docs/vat-upgrade.md:62` at u23a allows an upgrade to redefine a durable kind with a superset of methods, which conflicts with the devnet report that a method added under the same exo label does nothing. The durable-state skill states the upstream rule and lists sharp edge 9 as unverified; it is not written as a rule until tested on a real upgrade.
 
 **Catalogue refs.** Catalogue entries and skill sources cite repository paths, `agoric-sdk@<commit>:<path>` for the pinned clones, `catalogue:<CODE>` and `sharp-edge:<n>`, with optional line ranges. Tests resolve them; upstream refs and the word-for-word lift check run only where the clone exists, so CI does not check them.
+
+## 2026-09-17, correction: sharp edge 9 and the fresh-exo-label rule
+
+Decided by the project session against agoric-sdk at cc25a29. The rule "a changed facet needs a fresh exo label" (RELEASE1-BRIEF.md D3, pack `AGENTS.md` silent-failure rules; from sharp edge 9) does not stand. The rule is `packages/SwingSet/docs/vat-upgrade.md:62`: on upgrade, redefine every durable kind with the same facets and methods or a superset, never a subset. It replaces the D3 rule in `packages/skills/src/pack-rules.md`, the source the day 4 render reads, and in `agoric-durable-state`. The devnet observation stays in `hints.ts` as `EXO_METHOD_ADDED_NO_EFFECT` (silent, unverified, `sharp-edge:9`), to be tested by the week 2 upgrade task. The day 2 entry above ("Sharp edge 9, open") and the brief stand as written.
+
+Also decided: `E_IN_FLOW` stands, matching the Panic string at `replay-membrane.js:349`, symptom an offer that never settles with the panic in the vat log, not reproduced end to end. `GETCHAIN_AT_START` and `HOST_RETURNS_PROMISE` stay, marked unverified. The brief's seed match text for `ZOE_EXPORTED_MISSING` stays as written; `hints.ts` is the source of truth for match text.

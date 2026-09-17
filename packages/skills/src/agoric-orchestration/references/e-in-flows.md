@@ -23,8 +23,11 @@ and `get` have matching messages.)
 A panic moves the activation to the Failed state and isolates it from the host
 (`async-flow.js` `panic`, from line 416; `docs/async-flow-states.md`). The
 flow's outcome never settles, so an offer whose handler is that flow keeps its
-seat open and its result unresolved. The diagnostic is kept on the flow
-(`getFailures()`) and does not reach the offerer.
+seat open and its result unresolved. The panic is recorded on the flow
+(`getFailures()`) and reaches the vat log: `withOrchestration` prepares
+async-flow without a `panicHandler` (`orchestration/src/utils/start-helper.js`
+lines 125-127), and the default handler rethrows (`async-flow.js` lines 58-60,
+used at 313). Nothing reaches the offerer.
 
 ## How this relates to the devnet report
 

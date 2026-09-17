@@ -33,12 +33,14 @@ thereof" (line 62).
 `packages/swingset-liveslots/src/collectionManager.js` refuses non-durable
 values in durable stores with `value is not durable: …` (line 61).
 
-## Open: sharp edge 9
+## Sharp edge 9: decided 2026-09-17
 
 The devnet note (FiDeal to FiDeal7, Session 69) reports that adding a method to
 a `zone.exo` public facet and redeploying under the same label changed nothing,
-and that a fresh label was needed. The upstream document above says a superset
-of methods is allowed on upgrade. The report does not say whether the
-redeploy was an upgrade of the same instance or a new instance. Not reproduced
-here. Needs a test on a real upgrade (for example the SDK's contract upgrade
-tests) before the skill states a rule either way.
+and that a fresh label was needed. The project session's correctness pass
+decided that `vat-upgrade.md:62` is the rule: redefine every durable kind with
+the same facets and methods or a superset, never a subset. The fresh-label
+advice is withdrawn. The observation is kept as catalogue entry
+`EXO_METHOD_ADDED_NO_EFFECT` (silent, unverified) and will be tested by the
+week 2 upgrade task; the report does not say whether the redeploy was an
+upgrade or a new instance.

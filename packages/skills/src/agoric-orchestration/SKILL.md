@@ -28,16 +28,15 @@ const contract = async (zcf, privateArgs, zone, { orchestrate }) => {
   const agoric = await orch.getChain('agoric'); // during start
 ```
 
-**Produces:** silent. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.
+**Produces:** silent. Unverified: reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.
 
 ### In a flow, call account methods directly
 
 Inside a flow, orchestration accounts and chains are guest wrappers: call
 `account.transfer(…)`, `chain.makeAccount()` and `account.getAddress()`
 directly and `await` the result. `E()` is not supported there. The runner
-panics the activation into the Failed state, the flow never settles, and the
-offerer's seat stays open with no error. Why, with source lines:
-`references/e-in-flows.md`.
+panics the activation into the Failed state and the flow never settles. Why,
+with source lines: `references/e-in-flows.md`.
 
 **Correct:** `examples/send-anywhere/src/send-anywhere.flows.js#L122-L131`
 
@@ -45,7 +44,7 @@ offerer's seat stays open with no error. Why, with source lines:
 await E(sharedLocalAccount).transfer(dest, { denom, value: amt.value });
 ```
 
-**Produces:** `guest eventual applyMethod not yet supported: …` on the flow (`getFailures()`); nothing reaches the offerer.
+**Produces:** an offer that never settles; the panic `guest eventual applyMethod not yet supported: …` is in the vat log. Not reproduced end to end.
 
 ### Return the funds to the seat when a later step fails
 
@@ -112,7 +111,7 @@ to resume waiting on it after an upgrade. Wrap cross-vat calls with
 const log = msg => E(logNode).setValue(msg); // a promise, passed to a flow
 ```
 
-**Produces:** silent. No error was found at u23a in heap-zone tests; the risk is at upgrade.
+**Produces:** silent. Unverified: no error was found at u23a in heap-zone tests; the risk is at upgrade.
 
 ## Rules from agoric-sdk
 

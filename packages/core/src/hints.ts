@@ -468,6 +468,30 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     ],
   },
   {
+    code: 'DURABLE_KIND_SUBSET',
+    match: silent,
+    cause:
+      'An upgrade redefined a durable kind with fewer facets or methods than the previous incarnation. Objects of that kind already held by clients or stored durably keep their identity, and calls to the missing methods fail. Upstream forbids it; the exact error text was not reproduced at u23a.',
+    fix: 'Redefine every durable kind with the same facets and methods or a superset. Retire a method by keeping it and making it throw a clear error.',
+    refs: [
+      `${U23}:packages/SwingSet/docs/vat-upgrade.md#L62`,
+      `${SKILLS}/agoric-durable-state/SKILL.md`,
+    ],
+  },
+  {
+    code: 'EXO_METHOD_ADDED_NO_EFFECT',
+    match: silent,
+    cause:
+      'Unverified devnet observation (sharp edge 9): a method added to a `zone.exo` public facet did nothing after redeploying under the same label, and a fresh label was used to get around it. It conflicts with the upstream upgrade rule, which allows a superset of methods, and it is not known whether the redeploy was an upgrade or a new instance. To be tested by the week 2 upgrade task.',
+    fix: 'Do not rename exo labels on upgrade; follow the upstream rule (same facets and methods or a superset). If a new method seems to have no effect, check whether the contract was upgraded or a new instance was started, and record the case against this entry.',
+    refs: [
+      'sharp-edge:9',
+      `${U23}:packages/SwingSet/docs/vat-upgrade.md#L62`,
+      'catalogue:DURABLE_KIND_SUBSET',
+      `${SKILLS}/agoric-durable-state/references/upgrade-rules.md`,
+    ],
+  },
+  {
     code: 'DURABLE_VALUE_NOT_DURABLE',
     match: literal('value is not durable'),
     cause:
@@ -480,13 +504,18 @@ export const catalogue: readonly CatalogueEntry[] = harden([
   },
   {
     code: 'E_IN_FLOW',
-    match: regex(String.raw`guest eventual \w+ not yet supported`),
+    // The Panic string at replay-membrane.js:349. Sibling panics for
+    // `E.sendOnly`, function targets and property gets (lines 307, 420, 429,
+    // 439, 443) differ only in the verb.
+    match: literal('guest eventual applyMethod not yet supported: '),
     cause:
-      'An orchestration flow used `E()` (eventual send) on an object it received from the host, such as an orchestration account. At u23a the replay membrane does not support eventual sends from a guest: the activation panics into the Failed state with this diagnostic. The flow never settles, so to the offerer it is a silent hang with the seat still open. Reported on devnet as sharp edge 1; the mechanism here is from u23a source.',
+      'An orchestration flow used `E()` (eventual send) on an object it received from the host, such as an orchestration account. At u23a the replay membrane does not support eventual sends from a guest, so the activation panics into the Failed state. The offerer sees an offer that never settles, seat still open; the panic is in the vat log, because async-flow\'s default panic handler rethrows it. Reported on devnet as sharp edge 1; the mechanism here is from u23a source. Not reproduced end to end.',
     fix: 'Call account and chain methods directly and `await` them: `await account.transfer(dest, amount)`. The flow runner handles the vows.',
     refs: [
-      `${U23}:packages/async-flow/src/replay-membrane.js#L346-L350`,
+      `${U23}:packages/async-flow/src/replay-membrane.js#L349`,
       `${U23}:packages/async-flow/src/async-flow.js#L195-L201`,
+      `${U23}:packages/async-flow/src/async-flow.js#L58-L60`,
+      `${U23}:packages/async-flow/src/async-flow.js#L313`,
       'examples/send-anywhere/src/send-anywhere.flows.js#L122-L131',
       'sharp-edge:1',
       `${SKILLS}/agoric-orchestration/SKILL.md`,
@@ -507,7 +536,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'GETCHAIN_AT_START',
     match: silent,
     cause:
-      "`orch.getChain('agoric')` (or another chain lookup) was awaited during contract start rather than inside a flow. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.",
+      "Unverified. `orch.getChain('agoric')` (or another chain lookup) was awaited during contract start rather than inside a flow. Reported on devnet to hang contract start (sharp edge 7); not reproduced at u23a.",
     fix: 'Look chains up inside the flow that needs them, and pass per-network values such as the pay denom as terms.',
     refs: [
       'examples/send-anywhere/src/send-anywhere.flows.js#L43-L45',
@@ -519,7 +548,7 @@ export const catalogue: readonly CatalogueEntry[] = harden([
     code: 'HOST_RETURNS_PROMISE',
     match: silent,
     cause:
-      'Host-side orchestration code (an exo method or a function passed into a flow context) returned a promise instead of a vow. Promises do not survive an upgrade, so a flow waiting on one cannot be replayed. No error was found at u23a in heap-zone tests; upstream states the rule without a diagnostic.',
+      'Unverified. Host-side orchestration code (an exo method or a function passed into a flow context) returned a promise instead of a vow. Promises do not survive an upgrade, so a flow waiting on one cannot be replayed. No error was found at u23a in heap-zone tests; upstream states the rule without a diagnostic.',
     fix: 'Return vows: wrap cross-vat work in `vowTools.watch(E(x).method())` or `vowTools.asVow(async () => …)`.',
     refs: [
       'examples/send-anywhere/src/send-anywhere.contract.js#L69-L71',
