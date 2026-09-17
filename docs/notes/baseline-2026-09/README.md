@@ -1,5 +1,7 @@
 # Release 1 manual baseline, September 2026
 
+Project session review 2026-09-17: correctness pass, Agoric review pending. Two citations corrected below.
+
 RELEASE1-BRIEF.md D1: plan tasks 1 and 4, Claude Code and Codex, no skill pack,
 one run each. Run on 2026-09-17 (Release 1 day 1).
 
@@ -96,13 +98,15 @@ task 1 test uses them and passes). The workaround survived into the output.
 published `@agoric/orchestration/tools/contract-tests.ts` and
 `network-fakes.ts`. Claude never tried importing them. It stated that Node will
 not strip types inside `node_modules`, which is true without a loader, and
-ported instead. The published package ships `ts-blank-space` and the import
-works with it ([D4 loader check](#d4-loader-check)). The port will drift from
+ported instead. ~~The published package ships `ts-blank-space` and the import
+works with it~~ The import works with the `ts-blank-space` loader
+([D4 loader check](#d4-loader-check)); the published package does not ship
+that loader to consumers (correction 2 below). The port will drift from
 upstream on every SDK bump.
 
 No contract defects found. Checked against u23a: `withOrchestration(contract, { publishAccountInfo: true })`,
 `orchestrateAll` (`orchestration/src/facade.js:112`), `registerChainsAndAssets`,
-`chainHub.getDenom` (`exos/chain-hub.js:236`, synchronous),
+`chainHub.getDenom` (~~`exos/chain-hub.js:236`~~ `exos/chain-hub.js:679`, synchronous; correction 1 below),
 `orch.getChain('agoric' | 'osmosis')`, `makeAccount`, `LocalOrchestrationAccount.transfer`
 (`exos/local-orchestration-account.js:942`), synchronous `getAddress` on the
 Cosmos account (`orchestration-api.ts:268`), `asContinuingOffer`
@@ -205,8 +209,11 @@ The published `@agoric/orchestration@0.3.0-u23.1` ships `tools/contract-tests.ts
 `ibc-mocks.ts` and `network-fakes.ts` as TypeScript source plus `.d.ts`, with
 no compiled `.js`. `contract-tests.ts` imports its siblings by `.js` specifiers
 (`@agoric/orchestration/tools/network-fakes.js`), which do not exist on disk.
-The package declares `ts-blank-space` as a dependency, and its own ava config
-at u23a uses `--loader=ts-blank-space/register`.
+~~The package declares `ts-blank-space` as a dependency, and its own ava config
+at u23a uses `--loader=ts-blank-space/register`.~~ The package's own ava config
+at u23a uses `--loader=ts-blank-space/register`, and it declares
+`ts-blank-space ^0.6.2` under `devDependencies` only, so consumers do not get it
+(correction 2 below).
 
 Run in `~/Desktop/Agoric-L1/baseline/task4-claude` (installed tree, `node-modules`
 linker) with a one-test ava file that calls `setupOrchestrationTest({ log })`
@@ -223,12 +230,40 @@ workspace afterwards; the workspace status still matches `task4-claude/status.tx
 
 Loader fix for the eval brief: `packages/evals` ava config adds
 `nodeArguments: ['--loader=ts-blank-space/register', '--no-warnings']` and pins
-`ts-blank-space` to 0.4.4 as a devDependency rather than relying on it being
+~~`ts-blank-space` to 0.4.4~~ `ts-blank-space` to 0.6.2 (correction 2 below) as a devDependency rather than relying on it being
 hoisted. The D4 decision does not change. **Not verified:** how that loader
 combines with the repo's `@ava/typescript` `rewritePaths` setup (`packages/*`
 compile tests with `tsc` first). Check that when `packages/evals` is created.
 `--loader` is also deprecated in favour of `--import` plus `register()`; that
 worked here, but expect a future Node to warn or drop it.
+
+### Corrections, 2026-09-17 (project session correctness pass)
+
+Recorded forward. The struck text above is what was first published.
+
+1. **`chainHub.getDenom` citation.** It said `exos/chain-hub.js:236`. At
+   cc25a29 line 236 is the `getDenom` entry in the ChainHub interface guard
+   (`M.call(BrandShape).returns(M.or(M.string(), M.undefined()))`); the method
+   itself is at line 679. The finding (synchronous, returns a denom or
+   `undefined`) does not change.
+2. **`ts-blank-space` version and provenance.** The proposed pin said 0.4.4,
+   and two sentences above said the published package declares or ships
+   `ts-blank-space`. Both overclaimed.
+   - `@agoric/orchestration@0.3.0-u23.1` declares `ts-blank-space ^0.6.2`, and
+     so do `@agoric/client-utils` and `@agoric/portfolio-api`, but all three
+     list it under `devDependencies`, which are not installed for consumers.
+   - The 0.4.4 in the baseline workspace was hoisted from
+     `@endo/bundle-source@4.1.2`, which declares `ts-blank-space ^0.4.1` as a
+     runtime dependency (`yarn why ts-blank-space` in this repo gives the same
+     single path). There is no 0.6.x copy anywhere in that workspace.
+   - So the loader check passed on 0.4.4, a version the SDK does not test its
+     own tools with. The proposed pin is now **0.6.2**, which satisfies `^0.6.2`
+     and is what `agoric-sdk-u23/yarn.lock` resolves it to.
+   - **To be rerun when `packages/evals` is created**, with 0.6.2 declared
+     there. Also check which copy `--loader=ts-blank-space/register` resolves
+     to once both 0.4.4 (for bundle-source) and 0.6.2 are in the tree, because
+     the loader resolves from the working directory, not from the orchestration
+     package.
 
 ## How the runs were set up
 
