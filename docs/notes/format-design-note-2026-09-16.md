@@ -258,6 +258,10 @@ None of these block us. Numbered so a reply can be terse.
    into an account someone controls" from "pays into a hole" seems to be
    missing something a reader needs.
 
+**Review status:** the Stage 0 manifest reviews referred to above were done by
+the project session against the `agoric-upgrade-23a` source: correctness pass,
+Agoric review pending.
+
 ---
 
 ## The question we actually need answered

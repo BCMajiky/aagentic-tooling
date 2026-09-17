@@ -61,3 +61,7 @@ where `STAGE0-BRIEF.md` conflicts with either, the brief wins.
 **§2.6 week 1 baseline.** Plan tasks 1 and 4, prompts fixed in `RELEASE1-BRIEF.md` D1, run in workspaces outside the repo.
 
 **§2.5 and §2.7 review gate.** Kris's review is replaced, until Agoric engages, by a correctness pass from the project session against u23a, recorded as "correctness pass, Agoric review pending". Applies retroactively to the Stage 0 manifest reviews.
+
+## 2026-09-17, correction: Stage 0 manifest review status
+
+The Stage 0 manifest reviews recorded on 16 September (day 5 manifest reviews) were done by the project session against the agoric-upgrade-23a source. They are reclassified as "correctness pass, Agoric review pending". The 16 September text stands as written.
